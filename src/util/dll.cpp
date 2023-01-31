@@ -14,9 +14,23 @@
 #endif
 
 
+DLL::DLL(DLL&& other) noexcept
+	: handle(other.handle)
+{
+	other.handle = nullptr;
+}
+
 DLL::~DLL()
 {
 	unload();
+}
+
+DLL& DLL::operator=(DLL&& other) noexcept
+{
+	unload();
+	handle = other.handle;
+	other.handle = nullptr;
+	return *this;
 }
 
 bool DLL::load(std::string_view filename)

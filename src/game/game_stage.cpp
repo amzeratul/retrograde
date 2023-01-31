@@ -10,9 +10,9 @@ GameStage::~GameStage()
 
 void GameStage::init()
 {
-	libretroCore = std::make_unique<LibretroCore>();
-	bool loadOK = libretroCore->loadCore("testcore.dll");
-	Logger::logDev("Core loaded = " + toString(loadOK));
+	//const char* corePath = "../cores/testcore.dll";
+	const char* corePath = "../cores/snes9x_libretro.dll";
+	libretroCore = LibretroCore::load(corePath);
 }
 
 void GameStage::onVariableUpdate(Time t)

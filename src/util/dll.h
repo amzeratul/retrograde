@@ -5,7 +5,13 @@ using namespace Halley;
 
 class DLL {
 public:
+    DLL() = default;
+    DLL(const DLL& other) = delete;
+    DLL(DLL&& other) noexcept;
     ~DLL();
+
+	DLL& operator=(const DLL& other) = delete;
+    DLL& operator=(DLL&& other) noexcept;
 
     bool load(std::string_view filename);
     void unload();
@@ -14,5 +20,5 @@ public:
     void* getFunction(std::string_view name) const;
 
 private:
-    void* handle = nullptr;;
+    void* handle = nullptr;
 };
