@@ -1,6 +1,7 @@
 #pragma once
 
 #include <halley.hpp>
+using namespace Halley;
 
 class GameStage : public EntityStage {
 public:

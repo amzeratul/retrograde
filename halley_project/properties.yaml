@@ -1,7 +1,7 @@
 assetPackManifest: halley_project/asset_manifest.yaml
 binName: ""
 defaultZoom: 1
-importByExtension: 0
-name: Emund
+importByExtension: false
+name: Retrograde
 platforms: [pc]
-uuid: 688220d0-3c3d-47be-b530-67d0152321b3
+uuid: ccf87e0b-4f79-4d33-8e88-5e074f094ae8

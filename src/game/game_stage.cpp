@@ -12,7 +12,9 @@ void GameStage::init()
 
 void GameStage::onVariableUpdate(Time t)
 {
-	input->update(t);
+	if (input) {
+		input->update(t);
+	}
 }
 
 void GameStage::onFixedUpdate(Time t)
@@ -23,13 +25,13 @@ void GameStage::onRender(RenderContext& rc) const
 {
 	rc.bind([&] (Painter& painter)
 	{
-		const auto spriteSize = screen.getSize();
-		const auto windowSize = Vector2f(getVideoAPI().getWindow().getDefinition().getSize());
-		const auto scales = Vector2i((windowSize / spriteSize).floor());
-		const int scale = std::min(scales.x, scales.y);
-		
 		painter.clear(Colour4f(0.0f, 0.0f, 0.0f));
 		if (screen.hasMaterial()) {
+			const auto spriteSize = screen.getSize();
+			const auto windowSize = Vector2f(getVideoAPI().getWindow().getDefinition().getSize());
+			const auto scales = Vector2i((windowSize / spriteSize).floor());
+			const int scale = std::min(scales.x, scales.y);
+
 			screen
 				.clone()
 				.setScale(static_cast<float>(scale))
