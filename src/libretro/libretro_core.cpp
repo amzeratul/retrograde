@@ -146,7 +146,11 @@ bool LibretroCore::onEnvironment(unsigned cmd, void* data)
 		return false;
 
 	default:
-		Logger::logError("Unimplemented Libretro env cmd: " + toString(static_cast<int>(cmd)));
+		if (cmd & RETRO_ENVIRONMENT_EXPERIMENTAL) {
+			Logger::logWarning("Unimplemented experimental Libretro env cmd: " + toString(static_cast<int>(cmd & 0xFFFF)));
+		} else {
+			Logger::logError("Unimplemented Libretro env cmd: " + toString(static_cast<int>(cmd)));
+		}
 		return false;
 	}
 }
