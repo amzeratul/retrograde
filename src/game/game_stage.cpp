@@ -1,5 +1,7 @@
 #include "game_stage.h"
 
+#include "src/libretro/libretro_core.h"
+
 GameStage::GameStage() = default;
 
 GameStage::~GameStage()
@@ -8,6 +10,9 @@ GameStage::~GameStage()
 
 void GameStage::init()
 {
+	libretroCore = std::make_unique<LibretroCore>();
+	bool loadOK = libretroCore->loadCore("testcore.dll");
+	Logger::logDev("Core loaded = " + toString(loadOK));
 }
 
 void GameStage::onVariableUpdate(Time t)

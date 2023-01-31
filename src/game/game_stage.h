@@ -1,6 +1,7 @@
 #pragma once
 
 #include <halley.hpp>
+class LibretroCore;
 using namespace Halley;
 
 class GameStage : public EntityStage {
@@ -18,4 +19,6 @@ private:
 	Sprite screen;
 	std::shared_ptr<Texture> texture;
 	std::shared_ptr<InputVirtual> input;
+
+	std::unique_ptr<LibretroCore> libretroCore;
 };
