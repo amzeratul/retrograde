@@ -100,8 +100,55 @@ void LibretroCore::run()
 
 bool LibretroCore::onEnvironment(unsigned cmd, void* data)
 {
-	// TODO
-	return false;
+	switch (cmd) {
+	case RETRO_ENVIRONMENT_SET_PERFORMANCE_LEVEL:
+		// TODO
+		return false;
+
+	case RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY:
+		// TODO
+		return false;
+
+	case RETRO_ENVIRONMENT_SET_VARIABLES:
+		// TODO
+		return false;
+
+	case RETRO_ENVIRONMENT_SET_SUPPORT_NO_GAME:
+		// TODO
+		return false;
+
+	case RETRO_ENVIRONMENT_GET_LOG_INTERFACE:
+		// TODO
+		return false;
+
+	case RETRO_ENVIRONMENT_GET_SAVE_DIRECTORY:
+		// TODO
+		return false;
+
+	case RETRO_ENVIRONMENT_SET_SUBSYSTEM_INFO:
+		// TODO
+		return false;
+
+	case RETRO_ENVIRONMENT_SET_CONTROLLER_INFO:
+		// TODO
+		return false;
+
+	case RETRO_ENVIRONMENT_SET_SUPPORT_ACHIEVEMENTS:
+		// TODO
+		return false;
+
+	case RETRO_ENVIRONMENT_GET_INPUT_BITMASKS:
+		// TODO
+		return false;
+
+	case RETRO_ENVIRONMENT_GET_CORE_OPTIONS_VERSION:
+		// TODO
+		return false;
+
+	default:
+		Logger::logError("Unimplemented Libretro env cmd: " + toString(static_cast<int>(cmd)));
+		return false;
+	}
 }
 
 void LibretroCore::onVideoRefresh(const void* data, unsigned width, unsigned height, size_t size)
