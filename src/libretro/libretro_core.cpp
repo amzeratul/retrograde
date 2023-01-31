@@ -87,8 +87,7 @@ void LibretroCore::deInit()
 	auto guard = ScopedGuard([=]() { curInstance = nullptr; });
 	curInstance = this;
 
-	const auto retroDeInit = static_cast<decltype(&retro_deinit)>(dll.getFunction("retro_deinit"));
-	retroDeInit();
+	DLL_FUNC(dll, retro_deinit)();
 }
 
 void LibretroCore::run()
@@ -96,8 +95,7 @@ void LibretroCore::run()
 	auto guard = ScopedGuard([=]() { curInstance = nullptr; });
 	curInstance = this;
 
-	const auto retroRun = static_cast<decltype(&retro_run)>(dll.getFunction("retro_run"));
-	retroRun();
+	DLL_FUNC(dll, retro_run)();
 }
 
 bool LibretroCore::onEnvironment(unsigned cmd, void* data)
