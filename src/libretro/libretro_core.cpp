@@ -1,6 +1,8 @@
 #include "libretro_core.h"
 
 #define RETRO_IMPORT_SYMBOLS
+#include <cstdarg>
+
 #include "libretro.h"
 
 
@@ -35,6 +37,19 @@ namespace {
 	int16_t RETRO_CALLCONV retroInputStateCallback(uint32_t port, uint32_t device, uint32_t index, uint32_t id)
 	{
 		return curInstance->onInputState(port, device, index, id);
+	}
+
+	void RETRO_CALLCONV retroLogPrintf(retro_log_level level, const char *fmt, ...)
+	{
+		char buffer[4096];
+
+		va_list args;
+		va_start(args, fmt);
+		int n = vsprintf_s(buffer, sizeof(buffer), fmt, args);
+		if (n > 0) {
+			curInstance->onLog(level, buffer);
+		}
+		va_end(args);
 	}
 }
 
@@ -146,8 +161,12 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		onEnvGetSystemDirectory(static_cast<const char**>(data));
 		return true;
 
+	case RETRO_ENVIRONMENT_GET_VARIABLE:
+		onEnvGetVariables(*static_cast<retro_variable*>(data));
+		return true;
+
 	case RETRO_ENVIRONMENT_SET_VARIABLES:
-		onEnvSetVariables(*static_cast<const retro_variable*>(data));
+		onEnvSetVariables(static_cast<const retro_variable*>(data));
 		return true;
 
 	case RETRO_ENVIRONMENT_SET_SUPPORT_NO_GAME:
@@ -155,7 +174,7 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		return true;
 
 	case RETRO_ENVIRONMENT_GET_LOG_INTERFACE:
-		onEnvGetLogInterface(*static_cast<retro_log_callback*>(data));
+		static_cast<retro_log_callback*>(data)->log = &retroLogPrintf;
 		return true;
 
 	case RETRO_ENVIRONMENT_GET_SAVE_DIRECTORY:
@@ -170,16 +189,19 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		onEnvSetControllerInfo(*static_cast<const retro_controller_info*>(data));
 		return true;
 
+	case RETRO_ENVIRONMENT_GET_LANGUAGE:
+		*static_cast<uint32_t*>(data) = onEnvGetLanguage();
+		return true;
+
 	case RETRO_ENVIRONMENT_SET_SUPPORT_ACHIEVEMENTS:
 		onEnvSetSupportAchievements(*static_cast<const bool*>(data));
 		return true;
 
 	case RETRO_ENVIRONMENT_GET_INPUT_BITMASKS:
-		onEnvGetInputBitmasks(*static_cast<bool*>(data));
 		return true;
 
 	case RETRO_ENVIRONMENT_GET_CORE_OPTIONS_VERSION:
-		onEnvGetCoreOptionsVersion(*static_cast<uint32_t*>(data));
+		*static_cast<uint32_t*>(data) = 2;
 		return true;
 
 	case RETRO_ENVIRONMENT_SET_CORE_OPTIONS:
@@ -188,6 +210,10 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 
 	case RETRO_ENVIRONMENT_SET_CORE_OPTIONS_INTL:
 		onEnvSetCoreOptionsIntl(*static_cast<const retro_core_options_intl*>(data));
+		return true;
+
+	case RETRO_ENVIRONMENT_SET_CORE_OPTIONS_DISPLAY:
+		onEnvSetCoreOptionsDisplay(*static_cast<retro_core_option_display*>(data));
 		return true;
 
 	case RETRO_ENVIRONMENT_SET_CORE_OPTIONS_V2:
@@ -235,6 +261,14 @@ int16_t LibretroCore::onInputState(uint32_t port, uint32_t device, uint32_t inde
 	return 0;
 }
 
+void LibretroCore::onLog(retro_log_level level, const char* str)
+{
+	if (level != RETRO_LOG_DUMMY) {
+		const auto halleyLevel = static_cast<LoggerLevel>(level); // By sheer coincidence, the levels match
+		Logger::log(halleyLevel, str);
+	}
+}
+
 void LibretroCore::onEnvSetPerformanceLevel(uint32_t level)
 {
 	// Don't care?
@@ -245,19 +279,19 @@ void LibretroCore::onEnvGetSystemDirectory(const char** data)
 	// TODO
 }
 
-void LibretroCore::onEnvSetVariables(const retro_variable& data)
+void LibretroCore::onEnvGetVariables(retro_variable& data)
+{
+	// TODO
+}
+
+void LibretroCore::onEnvSetVariables(const retro_variable* data)
 {
 	// TODO
 }
 
 void LibretroCore::onEnvSetSupportNoGame(bool data)
 {
-	// TODO
-}
-
-void LibretroCore::onEnvGetLogInterface(const retro_log_callback& data)
-{
-	// TODO
+	supportNoGame = data;
 }
 
 void LibretroCore::onEnvGetSaveDirectory(const char** data)
@@ -275,19 +309,14 @@ void LibretroCore::onEnvSetControllerInfo(const retro_controller_info& data)
 	// TODO
 }
 
+uint32_t LibretroCore::onEnvGetLanguage()
+{
+	return RETRO_LANGUAGE_ENGLISH;
+}
+
 void LibretroCore::onEnvSetSupportAchievements(bool data)
 {
-	// TODO
-}
-
-void LibretroCore::onEnvGetInputBitmasks(bool& data)
-{
-	data = true;
-}
-
-void LibretroCore::onEnvGetCoreOptionsVersion(uint32_t& data)
-{
-	data = 2;
+	supportAchievements = data;
 }
 
 void LibretroCore::onEnvSetCoreOptions(const retro_core_option_definition** data) 
@@ -296,6 +325,11 @@ void LibretroCore::onEnvSetCoreOptions(const retro_core_option_definition** data
 }
 
 void LibretroCore::onEnvSetCoreOptionsIntl(const retro_core_options_intl& data) 
+{
+	// TODO
+}
+
+void LibretroCore::onEnvSetCoreOptionsDisplay(const retro_core_option_display& data)
 {
 	// TODO
 }

@@ -16,6 +16,7 @@ public:
 	virtual size_t onAudioSampleBatch(const int16_t* data, size_t size) = 0;
 	virtual void onInputPoll() = 0;
 	virtual int16_t onInputState(uint32_t port, uint32_t device, uint32_t index, uint32_t id) = 0;
+	virtual void onLog(retro_log_level level, const char* str) = 0;
 };
 
 class LibretroCore : protected ILibretroCoreCallbacks {
@@ -34,10 +35,14 @@ protected:
 	size_t onAudioSampleBatch(const int16_t* data, size_t size) override;
 	void onInputPoll() override;
 	int16_t onInputState(uint32_t port, uint32_t device, uint32_t index, uint32_t id) override;
+	void onLog(retro_log_level level, const char* str) override;
 
 private:
 	DLL dll;
 	bool gameLoaded = false;
+
+	bool supportNoGame = false;
+	bool supportAchievements = false;
 
 	explicit LibretroCore(DLL dll);
 
@@ -46,17 +51,17 @@ private:
 
 	void onEnvSetPerformanceLevel(uint32_t level);
 	void onEnvGetSystemDirectory(const char** data);
-	void onEnvSetVariables(const retro_variable& data);
+	void onEnvGetVariables(retro_variable& data);
+	void onEnvSetVariables(const retro_variable* data);
 	void onEnvSetSupportNoGame(bool data);
-	void onEnvGetLogInterface(const retro_log_callback& data);
 	void onEnvGetSaveDirectory(const char** data);
 	void onEnvSetSubsystemInfo(const retro_subsystem_info& data);
 	void onEnvSetControllerInfo(const retro_controller_info& data);
+	uint32_t onEnvGetLanguage();
 	void onEnvSetSupportAchievements(bool data);
-	void onEnvGetInputBitmasks(bool& data);
-	void onEnvGetCoreOptionsVersion(uint32_t& data);
 	void onEnvSetCoreOptions(const retro_core_option_definition** data);
 	void onEnvSetCoreOptionsIntl(const retro_core_options_intl& data);
+	void onEnvSetCoreOptionsDisplay(const retro_core_option_display& data);
 	void onEnvSetCoreOptionsV2(const retro_core_options_v2& data);
 	void onEnvSetCoreOptionsV2Intl(const retro_core_options_v2_intl& data);
 };
