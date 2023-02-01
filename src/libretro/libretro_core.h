@@ -22,6 +22,14 @@ public:
 
 class LibretroCore : protected ILibretroCoreCallbacks {
 public:
+	struct Option {
+		String value;
+		String defaultValue;
+		String description;
+		String info;
+		String category;
+	};
+
 	static std::unique_ptr<LibretroCore> load(std::string_view filename, LibretroEnvironment& environment);
 	~LibretroCore() override;
 
@@ -51,6 +59,11 @@ private:
 	bool blockExtract = false;
 	bool needFullpath = false;
 
+	HashMap<String, Option> options;
+
+	String coreName;
+	String coreVersion;
+
 	LibretroCore(DLL dll, LibretroEnvironment& environment);
 
 	void init();
@@ -58,6 +71,7 @@ private:
 
 	void onEnvSetPerformanceLevel(uint32_t level);
 	void onEnvGetSystemDirectory(const char** data);
+	void onEnvSetInputDescriptors(const retro_input_descriptor* data);
 	void onEnvGetVariable(retro_variable& data);
 	void onEnvSetVariables(const retro_variable* data);
 	void onEnvSetSupportNoGame(bool data);
@@ -66,9 +80,9 @@ private:
 	void onEnvSetControllerInfo(const retro_controller_info& data);
 	uint32_t onEnvGetLanguage();
 	void onEnvSetSupportAchievements(bool data);
-	void onEnvSetCoreOptions(const retro_core_option_definition** data);
+	void onEnvSetCoreOptions(const retro_core_option_definition* data);
 	void onEnvSetCoreOptionsIntl(const retro_core_options_intl& data);
-	void onEnvSetCoreOptionsDisplay(const retro_core_option_display& data);
 	void onEnvSetCoreOptionsV2(const retro_core_options_v2& data);
 	void onEnvSetCoreOptionsV2Intl(const retro_core_options_v2_intl& data);
+	void onEnvSetCoreOptionsDisplay(const retro_core_option_display& data);
 };

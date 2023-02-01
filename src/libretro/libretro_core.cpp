@@ -89,6 +89,9 @@ bool LibretroCore::loadGame(std::string_view path)
 		return loadGame(path, {}, {});
 	} else {
 		auto bytes = Path::readFile(Path(path));
+		if (bytes.empty()) {
+			return false;
+		}
 		return loadGame(path, gsl::as_bytes(gsl::span<const Byte>(bytes.data(), bytes.size())), {});
 	}
 }
@@ -129,6 +132,8 @@ void LibretroCore::init()
 	retro_system_info systemInfo = {};
 	DLL_FUNC(dll, retro_get_system_info)(&systemInfo);
 	Logger::logDev("Loaded core " + String(systemInfo.library_name) + " " + String(systemInfo.library_version));
+	coreName = systemInfo.library_name;
+	coreVersion = systemInfo.library_version;
 	blockExtract = systemInfo.block_extract;
 	needFullpath = systemInfo.need_fullpath;
 
@@ -180,6 +185,10 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		onEnvGetSystemDirectory(static_cast<const char**>(data));
 		return true;
 
+	case RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS:
+		onEnvSetInputDescriptors(static_cast<const retro_input_descriptor*>(data));
+		return true;
+
 	case RETRO_ENVIRONMENT_GET_VARIABLE:
 		onEnvGetVariable(*static_cast<retro_variable*>(data));
 		return true;
@@ -224,7 +233,7 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		return true;
 
 	case RETRO_ENVIRONMENT_SET_CORE_OPTIONS:
-		onEnvSetCoreOptions(static_cast<const retro_core_option_definition**>(data));
+		onEnvSetCoreOptions(static_cast<const retro_core_option_definition*>(data));
 		return true;
 
 	case RETRO_ENVIRONMENT_SET_CORE_OPTIONS_INTL:
@@ -284,7 +293,7 @@ void LibretroCore::onLog(retro_log_level level, const char* str)
 {
 	if (level != RETRO_LOG_DUMMY) {
 		const auto halleyLevel = static_cast<LoggerLevel>(level); // By sheer coincidence, the levels match
-		Logger::log(halleyLevel, str);
+		Logger::log(halleyLevel, "[" + coreName + "] " + str);
 	}
 }
 
@@ -296,6 +305,11 @@ void LibretroCore::onEnvSetPerformanceLevel(uint32_t level)
 void LibretroCore::onEnvGetSystemDirectory(const char** data)
 {
 	*data = environment.getSystemDir().c_str();
+}
+
+void LibretroCore::onEnvSetInputDescriptors(const retro_input_descriptor* data)
+{
+	// TODO
 }
 
 void LibretroCore::onEnvGetSaveDirectory(const char** data)
@@ -330,36 +344,64 @@ void LibretroCore::onEnvSetSupportNoGame(bool data)
 
 void LibretroCore::onEnvGetVariable(retro_variable& data)
 {
-	// TODO
-	data.value = nullptr;
+	const auto iter = options.find(data.key);
+	if (iter == options.end()) {
+		data.value = nullptr;
+	} else {
+		data.value = iter->second.value.c_str();
+	}
 }
 
 void LibretroCore::onEnvSetVariables(const retro_variable* data)
 {
-	// TODO
+	for (const retro_variable* var = data; var->value || var->key; ++var) {
+		Logger::logDev("Set variable: " + String(var->key) + " = " + var->value);
+	}
 }
 
-void LibretroCore::onEnvSetCoreOptions(const retro_core_option_definition** data) 
+void LibretroCore::onEnvSetCoreOptions(const retro_core_option_definition* data) 
 {
-	// TODO
+	retro_core_option_definition emptyDef = {};
+	for (auto* definition = data; memcmp(definition, &emptyDef, sizeof(emptyDef)) != 0; ++definition) {
+		Option& option = options[definition->key];
+		option.category = "";
+		option.defaultValue = definition->default_value;
+		option.description = definition->desc;
+		option.info = definition->info;
+
+		if (option.value.isEmpty()) {
+			option.value = option.defaultValue;
+		}
+	}
 }
 
 void LibretroCore::onEnvSetCoreOptionsIntl(const retro_core_options_intl& data) 
 {
-	// TODO
-}
-
-void LibretroCore::onEnvSetCoreOptionsDisplay(const retro_core_option_display& data)
-{
-	// TODO
+	onEnvSetCoreOptions(data.us);
 }
 
 void LibretroCore::onEnvSetCoreOptionsV2(const retro_core_options_v2& data) 
 {
-	// TODO
+	retro_core_option_v2_definition emptyDef = {};
+	for (auto* definition = data.definitions; memcmp(definition, &emptyDef, sizeof(emptyDef)) != 0; ++definition) {
+		Option& option = options[definition->key];
+		option.category = definition->category_key;
+		option.defaultValue = definition->default_value;
+		option.description = definition->desc;
+		option.info = definition->info;
+
+		if (option.value.isEmpty()) {
+			option.value = option.defaultValue;
+		}
+	}
 }
 
 void LibretroCore::onEnvSetCoreOptionsV2Intl(const retro_core_options_v2_intl& data) 
+{
+	onEnvSetCoreOptionsV2(*data.us);
+}
+
+void LibretroCore::onEnvSetCoreOptionsDisplay(const retro_core_option_display& data)
 {
 	// TODO
 }
