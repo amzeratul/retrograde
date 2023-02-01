@@ -2,6 +2,7 @@
 
 #include <halley.hpp>
 
+#include "libretro.h"
 #include "src/util/dll.h"
 using namespace Halley;
 
@@ -39,4 +40,16 @@ private:
 
 	void init();
 	void deInit();
+
+	void onEnvSetPerformanceLevel(uint32_t level);
+	void onEnvGetSystemDirectory(const char** data);
+	void onEnvSetVariables(const retro_variable& data);
+	void onEnvSetSupportNoGame(bool data);
+	void onEnvGetLogInterface(const retro_log_callback& data);
+	void onEnvGetSaveDirectory(const char** data);
+	void onEnvSetSubsystemInfo(const retro_subsystem_info& data);
+	void onEnvSetControllerInfo(const retro_controller_info& data);
+	void onEnvSetSupportAchievements(bool data);
+	void onEnvGetInputBitmasks(bool& data);
+	void onEnvGetCoreOptionsVersion(uint32_t data);
 };

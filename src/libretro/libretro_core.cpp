@@ -102,47 +102,47 @@ bool LibretroCore::onEnvironment(unsigned cmd, void* data)
 {
 	switch (cmd) {
 	case RETRO_ENVIRONMENT_SET_PERFORMANCE_LEVEL:
-		// TODO
+		onEnvSetPerformanceLevel(*static_cast<const uint32_t*>(data));
 		return false;
 
 	case RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY:
-		// TODO
+		onEnvGetSystemDirectory(static_cast<const char**>(data));
 		return false;
 
 	case RETRO_ENVIRONMENT_SET_VARIABLES:
-		// TODO
+		onEnvSetVariables(*static_cast<const retro_variable*>(data));
 		return false;
 
 	case RETRO_ENVIRONMENT_SET_SUPPORT_NO_GAME:
-		// TODO
+		onEnvSetSupportNoGame(*static_cast<const bool*>(data));
 		return false;
 
 	case RETRO_ENVIRONMENT_GET_LOG_INTERFACE:
-		// TODO
+		onEnvGetLogInterface(*static_cast<retro_log_callback*>(data));
 		return false;
 
 	case RETRO_ENVIRONMENT_GET_SAVE_DIRECTORY:
-		// TODO
+		onEnvGetSaveDirectory(static_cast<const char**>(data));
 		return false;
 
 	case RETRO_ENVIRONMENT_SET_SUBSYSTEM_INFO:
-		// TODO
+		onEnvSetSubsystemInfo(*static_cast<const retro_subsystem_info*>(data));
 		return false;
 
 	case RETRO_ENVIRONMENT_SET_CONTROLLER_INFO:
-		// TODO
+		onEnvSetControllerInfo(*static_cast<const retro_controller_info*>(data));
 		return false;
 
 	case RETRO_ENVIRONMENT_SET_SUPPORT_ACHIEVEMENTS:
-		// TODO
+		onEnvSetSupportAchievements(*static_cast<const bool*>(data));
 		return false;
 
 	case RETRO_ENVIRONMENT_GET_INPUT_BITMASKS:
-		// TODO
+		onEnvGetInputBitmasks(*static_cast<bool*>(data));
 		return false;
 
 	case RETRO_ENVIRONMENT_GET_CORE_OPTIONS_VERSION:
-		// TODO
+		onEnvGetCoreOptionsVersion(*static_cast<uint32_t*>(data));
 		return false;
 
 	default:
@@ -180,4 +180,59 @@ int16_t LibretroCore::onInputState(unsigned port, unsigned device, unsigned inde
 {
 	// TODO
 	return 0;
+}
+
+void LibretroCore::onEnvSetPerformanceLevel(uint32_t level)
+{
+	// TODO
+}
+
+void LibretroCore::onEnvGetSystemDirectory(const char** data)
+{
+	// TODO
+}
+
+void LibretroCore::onEnvSetVariables(const retro_variable& data)
+{
+	// TODO
+}
+
+void LibretroCore::onEnvSetSupportNoGame(bool data)
+{
+	// TODO
+}
+
+void LibretroCore::onEnvGetLogInterface(const retro_log_callback& data)
+{
+	// TODO
+}
+
+void LibretroCore::onEnvGetSaveDirectory(const char** data)
+{
+	// TODO
+}
+
+void LibretroCore::onEnvSetSubsystemInfo(const retro_subsystem_info& data)
+{
+	// TODO
+}
+
+void LibretroCore::onEnvSetControllerInfo(const retro_controller_info& data)
+{
+	// TODO
+}
+
+void LibretroCore::onEnvSetSupportAchievements(bool data)
+{
+	// TODO
+}
+
+void LibretroCore::onEnvGetInputBitmasks(bool& data)
+{
+	// TODO
+}
+
+void LibretroCore::onEnvGetCoreOptionsVersion(uint32_t data)
+{
+	// TODO
 }
