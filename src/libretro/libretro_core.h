@@ -25,9 +25,12 @@ public:
 	static std::unique_ptr<LibretroCore> load(std::string_view filename, LibretroEnvironment& environment);
 	~LibretroCore() override;
 
+	bool loadGame(std::string_view path);
 	bool loadGame(std::string_view path, gsl::span<const gsl::byte> data, std::string_view meta);
 	void unloadGame();
 	void run();
+
+	bool hasGameLoaded() const;
 
 protected:
 	bool onEnvironment(uint32_t cmd, void* data) override;
@@ -45,6 +48,8 @@ private:
 	bool gameLoaded = false;
 	bool supportNoGame = false;
 	bool supportAchievements = false;
+	bool blockExtract = false;
+	bool needFullpath = false;
 
 	LibretroCore(DLL dll, LibretroEnvironment& environment);
 

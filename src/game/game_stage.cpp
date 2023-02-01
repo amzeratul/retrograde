@@ -1,5 +1,6 @@
 #include "game_stage.h"
 
+#include "retrograde_game.h"
 #include "src/libretro/libretro_core.h"
 #include "src/libretro/libretro_environment.h"
 
@@ -11,17 +12,35 @@ GameStage::~GameStage()
 
 void GameStage::init()
 {
-	libretroEnvironment = std::make_unique<LibretroEnvironment>("..");
+	auto& game = static_cast<RetrogradeGame&>(getGame());
+	String corePath;
+	String gamePath;
+	if (game.getArgs().size() >= 2) {
+		corePath = game.getArgs()[0];
+		gamePath = String::concatList(gsl::span<const String>(game.getArgs()).subspan(1), " ");
+	}
 
-	//const char* corePath = "testcore.dll";
-	const char* corePath = "snes9x_libretro.dll";
-	libretroCore = LibretroCore::load(libretroEnvironment->getCoreDir() + "/" + corePath, *libretroEnvironment);
+	libretroEnvironment = std::make_unique<LibretroEnvironment>("..");
+	
+	libretroCore = LibretroCore::load(libretroEnvironment->getCoresDir() + "/" + corePath, *libretroEnvironment);
+	if (libretroCore) {
+		const bool ok = libretroCore->loadGame(libretroEnvironment->getRomsDir() + "/" + gamePath);
+		if (!ok) {
+			Logger::logError("Failed to load game " + String(gamePath));
+		}
+	} else {
+		Logger::logError("Failed to load core " + String(corePath));
+	}
 }
 
 void GameStage::onVariableUpdate(Time t)
 {
 	if (input) {
 		input->update(t);
+	}
+
+	if (libretroCore && libretroCore->hasGameLoaded()) {
+		libretroCore->run();
 	}
 }
 

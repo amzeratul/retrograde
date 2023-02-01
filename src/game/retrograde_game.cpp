@@ -8,11 +8,12 @@ void initSDLInputPlugin(IPluginRegistry &registry);
 void initDX11Plugin(IPluginRegistry &registry);
 void initAsioPlugin(IPluginRegistry &registry);
 
-void HalleyGame::init(const Environment& env, const Vector<String>& args)
+void RetrogradeGame::init(const Environment& env, const Vector<String>& args)
 {
+	this->args = args;
 }
 
-int HalleyGame::initPlugins(IPluginRegistry& registry)
+int RetrogradeGame::initPlugins(IPluginRegistry& registry)
 {
 	initOpenGLPlugin(registry);
 	initSDLSystemPlugin(registry, {});
@@ -29,7 +30,7 @@ int HalleyGame::initPlugins(IPluginRegistry& registry)
 	return HalleyAPIFlags::Video | HalleyAPIFlags::Audio | HalleyAPIFlags::Input | HalleyAPIFlags::Network | HalleyAPIFlags::Platform;
 }
 
-ResourceOptions HalleyGame::initResourceLocator(const Path& gamePath, const Path& assetsPath, const Path& unpackedAssetsPath, ResourceLocator& locator) {
+ResourceOptions RetrogradeGame::initResourceLocator(const Path& gamePath, const Path& assetsPath, const Path& unpackedAssetsPath, ResourceLocator& locator) {
 	constexpr bool localAssets = true;
 	if (localAssets) {
 		locator.addFileSystem(unpackedAssetsPath);
@@ -42,22 +43,22 @@ ResourceOptions HalleyGame::initResourceLocator(const Path& gamePath, const Path
 	return {};
 }
 
-String HalleyGame::getName() const
+String RetrogradeGame::getName() const
 {
 	return "Retrograde";
 }
 
-String HalleyGame::getDataPath() const
+String RetrogradeGame::getDataPath() const
 {
 	return "Retrograde";
 }
 
-bool HalleyGame::isDevMode() const
+bool RetrogradeGame::isDevMode() const
 {
 	return true;
 }
 
-std::unique_ptr<Stage> HalleyGame::startGame()
+std::unique_ptr<Stage> RetrogradeGame::startGame()
 {
 	bool vsync = true;
 
@@ -68,4 +69,9 @@ std::unique_ptr<Stage> HalleyGame::startGame()
 	return std::make_unique<GameStage>();
 }
 
-HalleyGame(HalleyGame);
+const Vector<String>& RetrogradeGame::getArgs() const
+{
+	return args;
+}
+
+HalleyGame(RetrogradeGame);

@@ -3,7 +3,7 @@
 #include <halley.hpp>
 using namespace Halley;
 
-class HalleyGame : public Game {
+class RetrogradeGame : public Game {
 public:
 	void init(const Environment& env, const Vector<String>& args) override;
 	int initPlugins(IPluginRegistry& registry) override;
@@ -14,6 +14,9 @@ public:
 	bool isDevMode() const override;
 	std::unique_ptr<Stage> startGame() override;
 
+	const Vector<String>& getArgs() const;
+
 private:
 	const HalleyAPI* api;
+	Vector<String> args;
 };

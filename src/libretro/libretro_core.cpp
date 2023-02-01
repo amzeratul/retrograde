@@ -83,6 +83,16 @@ LibretroCore::~LibretroCore()
 	deInit();
 }
 
+bool LibretroCore::loadGame(std::string_view path)
+{
+	if (needFullpath) {
+		return loadGame(path, {}, {});
+	} else {
+		auto bytes = Path::readFile(Path(path));
+		return loadGame(path, gsl::as_bytes(gsl::span<const Byte>(bytes.data(), bytes.size())), {});
+	}
+}
+
 bool LibretroCore::loadGame(std::string_view path, gsl::span<const gsl::byte> data, std::string_view meta)
 {
 	if (gameLoaded) {
@@ -119,6 +129,8 @@ void LibretroCore::init()
 	retro_system_info systemInfo = {};
 	DLL_FUNC(dll, retro_get_system_info)(&systemInfo);
 	Logger::logDev("Loaded core " + String(systemInfo.library_name) + " " + String(systemInfo.library_version));
+	blockExtract = systemInfo.block_extract;
+	needFullpath = systemInfo.need_fullpath;
 
 	auto guard = ScopedGuard([=]() { curInstance = nullptr; });
 	curInstance = this;
@@ -150,6 +162,11 @@ void LibretroCore::run()
 	curInstance = this;
 
 	DLL_FUNC(dll, retro_run)();
+}
+
+bool LibretroCore::hasGameLoaded() const
+{
+	return gameLoaded;
 }
 
 bool LibretroCore::onEnvironment(uint32_t cmd, void* data)

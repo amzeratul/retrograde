@@ -5,7 +5,8 @@ LibretroEnvironment::LibretroEnvironment(String _rootDir)
 {
 	systemDir = rootDir + "/system";
 	saveDir = rootDir + "/save";
-	coreDir = rootDir + "/core";
+	coresDir = rootDir + "/cores";
+	romsDir = rootDir + "/roms";
 }
 
 const String& LibretroEnvironment::getSystemDir() const
@@ -18,7 +19,12 @@ const String& LibretroEnvironment::getSaveDir() const
 	return saveDir;
 }
 
-const String& LibretroEnvironment::getCoreDir() const
+const String& LibretroEnvironment::getCoresDir() const
 {
-	return coreDir;
+	return coresDir;
+}
+
+const String& LibretroEnvironment::getRomsDir() const
+{
+	return romsDir;
 }

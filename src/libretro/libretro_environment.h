@@ -9,11 +9,13 @@ public:
 
 	const String& getSystemDir() const;
 	const String& getSaveDir() const;
-	const String& getCoreDir() const;
+	const String& getCoresDir() const;
+	const String& getRomsDir() const;
 
 private:
 	String rootDir;
 	String systemDir;
 	String saveDir;
-	String coreDir;
+	String coresDir;
+	String romsDir;
 };
