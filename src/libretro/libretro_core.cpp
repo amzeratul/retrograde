@@ -7,12 +7,12 @@
 namespace {
 	thread_local ILibretroCoreCallbacks* curInstance = nullptr;
 
-	bool RETRO_CALLCONV retroEnvironmentCallback(unsigned cmd, void *data)
+	bool RETRO_CALLCONV retroEnvironmentCallback(uint32_t cmd, void *data)
 	{
 		return curInstance->onEnvironment(cmd, data);
 	}
 	
-	void RETRO_CALLCONV retroVideoRefreshCallback(const void *data, unsigned width, unsigned height, size_t pitch)
+	void RETRO_CALLCONV retroVideoRefreshCallback(const void *data, uint32_t width, uint32_t height, size_t pitch)
 	{
 		curInstance->onVideoRefresh(data, width, height, pitch);
 	}
@@ -32,7 +32,7 @@ namespace {
 		return curInstance->onInputPoll();
 	}
 	
-	int16_t RETRO_CALLCONV retroInputStateCallback(unsigned port, unsigned device, unsigned index, unsigned id)
+	int16_t RETRO_CALLCONV retroInputStateCallback(uint32_t port, uint32_t device, uint32_t index, uint32_t id)
 	{
 		return curInstance->onInputState(port, device, index, id);
 	}
@@ -135,52 +135,68 @@ void LibretroCore::run()
 	DLL_FUNC(dll, retro_run)();
 }
 
-bool LibretroCore::onEnvironment(unsigned cmd, void* data)
+bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 {
 	switch (cmd) {
 	case RETRO_ENVIRONMENT_SET_PERFORMANCE_LEVEL:
 		onEnvSetPerformanceLevel(*static_cast<const uint32_t*>(data));
-		return false;
+		return true;
 
 	case RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY:
 		onEnvGetSystemDirectory(static_cast<const char**>(data));
-		return false;
+		return true;
 
 	case RETRO_ENVIRONMENT_SET_VARIABLES:
 		onEnvSetVariables(*static_cast<const retro_variable*>(data));
-		return false;
+		return true;
 
 	case RETRO_ENVIRONMENT_SET_SUPPORT_NO_GAME:
 		onEnvSetSupportNoGame(*static_cast<const bool*>(data));
-		return false;
+		return true;
 
 	case RETRO_ENVIRONMENT_GET_LOG_INTERFACE:
 		onEnvGetLogInterface(*static_cast<retro_log_callback*>(data));
-		return false;
+		return true;
 
 	case RETRO_ENVIRONMENT_GET_SAVE_DIRECTORY:
 		onEnvGetSaveDirectory(static_cast<const char**>(data));
-		return false;
+		return true;
 
 	case RETRO_ENVIRONMENT_SET_SUBSYSTEM_INFO:
 		onEnvSetSubsystemInfo(*static_cast<const retro_subsystem_info*>(data));
-		return false;
+		return true;
 
 	case RETRO_ENVIRONMENT_SET_CONTROLLER_INFO:
 		onEnvSetControllerInfo(*static_cast<const retro_controller_info*>(data));
-		return false;
+		return true;
 
 	case RETRO_ENVIRONMENT_SET_SUPPORT_ACHIEVEMENTS:
 		onEnvSetSupportAchievements(*static_cast<const bool*>(data));
-		return false;
+		return true;
 
 	case RETRO_ENVIRONMENT_GET_INPUT_BITMASKS:
 		onEnvGetInputBitmasks(*static_cast<bool*>(data));
-		return false;
+		return true;
 
 	case RETRO_ENVIRONMENT_GET_CORE_OPTIONS_VERSION:
 		onEnvGetCoreOptionsVersion(*static_cast<uint32_t*>(data));
-		return false;
+		return true;
+
+	case RETRO_ENVIRONMENT_SET_CORE_OPTIONS:
+		onEnvSetCoreOptions(static_cast<const retro_core_option_definition**>(data));
+		return true;
+
+	case RETRO_ENVIRONMENT_SET_CORE_OPTIONS_INTL:
+		onEnvSetCoreOptionsIntl(*static_cast<const retro_core_options_intl*>(data));
+		return true;
+
+	case RETRO_ENVIRONMENT_SET_CORE_OPTIONS_V2:
+		onEnvSetCoreOptionsV2(*static_cast<const retro_core_options_v2*>(data));
+		return true;
+
+	case RETRO_ENVIRONMENT_SET_CORE_OPTIONS_V2_INTL:
+		onEnvSetCoreOptionsV2Intl(*static_cast<const retro_core_options_v2_intl*>(data));
+		return true;
 
 	default:
 		if (cmd & RETRO_ENVIRONMENT_EXPERIMENTAL) {
@@ -192,7 +208,7 @@ bool LibretroCore::onEnvironment(unsigned cmd, void* data)
 	}
 }
 
-void LibretroCore::onVideoRefresh(const void* data, unsigned width, unsigned height, size_t size)
+void LibretroCore::onVideoRefresh(const void* data, uint32_t width, uint32_t height, size_t size)
 {
 	// TODO
 }
@@ -213,7 +229,7 @@ void LibretroCore::onInputPoll()
 	// TODO
 }
 
-int16_t LibretroCore::onInputState(unsigned port, unsigned device, unsigned index, unsigned id)
+int16_t LibretroCore::onInputState(uint32_t port, uint32_t device, uint32_t index, uint32_t id)
 {
 	// TODO
 	return 0;
@@ -221,7 +237,7 @@ int16_t LibretroCore::onInputState(unsigned port, unsigned device, unsigned inde
 
 void LibretroCore::onEnvSetPerformanceLevel(uint32_t level)
 {
-	// TODO
+	// Don't care?
 }
 
 void LibretroCore::onEnvGetSystemDirectory(const char** data)
@@ -266,10 +282,30 @@ void LibretroCore::onEnvSetSupportAchievements(bool data)
 
 void LibretroCore::onEnvGetInputBitmasks(bool& data)
 {
+	data = true;
+}
+
+void LibretroCore::onEnvGetCoreOptionsVersion(uint32_t& data)
+{
+	data = 2;
+}
+
+void LibretroCore::onEnvSetCoreOptions(const retro_core_option_definition** data) 
+{
 	// TODO
 }
 
-void LibretroCore::onEnvGetCoreOptionsVersion(uint32_t data)
+void LibretroCore::onEnvSetCoreOptionsIntl(const retro_core_options_intl& data) 
+{
+	// TODO
+}
+
+void LibretroCore::onEnvSetCoreOptionsV2(const retro_core_options_v2& data) 
+{
+	// TODO
+}
+
+void LibretroCore::onEnvSetCoreOptionsV2Intl(const retro_core_options_v2_intl& data) 
 {
 	// TODO
 }

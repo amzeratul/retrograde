@@ -10,12 +10,12 @@ class ILibretroCoreCallbacks {
 public:
 	virtual ~ILibretroCoreCallbacks() = default;
 
-	virtual bool onEnvironment(unsigned cmd, void* data) = 0;
-	virtual void onVideoRefresh(const void* data, unsigned width, unsigned height, size_t size) = 0;
+	virtual bool onEnvironment(uint32_t cmd, void* data) = 0;
+	virtual void onVideoRefresh(const void* data, uint32_t width, uint32_t height, size_t size) = 0;
 	virtual void onAudioSample(int16_t left, int16_t int16) = 0;
 	virtual size_t onAudioSampleBatch(const int16_t* data, size_t size) = 0;
 	virtual void onInputPoll() = 0;
-	virtual int16_t onInputState(unsigned port, unsigned device, unsigned index, unsigned id) = 0;
+	virtual int16_t onInputState(uint32_t port, uint32_t device, uint32_t index, uint32_t id) = 0;
 };
 
 class LibretroCore : protected ILibretroCoreCallbacks {
@@ -28,12 +28,12 @@ public:
 	void run();
 
 protected:
-	bool onEnvironment(unsigned cmd, void* data) override;
-	void onVideoRefresh(const void* data, unsigned width, unsigned height, size_t size) override;
+	bool onEnvironment(uint32_t cmd, void* data) override;
+	void onVideoRefresh(const void* data, uint32_t width, uint32_t height, size_t size) override;
 	void onAudioSample(int16_t left, int16_t int16) override;
 	size_t onAudioSampleBatch(const int16_t* data, size_t size) override;
 	void onInputPoll() override;
-	int16_t onInputState(unsigned port, unsigned device, unsigned index, unsigned id) override;
+	int16_t onInputState(uint32_t port, uint32_t device, uint32_t index, uint32_t id) override;
 
 private:
 	DLL dll;
@@ -54,5 +54,9 @@ private:
 	void onEnvSetControllerInfo(const retro_controller_info& data);
 	void onEnvSetSupportAchievements(bool data);
 	void onEnvGetInputBitmasks(bool& data);
-	void onEnvGetCoreOptionsVersion(uint32_t data);
+	void onEnvGetCoreOptionsVersion(uint32_t& data);
+	void onEnvSetCoreOptions(const retro_core_option_definition** data);
+	void onEnvSetCoreOptionsIntl(const retro_core_options_intl& data);
+	void onEnvSetCoreOptionsV2(const retro_core_options_v2& data);
+	void onEnvSetCoreOptionsV2Intl(const retro_core_options_v2_intl& data);
 };
