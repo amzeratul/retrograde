@@ -4,6 +4,7 @@
 
 #include "libretro.h"
 #include "src/util/dll.h"
+class LibretroEnvironment;
 using namespace Halley;
 
 class ILibretroCoreCallbacks {
@@ -21,7 +22,7 @@ public:
 
 class LibretroCore : protected ILibretroCoreCallbacks {
 public:
-	static std::unique_ptr<LibretroCore> load(std::string_view filename);
+	static std::unique_ptr<LibretroCore> load(std::string_view filename, LibretroEnvironment& environment);
 	~LibretroCore() override;
 
 	bool loadGame(std::string_view path, gsl::span<const gsl::byte> data, std::string_view meta);
@@ -39,19 +40,20 @@ protected:
 
 private:
 	DLL dll;
-	bool gameLoaded = false;
+	LibretroEnvironment& environment;
 
+	bool gameLoaded = false;
 	bool supportNoGame = false;
 	bool supportAchievements = false;
 
-	explicit LibretroCore(DLL dll);
+	LibretroCore(DLL dll, LibretroEnvironment& environment);
 
 	void init();
 	void deInit();
 
 	void onEnvSetPerformanceLevel(uint32_t level);
 	void onEnvGetSystemDirectory(const char** data);
-	void onEnvGetVariables(retro_variable& data);
+	void onEnvGetVariable(retro_variable& data);
 	void onEnvSetVariables(const retro_variable* data);
 	void onEnvSetSupportNoGame(bool data);
 	void onEnvGetSaveDirectory(const char** data);

@@ -1,6 +1,7 @@
 #include "game_stage.h"
 
 #include "src/libretro/libretro_core.h"
+#include "src/libretro/libretro_environment.h"
 
 GameStage::GameStage() = default;
 
@@ -10,9 +11,11 @@ GameStage::~GameStage()
 
 void GameStage::init()
 {
-	//const char* corePath = "../cores/testcore.dll";
-	const char* corePath = "../cores/snes9x_libretro.dll";
-	libretroCore = LibretroCore::load(corePath);
+	libretroEnvironment = std::make_unique<LibretroEnvironment>("..");
+
+	//const char* corePath = "testcore.dll";
+	const char* corePath = "snes9x_libretro.dll";
+	libretroCore = LibretroCore::load(libretroEnvironment->getCoreDir() + "/" + corePath, *libretroEnvironment);
 }
 
 void GameStage::onVariableUpdate(Time t)

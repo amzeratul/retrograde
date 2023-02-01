@@ -1,6 +1,7 @@
 #pragma once
 
 #include <halley.hpp>
+class LibretroEnvironment;
 class LibretroCore;
 using namespace Halley;
 
@@ -20,5 +21,6 @@ private:
 	std::shared_ptr<Texture> texture;
 	std::shared_ptr<InputVirtual> input;
 
+	std::unique_ptr<LibretroEnvironment> libretroEnvironment;
 	std::unique_ptr<LibretroCore> libretroCore;
 };

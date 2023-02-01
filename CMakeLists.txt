@@ -20,6 +20,7 @@ set (SOURCES
 	"src/game/game_stage.cpp"
 
 	"src/libretro/libretro_core.cpp"
+	"src/libretro/libretro_environment.cpp"
 
 	"src/util/dll.cpp"
 	)
@@ -31,6 +32,7 @@ set (HEADERS
 	"src/game/game_stage.h"
 
 	"src/libretro/libretro_core.h"
+	"src/libretro/libretro_environment.h"
 	"src/libretro/libretro.h"
 
 	"src/util/dll.h"

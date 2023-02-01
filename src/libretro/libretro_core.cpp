@@ -4,6 +4,7 @@
 #include <cstdarg>
 
 #include "libretro.h"
+#include "libretro_environment.h"
 
 
 namespace {
@@ -56,7 +57,7 @@ namespace {
 #define DLL_FUNC(dll, FUNC_NAME) static_cast<decltype(&(FUNC_NAME))>((dll).getFunction(#FUNC_NAME))
 
 
-std::unique_ptr<LibretroCore> LibretroCore::load(std::string_view filename)
+std::unique_ptr<LibretroCore> LibretroCore::load(std::string_view filename, LibretroEnvironment& environment)
 {
 	DLL dll;
 	
@@ -64,14 +65,15 @@ std::unique_ptr<LibretroCore> LibretroCore::load(std::string_view filename)
 		const auto retroAPIVersion = static_cast<decltype(&retro_api_version)>(dll.getFunction("retro_api_version"));
 		const auto dllVersion = retroAPIVersion();
 		if (dllVersion == RETRO_API_VERSION) {
-			return std::unique_ptr<LibretroCore>(new LibretroCore(std::move(dll)));
+			return std::unique_ptr<LibretroCore>(new LibretroCore(std::move(dll), environment));
 		}
 	}
 	return {};
 }
 
-LibretroCore::LibretroCore(DLL dll)
+LibretroCore::LibretroCore(DLL dll, LibretroEnvironment& environment)
 	: dll(std::move(dll))
+	, environment(environment)
 {
 	init();
 }
@@ -162,7 +164,7 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		return true;
 
 	case RETRO_ENVIRONMENT_GET_VARIABLE:
-		onEnvGetVariables(*static_cast<retro_variable*>(data));
+		onEnvGetVariable(*static_cast<retro_variable*>(data));
 		return true;
 
 	case RETRO_ENVIRONMENT_SET_VARIABLES:
@@ -276,27 +278,12 @@ void LibretroCore::onEnvSetPerformanceLevel(uint32_t level)
 
 void LibretroCore::onEnvGetSystemDirectory(const char** data)
 {
-	// TODO
-}
-
-void LibretroCore::onEnvGetVariables(retro_variable& data)
-{
-	// TODO
-}
-
-void LibretroCore::onEnvSetVariables(const retro_variable* data)
-{
-	// TODO
-}
-
-void LibretroCore::onEnvSetSupportNoGame(bool data)
-{
-	supportNoGame = data;
+	*data = environment.getSystemDir().c_str();
 }
 
 void LibretroCore::onEnvGetSaveDirectory(const char** data)
 {
-	// TODO
+	*data = environment.getSaveDir().c_str();
 }
 
 void LibretroCore::onEnvSetSubsystemInfo(const retro_subsystem_info& data)
@@ -317,6 +304,22 @@ uint32_t LibretroCore::onEnvGetLanguage()
 void LibretroCore::onEnvSetSupportAchievements(bool data)
 {
 	supportAchievements = data;
+}
+
+void LibretroCore::onEnvSetSupportNoGame(bool data)
+{
+	supportNoGame = data;
+}
+
+void LibretroCore::onEnvGetVariable(retro_variable& data)
+{
+	// TODO
+	data.value = nullptr;
+}
+
+void LibretroCore::onEnvSetVariables(const retro_variable* data)
+{
+	// TODO
 }
 
 void LibretroCore::onEnvSetCoreOptions(const retro_core_option_definition** data) 
