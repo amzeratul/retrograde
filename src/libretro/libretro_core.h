@@ -58,6 +58,7 @@ private:
 	bool supportAchievements = false;
 	bool blockExtract = false;
 	bool needFullpath = false;
+	retro_pixel_format pixelFormat = RETRO_PIXEL_FORMAT_0RGB1555;
 
 	HashMap<String, Option> options;
 
@@ -70,10 +71,14 @@ private:
 	void deInit();
 
 	void onEnvSetPerformanceLevel(uint32_t level);
+	bool onEnvSetPixelFormat(retro_pixel_format data);
+	void onEnvSetGeometry(const retro_game_geometry& data);
+	int onEnvGetAudioVideoEnable();
 	void onEnvGetSystemDirectory(const char** data);
 	void onEnvSetInputDescriptors(const retro_input_descriptor* data);
 	void onEnvGetVariable(retro_variable& data);
 	void onEnvSetVariables(const retro_variable* data);
+	bool onEnvGetVariableUpdate();
 	void onEnvSetSupportNoGame(bool data);
 	void onEnvGetSaveDirectory(const char** data);
 	void onEnvSetSubsystemInfo(const retro_subsystem_info& data);

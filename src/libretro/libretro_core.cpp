@@ -185,6 +185,9 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		onEnvGetSystemDirectory(static_cast<const char**>(data));
 		return true;
 
+	case RETRO_ENVIRONMENT_SET_PIXEL_FORMAT:
+		return onEnvSetPixelFormat(*static_cast<const retro_pixel_format*>(data));
+
 	case RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS:
 		onEnvSetInputDescriptors(static_cast<const retro_input_descriptor*>(data));
 		return true;
@@ -195,6 +198,10 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 
 	case RETRO_ENVIRONMENT_SET_VARIABLES:
 		onEnvSetVariables(static_cast<const retro_variable*>(data));
+		return true;
+
+	case RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE:
+		*static_cast<bool*>(data) = onEnvGetVariableUpdate();
 		return true;
 
 	case RETRO_ENVIRONMENT_SET_SUPPORT_NO_GAME:
@@ -217,12 +224,20 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		onEnvSetControllerInfo(*static_cast<const retro_controller_info*>(data));
 		return true;
 
+	case RETRO_ENVIRONMENT_SET_GEOMETRY:
+		onEnvSetGeometry(*static_cast<const retro_game_geometry*>(data));
+		return true;
+
 	case RETRO_ENVIRONMENT_GET_LANGUAGE:
 		*static_cast<uint32_t*>(data) = onEnvGetLanguage();
 		return true;
 
 	case RETRO_ENVIRONMENT_SET_SUPPORT_ACHIEVEMENTS:
 		onEnvSetSupportAchievements(*static_cast<const bool*>(data));
+		return true;
+
+	case RETRO_ENVIRONMENT_GET_AUDIO_VIDEO_ENABLE:
+		*static_cast<int*>(data) = onEnvGetAudioVideoEnable();
 		return true;
 
 	case RETRO_ENVIRONMENT_GET_INPUT_BITMASKS:
@@ -302,6 +317,26 @@ void LibretroCore::onEnvSetPerformanceLevel(uint32_t level)
 	// Don't care?
 }
 
+bool LibretroCore::onEnvSetPixelFormat(retro_pixel_format data)
+{
+	pixelFormat = data;
+	return true;
+}
+
+void LibretroCore::onEnvSetGeometry(const retro_game_geometry& data)
+{
+	// TODO
+}
+
+int LibretroCore::onEnvGetAudioVideoEnable()
+{
+	constexpr int enableVideo = 0x1;
+	constexpr int enableAudio = 0x2;
+	constexpr int fastSaveSate = 0x4;
+	constexpr int hardDisableAudio = 0x8;
+	return enableVideo | enableAudio;
+}
+
 void LibretroCore::onEnvGetSystemDirectory(const char** data)
 {
 	*data = environment.getSystemDir().c_str();
@@ -357,6 +392,11 @@ void LibretroCore::onEnvSetVariables(const retro_variable* data)
 	for (const retro_variable* var = data; var->value || var->key; ++var) {
 		Logger::logDev("Set variable: " + String(var->key) + " = " + var->value);
 	}
+}
+
+bool LibretroCore::onEnvGetVariableUpdate()
+{
+	return false;
 }
 
 void LibretroCore::onEnvSetCoreOptions(const retro_core_option_definition* data) 
