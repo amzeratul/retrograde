@@ -23,6 +23,8 @@ public:
 	static std::unique_ptr<LibretroCore> load(std::string_view filename);
 	~LibretroCore() override;
 
+	bool loadGame(std::string_view path, gsl::span<const gsl::byte> data, std::string_view meta);
+	void unloadGame();
 	void run();
 
 protected:
@@ -35,6 +37,7 @@ protected:
 
 private:
 	DLL dll;
+	bool gameLoaded = false;
 
 	explicit LibretroCore(DLL dll);
 

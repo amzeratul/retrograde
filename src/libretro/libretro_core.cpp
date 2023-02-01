@@ -3,30 +3,6 @@
 #define RETRO_IMPORT_SYMBOLS
 #include "libretro.h"
 
-std::unique_ptr<LibretroCore> LibretroCore::load(std::string_view filename)
-{
-	DLL dll;
-	
-	if (dll.load(filename)) {
-		const auto retroAPIVersion = static_cast<decltype(&retro_api_version)>(dll.getFunction("retro_api_version"));
-		const auto dllVersion = retroAPIVersion();
-		if (dllVersion == RETRO_API_VERSION) {
-			return std::unique_ptr<LibretroCore>(new LibretroCore(std::move(dll)));
-		}
-	}
-	return {};
-}
-
-LibretroCore::LibretroCore(DLL dll)
-	: dll(std::move(dll))
-{
-	init();
-}
-
-LibretroCore::~LibretroCore()
-{
-	deInit();
-}
 
 namespace {
 	thread_local ILibretroCoreCallbacks* curInstance = nullptr;
@@ -64,9 +40,66 @@ namespace {
 
 #define DLL_FUNC(dll, FUNC_NAME) static_cast<decltype(&(FUNC_NAME))>((dll).getFunction(#FUNC_NAME))
 
+
+std::unique_ptr<LibretroCore> LibretroCore::load(std::string_view filename)
+{
+	DLL dll;
+	
+	if (dll.load(filename)) {
+		const auto retroAPIVersion = static_cast<decltype(&retro_api_version)>(dll.getFunction("retro_api_version"));
+		const auto dllVersion = retroAPIVersion();
+		if (dllVersion == RETRO_API_VERSION) {
+			return std::unique_ptr<LibretroCore>(new LibretroCore(std::move(dll)));
+		}
+	}
+	return {};
+}
+
+LibretroCore::LibretroCore(DLL dll)
+	: dll(std::move(dll))
+{
+	init();
+}
+
+LibretroCore::~LibretroCore()
+{
+	deInit();
+}
+
+bool LibretroCore::loadGame(std::string_view path, gsl::span<const gsl::byte> data, std::string_view meta)
+{
+	if (gameLoaded) {
+		unloadGame();
+	}
+
+	retro_game_info gameInfo;
+	gameInfo.path = path.data();
+	gameInfo.meta = meta.data();
+	gameInfo.size = data.size();
+	gameInfo.data = data.data();
+
+	auto guard = ScopedGuard([=]() { curInstance = nullptr; });
+	curInstance = this;
+
+	gameLoaded = DLL_FUNC(dll, retro_load_game)(&gameInfo);
+	return gameLoaded;
+}
+
+void LibretroCore::unloadGame()
+{
+	if (gameLoaded) {
+		auto guard = ScopedGuard([=]() { curInstance = nullptr; });
+		curInstance = this;
+
+		DLL_FUNC(dll, retro_unload_game)();
+
+		gameLoaded = false;
+	}
+}
+
 void LibretroCore::init()
 {
-	retro_system_info systemInfo;
+	retro_system_info systemInfo = {};
 	DLL_FUNC(dll, retro_get_system_info)(&systemInfo);
 	Logger::logDev("Loaded core " + String(systemInfo.library_name) + " " + String(systemInfo.library_version));
 
@@ -84,6 +117,10 @@ void LibretroCore::init()
 
 void LibretroCore::deInit()
 {
+	if (gameLoaded) {
+		unloadGame();
+	}
+
 	auto guard = ScopedGuard([=]() { curInstance = nullptr; });
 	curInstance = this;
 
