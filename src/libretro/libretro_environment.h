@@ -5,14 +5,20 @@ using namespace Halley;
 
 class LibretroEnvironment {
 public:
-	LibretroEnvironment(String rootDir);
+	LibretroEnvironment(String rootDir, Resources& resources, const HalleyAPI& halleyAPI);
 
 	const String& getSystemDir() const;
 	const String& getSaveDir() const;
 	const String& getCoresDir() const;
 	const String& getRomsDir() const;
 
+	Resources& getResources() const;
+	const HalleyAPI& getHalleyAPI() const;
+
 private:
+	Resources& resources;
+	const HalleyAPI& halleyAPI;
+
 	String rootDir;
 	String systemDir;
 	String saveDir;

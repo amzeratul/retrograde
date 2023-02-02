@@ -20,7 +20,7 @@ void GameStage::init()
 		gamePath = String::concatList(gsl::span<const String>(game.getArgs()).subspan(1), " ");
 	}
 
-	libretroEnvironment = std::make_unique<LibretroEnvironment>("..");
+	libretroEnvironment = std::make_unique<LibretroEnvironment>("..", getResources(), getAPI());
 	
 	libretroCore = LibretroCore::load(libretroEnvironment->getCoresDir() + "/" + corePath, *libretroEnvironment);
 	if (libretroCore) {
@@ -40,7 +40,7 @@ void GameStage::onVariableUpdate(Time t)
 	}
 
 	if (libretroCore && libretroCore->hasGameLoaded()) {
-		libretroCore->run();
+		libretroCore->runFrame();
 	}
 }
 
@@ -53,20 +53,25 @@ void GameStage::onRender(RenderContext& rc) const
 	rc.bind([&] (Painter& painter)
 	{
 		painter.clear(Colour4f(0.0f, 0.0f, 0.0f));
-		if (screen.hasMaterial()) {
-			const auto spriteSize = screen.getSize();
-			const auto windowSize = Vector2f(getVideoAPI().getWindow().getDefinition().getSize());
-			const auto scales = Vector2i((windowSize / spriteSize).floor());
-			const int scale = std::min(scales.x, scales.y);
 
-			screen
-				.clone()
-				.setScale(static_cast<float>(scale))
-				.setPivot(Vector2f(0.5f, 0.5f))
-				.setPosition(windowSize * 0.5f)
-				.draw(painter);
+		if (libretroCore) {
+			drawScreen(painter, libretroCore->getVideoOut());
 		}
-
-		//perfView->paint(painter);
 	});
+}
+
+void GameStage::drawScreen(Painter& painter, Sprite screen) const
+{
+	if (screen.hasMaterial()) {
+		const auto spriteSize = screen.getSize();
+		const auto windowSize = Vector2f(getVideoAPI().getWindow().getDefinition().getSize());
+		const auto scales = Vector2i((windowSize / spriteSize).floor());
+		const int scale = std::min(scales.x, scales.y);
+
+		screen
+			.setScale(static_cast<float>(scale))
+			.setPivot(Vector2f(0.5f, 0.5f))
+			.setPosition(windowSize * 0.5f)
+			.draw(painter);
+	}
 }

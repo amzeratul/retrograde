@@ -1,7 +1,9 @@
 #include "libretro_environment.h"
 
-LibretroEnvironment::LibretroEnvironment(String _rootDir)
-	: rootDir(std::move(_rootDir))
+LibretroEnvironment::LibretroEnvironment(String _rootDir, Resources& resources, const HalleyAPI& halleyAPI)
+	: resources(resources)
+	, halleyAPI(halleyAPI)
+	, rootDir(std::move(_rootDir))
 {
 	systemDir = rootDir + "/system";
 	saveDir = rootDir + "/save";
@@ -27,4 +29,14 @@ const String& LibretroEnvironment::getCoresDir() const
 const String& LibretroEnvironment::getRomsDir() const
 {
 	return romsDir;
+}
+
+Resources& LibretroEnvironment::getResources() const
+{
+	return resources;
+}
+
+const HalleyAPI& LibretroEnvironment::getHalleyAPI() const
+{
+	return halleyAPI;
 }

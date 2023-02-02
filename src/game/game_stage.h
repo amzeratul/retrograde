@@ -17,10 +17,11 @@ public:
 	void onRender(RenderContext&) const override;
 
 private:
-	Sprite screen;
 	std::shared_ptr<Texture> texture;
 	std::shared_ptr<InputVirtual> input;
 
 	std::unique_ptr<LibretroEnvironment> libretroEnvironment;
 	std::unique_ptr<LibretroCore> libretroCore;
+
+	void drawScreen(Painter& painter, Sprite screen) const;
 };

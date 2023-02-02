@@ -5,6 +5,7 @@
 
 #include "libretro.h"
 #include "libretro_environment.h"
+#include "src/util/cpu_update_texture.h"
 
 
 namespace {
@@ -129,6 +130,8 @@ void LibretroCore::unloadGame()
 
 void LibretroCore::init()
 {
+	initVideoOut();
+
 	retro_system_info systemInfo = {};
 	DLL_FUNC(dll, retro_get_system_info)(&systemInfo);
 	Logger::logDev("Loaded core " + String(systemInfo.library_name) + " " + String(systemInfo.library_version));
@@ -161,7 +164,19 @@ void LibretroCore::deInit()
 	DLL_FUNC(dll, retro_deinit)();
 }
 
-void LibretroCore::run()
+void LibretroCore::initVideoOut()
+{
+	cpuUpdateTexture = std::make_unique<CPUUpdateTexture>(*environment.getHalleyAPI().video);
+	auto material = std::make_shared<Material>(environment.getResources().get<MaterialDefinition>("Halley/SpriteOpaque"));
+
+	videoOut
+		.setMaterial(std::move(material))
+		.setTexRect0(Rect4f(0, 0, 1, 1))
+		.setColour(Colour4f(1, 1, 1, 1))
+		.setPosition(Vector2f(0, 0));
+}
+
+void LibretroCore::runFrame()
 {
 	auto guard = ScopedGuard([=]() { curInstance = nullptr; });
 	curInstance = this;
@@ -172,6 +187,11 @@ void LibretroCore::run()
 bool LibretroCore::hasGameLoaded() const
 {
 	return gameLoaded;
+}
+
+const Sprite& LibretroCore::getVideoOut() const
+{
+	return videoOut;
 }
 
 bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
@@ -277,9 +297,30 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 	}
 }
 
-void LibretroCore::onVideoRefresh(const void* data, uint32_t width, uint32_t height, size_t size)
+void LibretroCore::onVideoRefresh(const void* data, uint32_t width, uint32_t height, size_t pitch)
 {
-	// TODO
+	TextureFormat textureFormat;
+	switch (pixelFormat) {
+	case RETRO_PIXEL_FORMAT_0RGB1555:
+		textureFormat = TextureFormat::RGB565; // Wrong!
+		break;
+	case RETRO_PIXEL_FORMAT_RGB565:
+		textureFormat = TextureFormat::RGB565;
+		break;
+	case RETRO_PIXEL_FORMAT_XRGB8888:
+		textureFormat = TextureFormat::RGBA;
+		break;
+	case RETRO_PIXEL_FORMAT_UNKNOWN:
+	default:
+		return;
+	}
+
+	const auto size = Vector2i(static_cast<int>(width), static_cast<int>(height));
+	const auto dataSpan = gsl::as_bytes(gsl::span<const char>(static_cast<const char*>(data), pitch * height));
+	cpuUpdateTexture->update(size, static_cast<int>(pitch), dataSpan, textureFormat);
+	const auto tex = cpuUpdateTexture->getTexture();
+	videoOut.getMutableMaterial().set(0, tex);
+	videoOut.setSize(Vector2f(tex->getSize()));
 }
 
 void LibretroCore::onAudioSample(int16_t left, int16_t int16)
