@@ -18,7 +18,8 @@ public:
 
 private:
 	std::shared_ptr<Texture> texture;
-	std::shared_ptr<InputVirtual> input;
+
+	AudioHandle audioStreamHandle;
 
 	std::unique_ptr<LibretroEnvironment> libretroEnvironment;
 	std::unique_ptr<LibretroCore> libretroCore;

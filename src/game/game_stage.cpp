@@ -8,6 +8,10 @@ GameStage::GameStage() = default;
 
 GameStage::~GameStage()
 {
+	if (audioStreamHandle) {
+		audioStreamHandle->stop();
+	}
+	libretroCore.reset();
 }
 
 void GameStage::init()
@@ -29,7 +33,9 @@ void GameStage::init()
 	
 	if (libretroCore) {
 		const bool ok = libretroCore->loadGame(libretroEnvironment->getRomsDir() + "/" + gamePath);
-		if (!ok) {
+		if (ok) {
+			audioStreamHandle = getAudioAPI().play(libretroCore->getAudioOut(), getAudioAPI().getGlobalEmitter(), 1, true);
+		} else {
 			Logger::logError("Failed to load game " + String(gamePath));
 		}
 	} else {
@@ -39,10 +45,12 @@ void GameStage::init()
 
 void GameStage::onVariableUpdate(Time t)
 {
-	if (input) {
-		input->update(t);
+	if (getInputAPI().getKeyboard()->isButtonPressed(KeyCode::Esc)) {
+		libretroCore.reset();
+		getCoreAPI().quit();
+		return;
 	}
-
+	
 	if (libretroCore && libretroCore->hasGameLoaded()) {
 		libretroCore->runFrame();
 	}

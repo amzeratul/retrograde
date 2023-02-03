@@ -96,8 +96,6 @@ LibretroCore::~LibretroCore()
 
 void LibretroCore::init()
 {
-	initVideoOut();
-
 	retro_system_info retroSystemInfo = {};
 	DLL_FUNC(dll, retro_get_system_info)(&retroSystemInfo);
 	Logger::logDev("Loaded core " + String(retroSystemInfo.library_name) + " " + String(retroSystemInfo.library_version));
@@ -130,11 +128,17 @@ void LibretroCore::initVideoOut()
 		.setPosition(Vector2f(0, 0));
 }
 
+void LibretroCore::initAudioOut()
+{
+	std::array<float, 64> buffer;
+	buffer.fill(0);
+	audioOut = std::make_shared<StreamingAudioClip>(2);
+	audioOut->addInterleavedSamples(buffer);
+}
+
 void LibretroCore::deInit()
 {
-	if (gameLoaded) {
-		unloadGame();
-	}
+	unloadGame();
 
 	auto guard = ScopedGuard([=]() { curInstance = nullptr; });
 	curInstance = this;
@@ -180,6 +184,9 @@ bool LibretroCore::loadGame(std::string_view path, gsl::span<const gsl::byte> da
 		systemAVInfo.sampleRate = retroAVInfo.timing.sample_rate;
 
 		systemAVInfo.loadGeometry(retroAVInfo.geometry);
+
+		initVideoOut();
+		initAudioOut();
 	}
 	
 	return gameLoaded;
@@ -213,6 +220,11 @@ bool LibretroCore::hasGameLoaded() const
 const Sprite& LibretroCore::getVideoOut() const
 {
 	return videoOut;
+}
+
+const std::shared_ptr<StreamingAudioClip>& LibretroCore::getAudioOut() const
+{
+	return audioOut;
 }
 
 const LibretroCore::SystemInfo& LibretroCore::getSystemInfo() const
@@ -365,15 +377,26 @@ void LibretroCore::onVideoRefresh(const void* data, uint32_t width, uint32_t hei
 	videoOut.scaleTo(Vector2f(texSize.y * ar, texSize.y));
 }
 
-void LibretroCore::onAudioSample(int16_t left, int16_t int16)
+void LibretroCore::onAudioSample(int16_t left, int16_t right)
 {
-	// TODO
+	const float samples[2] = { left / 32768.0f, right / 32768.0f };
+	audioOut->addInterleavedSamples(gsl::span(samples));
 }
 
-size_t LibretroCore::onAudioSampleBatch(const int16_t* data, size_t size)
+size_t LibretroCore::onAudioSampleBatch(const int16_t* data, size_t frames)
 {
-	// TODO
-	return 0;
+	const size_t samples = frames * 2;
+	
+	if (audioBuffer.size() < samples) {
+		audioBuffer.resize(nextPowerOf2(samples));
+	}
+
+	for (size_t i = 0; i < samples; ++i) {
+		audioBuffer[i] = data[i] / 32768.0f;
+	}
+	audioOut->addInterleavedSamples(gsl::span<const float>(audioBuffer.data(), samples));
+	
+	return frames;
 }
 
 void LibretroCore::onEnvSetInputDescriptors(const retro_input_descriptor* data)

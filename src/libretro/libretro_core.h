@@ -14,7 +14,7 @@ public:
 
 	virtual bool onEnvironment(uint32_t cmd, void* data) = 0;
 	virtual void onVideoRefresh(const void* data, uint32_t width, uint32_t height, size_t pitch) = 0;
-	virtual void onAudioSample(int16_t left, int16_t int16) = 0;
+	virtual void onAudioSample(int16_t left, int16_t right) = 0;
 	virtual size_t onAudioSampleBatch(const int16_t* data, size_t size) = 0;
 	virtual void onInputPoll() = 0;
 	virtual int16_t onInputState(uint32_t port, uint32_t device, uint32_t index, uint32_t id) = 0;
@@ -61,6 +61,7 @@ public:
 
 	bool hasGameLoaded() const;
 	const Sprite& getVideoOut() const;
+	const std::shared_ptr<StreamingAudioClip>& getAudioOut() const;
 
 	const SystemInfo& getSystemInfo() const;
 	const SystemAVInfo& getSystemAVInfo() const;
@@ -70,7 +71,7 @@ public:
 protected:
 	bool onEnvironment(uint32_t cmd, void* data) override;
 	void onVideoRefresh(const void* data, uint32_t width, uint32_t height, size_t pitch) override;
-	void onAudioSample(int16_t left, int16_t int16) override;
+	void onAudioSample(int16_t left, int16_t right) override;
 	size_t onAudioSampleBatch(const int16_t* data, size_t size) override;
 	void onInputPoll() override;
 	int16_t onInputState(uint32_t port, uint32_t device, uint32_t index, uint32_t id) override;
@@ -90,6 +91,9 @@ private:
 	Sprite videoOut;
 	std::unique_ptr<CPUUpdateTexture> cpuUpdateTexture;
 
+	std::shared_ptr<StreamingAudioClip> audioOut;
+	Vector<float> audioBuffer;
+
 	constexpr static int maxInputDevices = 8;
 	std::array<uint16_t, maxInputDevices> inputJoypads;
 	std::array<std::shared_ptr<InputVirtual>, maxInputDevices> inputDevices;
@@ -100,6 +104,7 @@ private:
 	void deInit();
 
 	void initVideoOut();
+	void initAudioOut();
 
 	void onEnvSetPerformanceLevel(uint32_t level);
 	bool onEnvSetPixelFormat(retro_pixel_format data);
