@@ -86,7 +86,7 @@ LibretroCore::~LibretroCore()
 
 bool LibretroCore::loadGame(std::string_view path)
 {
-	if (needFullpath) {
+	if (systemInfo.needFullpath) {
 		return loadGame(path, {}, {});
 	} else {
 		auto bytes = Path::readFile(Path(path));
@@ -113,6 +113,22 @@ bool LibretroCore::loadGame(std::string_view path, gsl::span<const gsl::byte> da
 	curInstance = this;
 
 	gameLoaded = DLL_FUNC(dll, retro_load_game)(&gameInfo);
+
+	if (gameLoaded) {
+		retro_system_av_info retroAVInfo = {};
+		DLL_FUNC(dll, retro_get_system_av_info)(&retroAVInfo);
+
+		systemAVInfo.fps = retroAVInfo.timing.fps;
+		systemAVInfo.sampleRate = retroAVInfo.timing.sample_rate;
+
+		systemAVInfo.baseSize = Vector2i(retroAVInfo.geometry.base_width, retroAVInfo.geometry.base_height);
+		systemAVInfo.maxSize = Vector2i(retroAVInfo.geometry.max_width, retroAVInfo.geometry.max_height);
+		systemAVInfo.aspectRatio = retroAVInfo.geometry.aspect_ratio;
+		if (systemAVInfo.aspectRatio <= 0) {
+			systemAVInfo.aspectRatio = static_cast<float>(systemAVInfo.baseSize.x) / static_cast<float>(systemAVInfo.baseSize.y);
+		}
+	}
+	
 	return gameLoaded;
 }
 
@@ -132,13 +148,13 @@ void LibretroCore::init()
 {
 	initVideoOut();
 
-	retro_system_info systemInfo = {};
-	DLL_FUNC(dll, retro_get_system_info)(&systemInfo);
-	Logger::logDev("Loaded core " + String(systemInfo.library_name) + " " + String(systemInfo.library_version));
-	coreName = systemInfo.library_name;
-	coreVersion = systemInfo.library_version;
-	blockExtract = systemInfo.block_extract;
-	needFullpath = systemInfo.need_fullpath;
+	retro_system_info retroSystemInfo = {};
+	DLL_FUNC(dll, retro_get_system_info)(&retroSystemInfo);
+	Logger::logDev("Loaded core " + String(retroSystemInfo.library_name) + " " + String(retroSystemInfo.library_version));
+	systemInfo.coreName = retroSystemInfo.library_name;
+	systemInfo.coreVersion = retroSystemInfo.library_version;
+	systemInfo.blockExtract = retroSystemInfo.block_extract;
+	systemInfo.needFullpath = retroSystemInfo.need_fullpath;
 
 	auto guard = ScopedGuard([=]() { curInstance = nullptr; });
 	curInstance = this;
@@ -192,6 +208,17 @@ bool LibretroCore::hasGameLoaded() const
 const Sprite& LibretroCore::getVideoOut() const
 {
 	return videoOut;
+}
+
+const LibretroCore::SystemInfo& LibretroCore::getSystemInfo() const
+{
+	return systemInfo;
+}
+
+const LibretroCore::SystemAVInfo& LibretroCore::getSystemAVInfo() const
+{
+	Expects(gameLoaded);
+	return systemAVInfo;
 }
 
 bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
@@ -300,9 +327,9 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 void LibretroCore::onVideoRefresh(const void* data, uint32_t width, uint32_t height, size_t pitch)
 {
 	TextureFormat textureFormat;
-	switch (pixelFormat) {
+	switch (systemAVInfo.pixelFormat) {
 	case RETRO_PIXEL_FORMAT_0RGB1555:
-		textureFormat = TextureFormat::RGB565; // Wrong!
+		textureFormat = TextureFormat::RGBA5551;
 		break;
 	case RETRO_PIXEL_FORMAT_RGB565:
 		textureFormat = TextureFormat::RGB565;
@@ -320,7 +347,11 @@ void LibretroCore::onVideoRefresh(const void* data, uint32_t width, uint32_t hei
 	cpuUpdateTexture->update(size, static_cast<int>(pitch), dataSpan, textureFormat);
 	const auto tex = cpuUpdateTexture->getTexture();
 	videoOut.getMutableMaterial().set(0, tex);
-	videoOut.setSize(Vector2f(tex->getSize()));
+
+	const auto texSize = Vector2f(tex->getSize());
+	const auto ar = systemAVInfo.aspectRatio;
+	videoOut.setSize(texSize);
+	videoOut.scaleTo(Vector2f(texSize.y * ar, texSize.y));
 }
 
 void LibretroCore::onAudioSample(int16_t left, int16_t int16)
@@ -349,7 +380,7 @@ void LibretroCore::onLog(retro_log_level level, const char* str)
 {
 	if (level != RETRO_LOG_DUMMY) {
 		const auto halleyLevel = static_cast<LoggerLevel>(level); // By sheer coincidence, the levels match
-		Logger::log(halleyLevel, "[" + coreName + "] " + str);
+		Logger::log(halleyLevel, "[" + systemInfo.coreName + "] " + str);
 	}
 }
 
@@ -360,7 +391,7 @@ void LibretroCore::onEnvSetPerformanceLevel(uint32_t level)
 
 bool LibretroCore::onEnvSetPixelFormat(retro_pixel_format data)
 {
-	pixelFormat = data;
+	systemAVInfo.pixelFormat = data;
 	return true;
 }
 
@@ -410,12 +441,12 @@ uint32_t LibretroCore::onEnvGetLanguage()
 
 void LibretroCore::onEnvSetSupportAchievements(bool data)
 {
-	supportAchievements = data;
+	systemInfo.supportAchievements = data;
 }
 
 void LibretroCore::onEnvSetSupportNoGame(bool data)
 {
-	supportNoGame = data;
+	systemInfo.supportNoGame = data;
 }
 
 void LibretroCore::onEnvGetVariable(retro_variable& data)

@@ -31,6 +31,24 @@ public:
 		String category;
 	};
 
+	struct SystemInfo {
+		String coreName;
+		String coreVersion;
+		bool supportNoGame = false;
+		bool supportAchievements = false;
+		bool blockExtract = false;
+		bool needFullpath = false;
+	};
+
+	struct SystemAVInfo {
+		retro_pixel_format pixelFormat = RETRO_PIXEL_FORMAT_0RGB1555;
+		double fps = 60.0;
+		double sampleRate = 48000.0;
+		float aspectRatio = 4.0f / 3.0f;
+		Vector2i baseSize;
+		Vector2i maxSize;
+	};
+
 	static std::unique_ptr<LibretroCore> load(std::string_view filename, LibretroEnvironment& environment);
 	~LibretroCore() override;
 
@@ -41,6 +59,9 @@ public:
 
 	bool hasGameLoaded() const;
 	const Sprite& getVideoOut() const;
+
+	const SystemInfo& getSystemInfo() const;
+	const SystemAVInfo& getSystemAVInfo() const;
 
 protected:
 	bool onEnvironment(uint32_t cmd, void* data) override;
@@ -56,16 +77,11 @@ private:
 	LibretroEnvironment& environment;
 
 	bool gameLoaded = false;
-	bool supportNoGame = false;
-	bool supportAchievements = false;
-	bool blockExtract = false;
-	bool needFullpath = false;
-	retro_pixel_format pixelFormat = RETRO_PIXEL_FORMAT_0RGB1555;
+
+	SystemInfo systemInfo;
+	SystemAVInfo systemAVInfo;
 
 	HashMap<String, Option> options;
-
-	String coreName;
-	String coreVersion;
 
 	Sprite videoOut;
 	std::unique_ptr<CPUUpdateTexture> cpuUpdateTexture;

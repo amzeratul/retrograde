@@ -20,6 +20,7 @@ void CPUUpdateTexture::update(Vector2i size, std::optional<int> stride, gsl::spa
 
 void CPUUpdateTexture::updateTexture(gsl::span<const gsl::byte> data, std::optional<int> stride, TextureFormat textureFormat)
 {
+	// TODO: implement texture updating API
 	texture->startLoading();
 	auto texDesc = TextureDescriptor(texture->getSize(), TextureFormat::RGBA);
 	texDesc.canBeUpdated = true;

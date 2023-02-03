@@ -54,7 +54,7 @@ void GameStage::onRender(RenderContext& rc) const
 	{
 		painter.clear(Colour4f(0.0f, 0.0f, 0.0f));
 
-		if (libretroCore) {
+		if (libretroCore && libretroCore->hasGameLoaded()) {
 			drawScreen(painter, libretroCore->getVideoOut());
 		}
 	});
@@ -63,13 +63,13 @@ void GameStage::onRender(RenderContext& rc) const
 void GameStage::drawScreen(Painter& painter, Sprite screen) const
 {
 	if (screen.hasMaterial()) {
-		const auto spriteSize = screen.getSize();
+		const auto spriteSize = screen.getScaledSize();
 		const auto windowSize = Vector2f(getVideoAPI().getWindow().getDefinition().getSize());
-		const auto scales = Vector2i((windowSize / spriteSize).floor());
-		const int scale = std::min(scales.x, scales.y);
+		const auto scales = windowSize / spriteSize;
+		const auto scale = std::min(scales.x, scales.y);
 
 		screen
-			.setScale(static_cast<float>(scale))
+			.setScale(scale)
 			.setPivot(Vector2f(0.5f, 0.5f))
 			.setPosition(windowSize * 0.5f)
 			.draw(painter);
