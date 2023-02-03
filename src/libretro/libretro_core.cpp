@@ -134,12 +134,22 @@ void LibretroCore::initAudioOut()
 	buffer.fill(0);
 	audioOut = std::make_shared<StreamingAudioClip>(2);
 	audioOut->addInterleavedSamples(buffer);
+
+	resampler = std::make_unique<AudioResampler>(lroundl(systemAVInfo.sampleRate), 48000, 2, 1.0f);
 }
 
 void LibretroCore::addAudioSamples(gsl::span<const float> samples)
 {
-	// TODO: resample
-	audioOut->addInterleavedSamples(samples);
+	const auto nOut = resampler->numOutputSamples(samples.size());
+	const auto minBufferSize = nextPowerOf2(nOut + 2);
+	if (resampleAudioBuffer.size() < minBufferSize) {
+		resampleAudioBuffer.resize(minBufferSize);
+	}
+
+	const auto dst = gsl::span<float>(resampleAudioBuffer.data(), nOut);
+	resampler->resampleInterleaved(samples, gsl::span<float>(resampleAudioBuffer));
+	
+	audioOut->addInterleavedSamples(dst);
 }
 
 void LibretroCore::deInit()
