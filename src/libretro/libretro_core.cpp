@@ -58,6 +58,16 @@ namespace {
 #define DLL_FUNC(dll, FUNC_NAME) static_cast<decltype(&(FUNC_NAME))>((dll).getFunction(#FUNC_NAME))
 
 
+void LibretroCore::SystemAVInfo::loadGeometry(const retro_game_geometry& geometry)
+{
+	baseSize = Vector2i(geometry.base_width, geometry.base_height);
+	maxSize = Vector2i(geometry.max_width, geometry.max_height);
+	aspectRatio = geometry.aspect_ratio;
+	if (aspectRatio <= 0) {
+		aspectRatio = static_cast<float>(baseSize.x) / static_cast<float>(baseSize.y);
+	}
+}
+
 std::unique_ptr<LibretroCore> LibretroCore::load(std::string_view filename, LibretroEnvironment& environment)
 {
 	DLL dll;
@@ -82,6 +92,54 @@ LibretroCore::LibretroCore(DLL dll, LibretroEnvironment& environment)
 LibretroCore::~LibretroCore()
 {
 	deInit();
+}
+
+void LibretroCore::init()
+{
+	initVideoOut();
+
+	retro_system_info retroSystemInfo = {};
+	DLL_FUNC(dll, retro_get_system_info)(&retroSystemInfo);
+	Logger::logDev("Loaded core " + String(retroSystemInfo.library_name) + " " + String(retroSystemInfo.library_version));
+	systemInfo.coreName = retroSystemInfo.library_name;
+	systemInfo.coreVersion = retroSystemInfo.library_version;
+	systemInfo.blockExtract = retroSystemInfo.block_extract;
+	systemInfo.needFullpath = retroSystemInfo.need_fullpath;
+
+	auto guard = ScopedGuard([=]() { curInstance = nullptr; });
+	curInstance = this;
+
+	DLL_FUNC(dll, retro_set_environment)(&retroEnvironmentCallback);
+	DLL_FUNC(dll, retro_init)();
+	DLL_FUNC(dll, retro_set_video_refresh)(&retroVideoRefreshCallback);
+	DLL_FUNC(dll, retro_set_audio_sample)(&retroAudioSampleCallback);
+	DLL_FUNC(dll, retro_set_audio_sample_batch)(&retroAudioSampleBatchCallback);
+	DLL_FUNC(dll, retro_set_input_poll)(&retroInputPollCallback);
+	DLL_FUNC(dll, retro_set_input_state)(&retroInputStateCallback);
+}
+
+void LibretroCore::initVideoOut()
+{
+	cpuUpdateTexture = std::make_unique<CPUUpdateTexture>(*environment.getHalleyAPI().video);
+	auto material = std::make_shared<Material>(environment.getResources().get<MaterialDefinition>("Halley/SpriteOpaque"));
+
+	videoOut
+		.setMaterial(std::move(material))
+		.setTexRect0(Rect4f(0, 0, 1, 1))
+		.setColour(Colour4f(1, 1, 1, 1))
+		.setPosition(Vector2f(0, 0));
+}
+
+void LibretroCore::deInit()
+{
+	if (gameLoaded) {
+		unloadGame();
+	}
+
+	auto guard = ScopedGuard([=]() { curInstance = nullptr; });
+	curInstance = this;
+
+	DLL_FUNC(dll, retro_deinit)();
 }
 
 bool LibretroCore::loadGame(std::string_view path)
@@ -121,12 +179,7 @@ bool LibretroCore::loadGame(std::string_view path, gsl::span<const gsl::byte> da
 		systemAVInfo.fps = retroAVInfo.timing.fps;
 		systemAVInfo.sampleRate = retroAVInfo.timing.sample_rate;
 
-		systemAVInfo.baseSize = Vector2i(retroAVInfo.geometry.base_width, retroAVInfo.geometry.base_height);
-		systemAVInfo.maxSize = Vector2i(retroAVInfo.geometry.max_width, retroAVInfo.geometry.max_height);
-		systemAVInfo.aspectRatio = retroAVInfo.geometry.aspect_ratio;
-		if (systemAVInfo.aspectRatio <= 0) {
-			systemAVInfo.aspectRatio = static_cast<float>(systemAVInfo.baseSize.x) / static_cast<float>(systemAVInfo.baseSize.y);
-		}
+		systemAVInfo.loadGeometry(retroAVInfo.geometry);
 	}
 	
 	return gameLoaded;
@@ -142,54 +195,6 @@ void LibretroCore::unloadGame()
 
 		gameLoaded = false;
 	}
-}
-
-void LibretroCore::init()
-{
-	initVideoOut();
-
-	retro_system_info retroSystemInfo = {};
-	DLL_FUNC(dll, retro_get_system_info)(&retroSystemInfo);
-	Logger::logDev("Loaded core " + String(retroSystemInfo.library_name) + " " + String(retroSystemInfo.library_version));
-	systemInfo.coreName = retroSystemInfo.library_name;
-	systemInfo.coreVersion = retroSystemInfo.library_version;
-	systemInfo.blockExtract = retroSystemInfo.block_extract;
-	systemInfo.needFullpath = retroSystemInfo.need_fullpath;
-
-	auto guard = ScopedGuard([=]() { curInstance = nullptr; });
-	curInstance = this;
-
-	DLL_FUNC(dll, retro_set_environment)(&retroEnvironmentCallback);
-	DLL_FUNC(dll, retro_init)();
-	DLL_FUNC(dll, retro_set_video_refresh)(&retroVideoRefreshCallback);
-	DLL_FUNC(dll, retro_set_audio_sample)(&retroAudioSampleCallback);
-	DLL_FUNC(dll, retro_set_audio_sample_batch)(&retroAudioSampleBatchCallback);
-	DLL_FUNC(dll, retro_set_input_poll)(&retroInputPollCallback);
-	DLL_FUNC(dll, retro_set_input_state)(&retroInputStateCallback);
-}
-
-void LibretroCore::deInit()
-{
-	if (gameLoaded) {
-		unloadGame();
-	}
-
-	auto guard = ScopedGuard([=]() { curInstance = nullptr; });
-	curInstance = this;
-
-	DLL_FUNC(dll, retro_deinit)();
-}
-
-void LibretroCore::initVideoOut()
-{
-	cpuUpdateTexture = std::make_unique<CPUUpdateTexture>(*environment.getHalleyAPI().video);
-	auto material = std::make_shared<Material>(environment.getResources().get<MaterialDefinition>("Halley/SpriteOpaque"));
-
-	videoOut
-		.setMaterial(std::move(material))
-		.setTexRect0(Rect4f(0, 0, 1, 1))
-		.setColour(Colour4f(1, 1, 1, 1))
-		.setPosition(Vector2f(0, 0));
 }
 
 void LibretroCore::runFrame()
@@ -219,6 +224,12 @@ const LibretroCore::SystemAVInfo& LibretroCore::getSystemAVInfo() const
 {
 	Expects(gameLoaded);
 	return systemAVInfo;
+}
+
+void LibretroCore::setInputDevice(int idx, std::shared_ptr<InputVirtual> input)
+{
+	Expects(idx < maxInputDevices);
+	inputDevices[idx] = std::move(input);
 }
 
 bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
@@ -365,14 +376,69 @@ size_t LibretroCore::onAudioSampleBatch(const int16_t* data, size_t size)
 	return 0;
 }
 
-void LibretroCore::onInputPoll()
+void LibretroCore::onEnvSetInputDescriptors(const retro_input_descriptor* data)
 {
 	// TODO
 }
 
-int16_t LibretroCore::onInputState(uint32_t port, uint32_t device, uint32_t index, uint32_t id)
+void LibretroCore::onEnvSetControllerInfo(const retro_controller_info& data)
 {
 	// TODO
+}
+
+void LibretroCore::onInputPoll()
+{
+	for (int i = 0; i < maxInputDevices; ++i) {
+		inputJoypads[i] = 0;
+		if (auto input = inputDevices[i]; input) {
+			input->update(0); // TODO: pass correct time?
+			
+			uint16_t value = 0;
+
+			value |= input->isButtonDown(0) ? (1 << RETRO_DEVICE_ID_JOYPAD_UP) : 0;
+			value |= input->isButtonDown(1) ? (1 << RETRO_DEVICE_ID_JOYPAD_DOWN) : 0;
+			value |= input->isButtonDown(2) ? (1 << RETRO_DEVICE_ID_JOYPAD_LEFT) : 0;
+			value |= input->isButtonDown(3) ? (1 << RETRO_DEVICE_ID_JOYPAD_RIGHT) : 0;
+
+			value |= input->isButtonDown(4) ? (1 << RETRO_DEVICE_ID_JOYPAD_A) : 0;
+			value |= input->isButtonDown(5) ? (1 << RETRO_DEVICE_ID_JOYPAD_B) : 0;
+			value |= input->isButtonDown(6) ? (1 << RETRO_DEVICE_ID_JOYPAD_X) : 0;
+			value |= input->isButtonDown(7) ? (1 << RETRO_DEVICE_ID_JOYPAD_Y) : 0;
+
+			value |= input->isButtonDown(8) ? (1 << RETRO_DEVICE_ID_JOYPAD_SELECT) : 0;
+			value |= input->isButtonDown(9) ? (1 << RETRO_DEVICE_ID_JOYPAD_START) : 0;
+			
+			value |= input->isButtonDown(10) ? (1 << RETRO_DEVICE_ID_JOYPAD_L) : 0;
+			value |= input->isButtonDown(11) ? (1 << RETRO_DEVICE_ID_JOYPAD_R) : 0;
+			value |= input->isButtonDown(12) ? (1 << RETRO_DEVICE_ID_JOYPAD_L2) : 0;
+			value |= input->isButtonDown(13) ? (1 << RETRO_DEVICE_ID_JOYPAD_R2) : 0;
+			value |= input->isButtonDown(14) ? (1 << RETRO_DEVICE_ID_JOYPAD_L3) : 0;
+			value |= input->isButtonDown(15) ? (1 << RETRO_DEVICE_ID_JOYPAD_R3) : 0;
+
+			bool leftStickAsDPad = true;
+			if (leftStickAsDPad) {
+				const float threshold = 0.2f;
+				value |= input->getAxis(1) < -threshold ? (1 << RETRO_DEVICE_ID_JOYPAD_UP) : 0;
+				value |= input->getAxis(1) > threshold ? (1 << RETRO_DEVICE_ID_JOYPAD_DOWN) : 0;
+				value |= input->getAxis(0) < -threshold ? (1 << RETRO_DEVICE_ID_JOYPAD_LEFT) : 0;
+				value |= input->getAxis(0) > threshold ? (1 << RETRO_DEVICE_ID_JOYPAD_RIGHT) : 0;
+			}
+
+			inputJoypads[i] = value;
+		}
+	}
+}
+
+int16_t LibretroCore::onInputState(uint32_t port, uint32_t device, uint32_t index, uint32_t id)
+{
+	if (device == RETRO_DEVICE_JOYPAD) {
+		assert(port < maxInputDevices);
+		if (id == RETRO_DEVICE_ID_JOYPAD_MASK) {
+			return inputJoypads[port];
+		} else {
+			return inputJoypads[port] & (1 << id) ? 1 : 0;
+		}
+	}
 	return 0;
 }
 
@@ -397,7 +463,7 @@ bool LibretroCore::onEnvSetPixelFormat(retro_pixel_format data)
 
 void LibretroCore::onEnvSetGeometry(const retro_game_geometry& data)
 {
-	// TODO
+	systemAVInfo.loadGeometry(data);
 }
 
 int LibretroCore::onEnvGetAudioVideoEnable()
@@ -414,22 +480,12 @@ void LibretroCore::onEnvGetSystemDirectory(const char** data)
 	*data = environment.getSystemDir().c_str();
 }
 
-void LibretroCore::onEnvSetInputDescriptors(const retro_input_descriptor* data)
-{
-	// TODO
-}
-
 void LibretroCore::onEnvGetSaveDirectory(const char** data)
 {
 	*data = environment.getSaveDir().c_str();
 }
 
 void LibretroCore::onEnvSetSubsystemInfo(const retro_subsystem_info& data)
-{
-	// TODO
-}
-
-void LibretroCore::onEnvSetControllerInfo(const retro_controller_info& data)
 {
 	// TODO
 }

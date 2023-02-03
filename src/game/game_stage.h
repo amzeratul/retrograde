@@ -24,4 +24,6 @@ private:
 	std::unique_ptr<LibretroCore> libretroCore;
 
 	void drawScreen(Painter& painter, Sprite screen) const;
+
+	std::shared_ptr<InputVirtual> makeInput(int idx);
 };

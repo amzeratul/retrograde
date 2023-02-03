@@ -23,6 +23,10 @@ void GameStage::init()
 	libretroEnvironment = std::make_unique<LibretroEnvironment>("..", getResources(), getAPI());
 	
 	libretroCore = LibretroCore::load(libretroEnvironment->getCoresDir() + "/" + corePath, *libretroEnvironment);
+	for (int i = 0; i < 4; ++i) {
+		libretroCore->setInputDevice(i, makeInput(i));
+	}
+	
 	if (libretroCore) {
 		const bool ok = libretroCore->loadGame(libretroEnvironment->getRomsDir() + "/" + gamePath);
 		if (!ok) {
@@ -74,4 +78,40 @@ void GameStage::drawScreen(Painter& painter, Sprite screen) const
 			.setPosition(windowSize * 0.5f)
 			.draw(painter);
 	}
+}
+
+std::shared_ptr<InputVirtual> GameStage::makeInput(int idx)
+{
+	auto input = std::make_shared<InputVirtual>(16, 6);
+
+	auto joy = getInputAPI().getJoystick(idx);
+
+	input->bindButton(0, joy, joy->getButtonAtPosition(JoystickButtonPosition::DPadUp));
+	input->bindButton(1, joy, joy->getButtonAtPosition(JoystickButtonPosition::DPadDown));
+	input->bindButton(2, joy, joy->getButtonAtPosition(JoystickButtonPosition::DPadLeft));
+	input->bindButton(3, joy, joy->getButtonAtPosition(JoystickButtonPosition::DPadRight));
+
+	input->bindButton(4, joy, joy->getButtonAtPosition(JoystickButtonPosition::FaceRight));
+	input->bindButton(5, joy, joy->getButtonAtPosition(JoystickButtonPosition::FaceBottom));
+	input->bindButton(6, joy, joy->getButtonAtPosition(JoystickButtonPosition::FaceTop));
+	input->bindButton(7, joy, joy->getButtonAtPosition(JoystickButtonPosition::FaceLeft));
+
+	input->bindButton(8, joy, joy->getButtonAtPosition(JoystickButtonPosition::Select));
+	input->bindButton(9, joy, joy->getButtonAtPosition(JoystickButtonPosition::Start));
+
+	input->bindButton(10, joy, joy->getButtonAtPosition(JoystickButtonPosition::BumperLeft));
+	input->bindButton(11, joy, joy->getButtonAtPosition(JoystickButtonPosition::BumperRight));
+	input->bindButton(12, joy, joy->getButtonAtPosition(JoystickButtonPosition::TriggerLeft));
+	input->bindButton(13, joy, joy->getButtonAtPosition(JoystickButtonPosition::TriggerRight));
+	input->bindButton(14, joy, joy->getButtonAtPosition(JoystickButtonPosition::LeftStick));
+	input->bindButton(15, joy, joy->getButtonAtPosition(JoystickButtonPosition::RightStick));
+
+	input->bindAxis(0, joy, 0);
+	input->bindAxis(1, joy, 1);
+	input->bindAxis(2, joy, 2);
+	input->bindAxis(3, joy, 3);
+	input->bindAxis(4, joy, 4);
+	input->bindAxis(5, joy, 5);
+	
+	return input;
 }

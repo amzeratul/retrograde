@@ -47,6 +47,8 @@ public:
 		float aspectRatio = 4.0f / 3.0f;
 		Vector2i baseSize;
 		Vector2i maxSize;
+		
+		void loadGeometry(const retro_game_geometry& geometry);
 	};
 
 	static std::unique_ptr<LibretroCore> load(std::string_view filename, LibretroEnvironment& environment);
@@ -62,6 +64,8 @@ public:
 
 	const SystemInfo& getSystemInfo() const;
 	const SystemAVInfo& getSystemAVInfo() const;
+
+	void setInputDevice(int idx, std::shared_ptr<InputVirtual> input);
 
 protected:
 	bool onEnvironment(uint32_t cmd, void* data) override;
@@ -85,6 +89,10 @@ private:
 
 	Sprite videoOut;
 	std::unique_ptr<CPUUpdateTexture> cpuUpdateTexture;
+
+	constexpr static int maxInputDevices = 8;
+	std::array<uint16_t, maxInputDevices> inputJoypads;
+	std::array<std::shared_ptr<InputVirtual>, maxInputDevices> inputDevices;
 
 	LibretroCore(DLL dll, LibretroEnvironment& environment);
 
