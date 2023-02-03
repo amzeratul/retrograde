@@ -92,7 +92,9 @@ private:
 	std::unique_ptr<CPUUpdateTexture> cpuUpdateTexture;
 
 	std::shared_ptr<StreamingAudioClip> audioOut;
+	std::unique_ptr<AudioResampler> resampler;
 	Vector<float> audioBuffer;
+	Vector<float> resampleAudioBuffer;
 
 	constexpr static int maxInputDevices = 8;
 	std::array<uint16_t, maxInputDevices> inputJoypads;
@@ -105,6 +107,8 @@ private:
 
 	void initVideoOut();
 	void initAudioOut();
+
+	void addAudioSamples(gsl::span<const float> samples);
 
 	void onEnvSetPerformanceLevel(uint32_t level);
 	bool onEnvSetPixelFormat(retro_pixel_format data);

@@ -136,6 +136,12 @@ void LibretroCore::initAudioOut()
 	audioOut->addInterleavedSamples(buffer);
 }
 
+void LibretroCore::addAudioSamples(gsl::span<const float> samples)
+{
+	// TODO: resample
+	audioOut->addInterleavedSamples(samples);
+}
+
 void LibretroCore::deInit()
 {
 	unloadGame();
@@ -380,13 +386,13 @@ void LibretroCore::onVideoRefresh(const void* data, uint32_t width, uint32_t hei
 void LibretroCore::onAudioSample(int16_t left, int16_t right)
 {
 	const float samples[2] = { left / 32768.0f, right / 32768.0f };
-	audioOut->addInterleavedSamples(gsl::span(samples));
+	addAudioSamples(gsl::span(samples));
 }
 
 size_t LibretroCore::onAudioSampleBatch(const int16_t* data, size_t frames)
 {
 	const size_t samples = frames * 2;
-	
+
 	if (audioBuffer.size() < samples) {
 		audioBuffer.resize(nextPowerOf2(samples));
 	}
@@ -394,7 +400,8 @@ size_t LibretroCore::onAudioSampleBatch(const int16_t* data, size_t frames)
 	for (size_t i = 0; i < samples; ++i) {
 		audioBuffer[i] = data[i] / 32768.0f;
 	}
-	audioOut->addInterleavedSamples(gsl::span<const float>(audioBuffer.data(), samples));
+
+	addAudioSamples(gsl::span<const float>(audioBuffer.data(), samples));
 	
 	return frames;
 }
