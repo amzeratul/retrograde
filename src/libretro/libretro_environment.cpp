@@ -1,4 +1,5 @@
 #include "libretro_environment.h"
+#include <filesystem>
 
 LibretroEnvironment::LibretroEnvironment(String _rootDir, String _systemId, Resources& resources, const HalleyAPI& halleyAPI)
 	: resources(resources)
@@ -10,6 +11,10 @@ LibretroEnvironment::LibretroEnvironment(String _rootDir, String _systemId, Reso
 	saveDir = rootDir + "/save/" + systemId;
 	coresDir = rootDir + "/cores";
 	romsDir = rootDir + "/roms/" + systemId;
+
+	std::error_code ec;
+	std::filesystem::create_directories(saveDir.cppStr(), ec);
+	std::filesystem::create_directories(systemDir.cppStr(), ec);
 }
 
 const String& LibretroEnvironment::getSystemDir() const

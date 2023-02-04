@@ -231,6 +231,25 @@ bool LibretroCore::hasGameLoaded() const
 	return gameLoaded;
 }
 
+Bytes LibretroCore::saveState() const
+{
+	size_t size = DLL_FUNC(dll, retro_serialize_size)();
+	Bytes bytes;
+	bytes.resize(size);
+	DLL_FUNC(dll, retro_serialize)(bytes.data(), bytes.size());
+	return bytes;
+}
+
+void LibretroCore::loadState(gsl::span<const gsl::byte> bytes)
+{
+	DLL_FUNC(dll, retro_unserialize)(bytes.data(), bytes.size());
+}
+
+void LibretroCore::loadState(const Bytes& bytes)
+{
+	loadState(gsl::as_bytes(gsl::span<const Byte>(bytes)));
+}
+
 const Sprite& LibretroCore::getVideoOut() const
 {
 	return videoOut;

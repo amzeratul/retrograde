@@ -57,9 +57,13 @@ public:
 	bool loadGame(std::string_view path);
 	bool loadGame(std::string_view path, gsl::span<const gsl::byte> data, std::string_view meta);
 	void unloadGame();
-	void runFrame();
-
 	bool hasGameLoaded() const;
+
+	Bytes saveState() const;
+	void loadState(gsl::span<const gsl::byte> bytes);
+	void loadState(const Bytes& bytes);
+
+	void runFrame();
 	const Sprite& getVideoOut() const;
 	const std::shared_ptr<AudioClipStreaming>& getAudioOut() const;
 
