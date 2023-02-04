@@ -4,6 +4,7 @@ project (retrograde)
 
 add_subdirectory(test_cores)
 
+set(REQUIRE_WINDOWS_10 1)
 set(HALLEY_PROJECT_EMBED 1)
 set(HALLEY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/halley)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${HALLEY_PATH}/cmake/")

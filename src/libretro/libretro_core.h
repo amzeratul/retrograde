@@ -61,7 +61,7 @@ public:
 
 	bool hasGameLoaded() const;
 	const Sprite& getVideoOut() const;
-	const std::shared_ptr<StreamingAudioClip>& getAudioOut() const;
+	const std::shared_ptr<AudioClipStreaming>& getAudioOut() const;
 
 	const SystemInfo& getSystemInfo() const;
 	const SystemAVInfo& getSystemAVInfo() const;
@@ -91,10 +91,8 @@ private:
 	Sprite videoOut;
 	std::unique_ptr<CPUUpdateTexture> cpuUpdateTexture;
 
-	std::shared_ptr<StreamingAudioClip> audioOut;
-	std::unique_ptr<AudioResampler> resampler;
+	std::shared_ptr<AudioClipStreaming> audioOut;
 	Vector<float> audioBuffer;
-	Vector<float> resampleAudioBuffer;
 
 	constexpr static int maxInputDevices = 8;
 	std::array<uint16_t, maxInputDevices> inputJoypads;

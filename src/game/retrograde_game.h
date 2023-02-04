@@ -16,6 +16,9 @@ public:
 
 	const Vector<String>& getArgs() const;
 
+	int getTargetBackgroundFPS() const override;
+	int getTargetFPS() const override;
+
 private:
 	const HalleyAPI* api;
 	Vector<String> args;

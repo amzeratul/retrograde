@@ -7,6 +7,7 @@ void initSDLAudioPlugin(IPluginRegistry &registry);
 void initSDLInputPlugin(IPluginRegistry &registry);
 void initDX11Plugin(IPluginRegistry &registry);
 void initAsioPlugin(IPluginRegistry &registry);
+void initXAudio2Plugin(IPluginRegistry &registry);
 
 void RetrogradeGame::init(const Environment& env, const Vector<String>& args)
 {
@@ -17,7 +18,8 @@ int RetrogradeGame::initPlugins(IPluginRegistry& registry)
 {
 	initOpenGLPlugin(registry);
 	initSDLSystemPlugin(registry, {});
-	initSDLAudioPlugin(registry);
+	//initSDLAudioPlugin(registry);
+	initXAudio2Plugin(registry);
 	initSDLInputPlugin(registry);
 
 #ifdef WITH_DX11
@@ -72,6 +74,16 @@ std::unique_ptr<Stage> RetrogradeGame::startGame()
 const Vector<String>& RetrogradeGame::getArgs() const
 {
 	return args;
+}
+
+int RetrogradeGame::getTargetBackgroundFPS() const
+{
+	return 0;
+}
+
+int RetrogradeGame::getTargetFPS() const
+{
+	return 0;
 }
 
 HalleyGame(RetrogradeGame);
