@@ -29,6 +29,7 @@ public:
 		String description;
 		String info;
 		String category;
+		bool visible = true;
 	};
 
 	struct SystemInfo {
@@ -51,6 +52,13 @@ public:
 		void loadGeometry(const retro_game_geometry& geometry);
 	};
 
+	enum class MemoryType {
+		SaveRAM,
+		RTC,
+		SystemRAM,
+		VideoRAM
+	};
+
 	static std::unique_ptr<LibretroCore> load(std::string_view filename, LibretroEnvironment& environment);
 	~LibretroCore() override;
 
@@ -62,6 +70,8 @@ public:
 	Bytes saveState() const;
 	void loadState(gsl::span<const gsl::byte> bytes);
 	void loadState(const Bytes& bytes);
+
+	gsl::span<Byte> getMemory(MemoryType type);
 
 	void runFrame();
 	const Sprite& getVideoOut() const;
@@ -86,6 +96,8 @@ private:
 	LibretroEnvironment& environment;
 
 	bool gameLoaded = false;
+	String gameName;
+	uint64_t lastSaveHash = 0;
 
 	SystemInfo systemInfo;
 	SystemAVInfo systemAVInfo;
@@ -112,6 +124,11 @@ private:
 	void initAudioOut();
 
 	void addAudioSamples(gsl::span<const float> samples);
+
+	void saveGameDataIfNeeded();
+	void saveGameData(gsl::span<Byte> data);
+	void loadGameData();
+	String getSaveFileName() const;
 
 	void onEnvSetPerformanceLevel(uint32_t level);
 	bool onEnvSetPixelFormat(retro_pixel_format data);

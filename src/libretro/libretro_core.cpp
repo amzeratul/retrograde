@@ -190,11 +190,13 @@ bool LibretroCore::loadGame(std::string_view path, gsl::span<const gsl::byte> da
 
 		systemAVInfo.fps = retroAVInfo.timing.fps;
 		systemAVInfo.sampleRate = retroAVInfo.timing.sample_rate;
-
 		systemAVInfo.loadGeometry(retroAVInfo.geometry);
+
+		gameName = Path(path).getFilename().replaceExtension("").getString();
 
 		initVideoOut();
 		initAudioOut();
+		loadGameData();
 	}
 	
 	return gameLoaded;
@@ -209,6 +211,7 @@ void LibretroCore::unloadGame()
 		DLL_FUNC(dll, retro_unload_game)();
 
 		gameLoaded = false;
+		lastSaveHash = 0;
 	}
 }
 
@@ -224,6 +227,8 @@ void LibretroCore::runFrame()
 	}
 
 	DLL_FUNC(dll, retro_run)();
+
+	saveGameDataIfNeeded();
 }
 
 bool LibretroCore::hasGameLoaded() const
@@ -248,6 +253,73 @@ void LibretroCore::loadState(gsl::span<const gsl::byte> bytes)
 void LibretroCore::loadState(const Bytes& bytes)
 {
 	loadState(gsl::as_bytes(gsl::span<const Byte>(bytes)));
+}
+
+gsl::span<Byte> LibretroCore::getMemory(MemoryType type)
+{
+	int id = 0;
+	switch (type) {
+	case MemoryType::SaveRAM:
+		id = RETRO_MEMORY_SAVE_RAM;
+		break;
+	case MemoryType::RTC:
+		id = RETRO_MEMORY_RTC;
+		break;
+	case MemoryType::SystemRAM:
+		id = RETRO_MEMORY_SYSTEM_RAM;
+		break;
+	case MemoryType::VideoRAM:
+		id = RETRO_MEMORY_VIDEO_RAM;
+		break;
+	}
+
+	auto guard = ScopedGuard([=]() { curInstance = nullptr; });
+	curInstance = this;
+
+	const auto size = DLL_FUNC(dll, retro_get_memory_size)(id);
+	auto* data = DLL_FUNC(dll, retro_get_memory_data)(id);
+	return gsl::span<Byte>(static_cast<Byte*>(data), size);
+}
+
+void LibretroCore::saveGameDataIfNeeded()
+{
+	auto sram = getMemory(MemoryType::SaveRAM);
+	if (!sram.empty()) {
+		Hash::Hasher hasher;
+		hasher.feedBytes(gsl::as_bytes(sram));
+		const auto hash = hasher.digest();
+		if (hash != lastSaveHash) {
+			lastSaveHash = hash;
+			saveGameData(sram);
+		}
+	}
+}
+
+void LibretroCore::saveGameData(gsl::span<Byte> data)
+{
+	Path::writeFile(getSaveFileName(), gsl::as_bytes(data));
+	Logger::logDev("Saved " + getSaveFileName());
+}
+
+void LibretroCore::loadGameData()
+{
+	lastSaveHash = 0;
+	const auto bytes = Path::readFile(getSaveFileName());
+	if (!bytes.empty()) {
+		auto sram = getMemory(MemoryType::SaveRAM);
+		if (sram.size() == bytes.size()) {
+			memcpy(sram.data(), bytes.data(), sram.size());
+
+			Hash::Hasher hasher;
+			hasher.feedBytes(gsl::as_bytes(gsl::span<const Byte>(bytes)));
+			lastSaveHash = hasher.digest();
+		}
+	}
+}
+
+String LibretroCore::getSaveFileName() const
+{
+	return environment.getSaveDir() + "/" + gameName + ".srm";
 }
 
 const Sprite& LibretroCore::getVideoOut() const
@@ -640,7 +712,7 @@ void LibretroCore::onEnvSetCoreOptionsV2Intl(const retro_core_options_v2_intl& d
 
 void LibretroCore::onEnvSetCoreOptionsDisplay(const retro_core_option_display& data)
 {
-	// TODO
+	options[data.key].visible = data.visible;
 }
 
 void LibretroCore::onEnvSetAudioBufferStatusCallback(const retro_audio_buffer_status_callback* data)
