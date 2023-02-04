@@ -25,6 +25,9 @@ set (SOURCES
 
 	"src/util/cpu_update_texture.cpp"
 	"src/util/dll.cpp"
+
+	"src/zip/zip_file.cpp"
+	"src/zip/miniz.c"
 	)
 
 set (HEADERS
@@ -39,6 +42,9 @@ set (HEADERS
 
 	"src/util/cpu_update_texture.h"
 	"src/util/dll.h"
+
+	"src/zip/zip_file.h"
+	"src/zip/miniz.h"
 	)
 
 set (GEN_DEFINITIONS

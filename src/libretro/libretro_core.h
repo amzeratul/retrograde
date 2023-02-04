@@ -93,6 +93,7 @@ private:
 
 	std::shared_ptr<AudioClipStreaming> audioOut;
 	Vector<float> audioBuffer;
+	retro_audio_buffer_status_callback_t audioBufferStatusCallback = nullptr;
 
 	constexpr static int maxInputDevices = 8;
 	std::array<uint16_t, maxInputDevices> inputJoypads;
@@ -128,4 +129,7 @@ private:
 	void onEnvSetCoreOptionsV2(const retro_core_options_v2& data);
 	void onEnvSetCoreOptionsV2Intl(const retro_core_options_v2_intl& data);
 	void onEnvSetCoreOptionsDisplay(const retro_core_option_display& data);
+
+	void onEnvSetAudioBufferStatusCallback(const retro_audio_buffer_status_callback* data);
+	void onEnvSetMinimumAudioLatency(uint32_t data);
 };

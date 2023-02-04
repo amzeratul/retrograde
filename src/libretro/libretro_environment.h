@@ -5,7 +5,7 @@ using namespace Halley;
 
 class LibretroEnvironment {
 public:
-	LibretroEnvironment(String rootDir, Resources& resources, const HalleyAPI& halleyAPI);
+	LibretroEnvironment(String rootDir, String systemId, Resources& resources, const HalleyAPI& halleyAPI);
 
 	const String& getSystemDir() const;
 	const String& getSaveDir() const;
@@ -18,7 +18,8 @@ public:
 private:
 	Resources& resources;
 	const HalleyAPI& halleyAPI;
-
+	
+	String systemId;
 	String rootDir;
 	String systemDir;
 	String saveDir;

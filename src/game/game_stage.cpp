@@ -17,14 +17,16 @@ GameStage::~GameStage()
 void GameStage::init()
 {
 	auto& game = static_cast<RetrogradeGame&>(getGame());
+	String systemId;
 	String corePath;
 	String gamePath;
-	if (game.getArgs().size() >= 2) {
-		corePath = game.getArgs()[0];
-		gamePath = String::concatList(gsl::span<const String>(game.getArgs()).subspan(1), " ");
+	if (game.getArgs().size() >= 3) {
+		systemId = game.getArgs()[0];
+		corePath = game.getArgs()[1];
+		gamePath = String::concatList(gsl::span<const String>(game.getArgs()).subspan(2), " ");
 	}
 
-	libretroEnvironment = std::make_unique<LibretroEnvironment>("..", getResources(), getAPI());
+	libretroEnvironment = std::make_unique<LibretroEnvironment>("..", systemId, getResources(), getAPI());
 	
 	libretroCore = LibretroCore::load(libretroEnvironment->getCoresDir() + "/" + corePath, *libretroEnvironment);
 	for (int i = 0; i < 4; ++i) {

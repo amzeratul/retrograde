@@ -6,6 +6,7 @@
 #include "libretro.h"
 #include "libretro_environment.h"
 #include "src/util/cpu_update_texture.h"
+#include "src/zip/zip_file.h"
 
 
 namespace {
@@ -157,7 +158,8 @@ bool LibretroCore::loadGame(std::string_view path)
 	if (systemInfo.needFullpath) {
 		return loadGame(path, {}, {});
 	} else {
-		auto bytes = Path::readFile(Path(path));
+		const auto p = Path(path);
+		auto bytes = ZipFile::isZipFile(p) ? ZipFile::readFile(p) : Path::readFile(p);
 		if (bytes.empty()) {
 			return false;
 		}
@@ -214,6 +216,12 @@ void LibretroCore::runFrame()
 {
 	auto guard = ScopedGuard([=]() { curInstance = nullptr; });
 	curInstance = this;
+
+	if (audioBufferStatusCallback) {
+		const size_t nLeft = audioOut->getSamplesLeft();
+		const size_t capacity = audioOut->getLatencyTarget() * 2;
+		audioBufferStatusCallback(true, clamp(static_cast<int>(nLeft * 100 / capacity), 0, 100), nLeft < 400);
+	}
 
 	DLL_FUNC(dll, retro_run)();
 }
@@ -337,6 +345,14 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 
 	case RETRO_ENVIRONMENT_SET_CORE_OPTIONS_DISPLAY:
 		onEnvSetCoreOptionsDisplay(*static_cast<retro_core_option_display*>(data));
+		return true;
+
+	case RETRO_ENVIRONMENT_SET_AUDIO_BUFFER_STATUS_CALLBACK:
+		onEnvSetAudioBufferStatusCallback(static_cast<const retro_audio_buffer_status_callback*>(data));
+		return true;
+
+	case RETRO_ENVIRONMENT_SET_MINIMUM_AUDIO_LATENCY:
+		onEnvSetMinimumAudioLatency(*static_cast<const uint32_t*>(data));
 		return true;
 
 	case RETRO_ENVIRONMENT_SET_CORE_OPTIONS_V2:
@@ -606,4 +622,14 @@ void LibretroCore::onEnvSetCoreOptionsV2Intl(const retro_core_options_v2_intl& d
 void LibretroCore::onEnvSetCoreOptionsDisplay(const retro_core_option_display& data)
 {
 	// TODO
+}
+
+void LibretroCore::onEnvSetAudioBufferStatusCallback(const retro_audio_buffer_status_callback* data)
+{
+	audioBufferStatusCallback = data ? data->callback : nullptr;
+}
+
+void LibretroCore::onEnvSetMinimumAudioLatency(uint32_t data)
+{
+	audioOut->setLatencyTarget(std::max(1024u, data * 48));
 }
