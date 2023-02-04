@@ -7,14 +7,13 @@ LibretroEnvironment::LibretroEnvironment(String _rootDir, String _systemId, Reso
 	, systemId(std::move(_systemId))
 	, rootDir(std::move(_rootDir))
 {
-	systemDir = rootDir + "/system/" + systemId;
-	saveDir = rootDir + "/save/" + systemId;
+	systemDir = rootDir + "/system";
 	coresDir = rootDir + "/cores";
+	saveDir = rootDir + "/save/" + systemId;
 	romsDir = rootDir + "/roms/" + systemId;
 
 	std::error_code ec;
 	std::filesystem::create_directories(saveDir.cppStr(), ec);
-	std::filesystem::create_directories(systemDir.cppStr(), ec);
 }
 
 const String& LibretroEnvironment::getSystemDir() const

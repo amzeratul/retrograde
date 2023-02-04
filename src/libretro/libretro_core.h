@@ -59,6 +59,13 @@ public:
 		VideoRAM
 	};
 
+	enum class SaveStateType {
+		Normal,
+		RunaheadSameInstance,
+		RunaheadSameBinary,
+		RollbackNetplay
+	};
+
 	static std::unique_ptr<LibretroCore> load(std::string_view filename, LibretroEnvironment& environment);
 	~LibretroCore() override;
 
@@ -67,9 +74,9 @@ public:
 	void unloadGame();
 	bool hasGameLoaded() const;
 
-	Bytes saveState() const;
-	void loadState(gsl::span<const gsl::byte> bytes);
-	void loadState(const Bytes& bytes);
+	Bytes saveState(SaveStateType type) const;
+	void loadState(SaveStateType type, gsl::span<const gsl::byte> bytes);
+	void loadState(SaveStateType type, const Bytes& bytes);
 
 	gsl::span<Byte> getMemory(MemoryType type);
 
@@ -98,6 +105,7 @@ private:
 	bool gameLoaded = false;
 	String gameName;
 	uint64_t lastSaveHash = 0;
+	mutable SaveStateType saveStateType = SaveStateType::Normal;
 
 	SystemInfo systemInfo;
 	SystemAVInfo systemAVInfo;
@@ -130,21 +138,28 @@ private:
 	void loadGameData();
 	String getSaveFileName() const;
 
+	uint32_t onEnvGetLanguage();
 	void onEnvSetPerformanceLevel(uint32_t level);
 	bool onEnvSetPixelFormat(retro_pixel_format data);
 	void onEnvSetGeometry(const retro_game_geometry& data);
 	int onEnvGetAudioVideoEnable();
+	void onEnvSetSupportNoGame(bool data);
+	void onEnvSetSubsystemInfo(const retro_subsystem_info& data);
+	void onEnvSetMessageExt(const retro_message_ext& data);
+
+	void onEnvGetSaveDirectory(const char** data);
 	void onEnvGetSystemDirectory(const char** data);
+	void onEnvSetSerializationQuirks(uint64_t& data);
+
 	void onEnvSetInputDescriptors(const retro_input_descriptor* data);
+	void onEnvSetControllerInfo(const retro_controller_info& data);
+
+	void onEnvSetSupportAchievements(bool data);
+	retro_savestate_context onEnvGetSavestateContext();
+
 	void onEnvGetVariable(retro_variable& data);
 	void onEnvSetVariables(const retro_variable* data);
 	bool onEnvGetVariableUpdate();
-	void onEnvSetSupportNoGame(bool data);
-	void onEnvGetSaveDirectory(const char** data);
-	void onEnvSetSubsystemInfo(const retro_subsystem_info& data);
-	void onEnvSetControllerInfo(const retro_controller_info& data);
-	uint32_t onEnvGetLanguage();
-	void onEnvSetSupportAchievements(bool data);
 	void onEnvSetCoreOptions(const retro_core_option_definition* data);
 	void onEnvSetCoreOptionsIntl(const retro_core_options_intl& data);
 	void onEnvSetCoreOptionsV2(const retro_core_options_v2& data);

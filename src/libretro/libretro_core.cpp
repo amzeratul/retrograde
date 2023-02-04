@@ -159,7 +159,7 @@ bool LibretroCore::loadGame(std::string_view path)
 		return loadGame(path, {}, {});
 	} else {
 		const auto p = Path(path);
-		auto bytes = ZipFile::isZipFile(p) ? ZipFile::readFile(p) : Path::readFile(p);
+		auto bytes = !systemInfo.blockExtract && ZipFile::isZipFile(p) ? ZipFile::readFile(p) : Path::readFile(p);
 		if (bytes.empty()) {
 			return false;
 		}
@@ -236,8 +236,9 @@ bool LibretroCore::hasGameLoaded() const
 	return gameLoaded;
 }
 
-Bytes LibretroCore::saveState() const
+Bytes LibretroCore::saveState(SaveStateType type) const
 {
+	saveStateType = type;
 	size_t size = DLL_FUNC(dll, retro_serialize_size)();
 	Bytes bytes;
 	bytes.resize(size);
@@ -245,14 +246,15 @@ Bytes LibretroCore::saveState() const
 	return bytes;
 }
 
-void LibretroCore::loadState(gsl::span<const gsl::byte> bytes)
+void LibretroCore::loadState(SaveStateType type, gsl::span<const gsl::byte> bytes)
 {
+	saveStateType = type;
 	DLL_FUNC(dll, retro_unserialize)(bytes.data(), bytes.size());
 }
 
-void LibretroCore::loadState(const Bytes& bytes)
+void LibretroCore::loadState(SaveStateType type, const Bytes& bytes)
 {
-	loadState(gsl::as_bytes(gsl::span<const Byte>(bytes)));
+	loadState(type, gsl::as_bytes(gsl::span<const Byte>(bytes)));
 }
 
 gsl::span<Byte> LibretroCore::getMemory(MemoryType type)
@@ -411,6 +413,10 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		onEnvSetSupportAchievements(*static_cast<const bool*>(data));
 		return true;
 
+	case RETRO_ENVIRONMENT_SET_SERIALIZATION_QUIRKS:
+		onEnvSetSerializationQuirks(*static_cast<uint64_t*>(data));
+		return true;
+
 	case RETRO_ENVIRONMENT_GET_AUDIO_VIDEO_ENABLE:
 		*static_cast<int*>(data) = onEnvGetAudioVideoEnable();
 		return true;
@@ -438,6 +444,14 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		onEnvSetCoreOptionsDisplay(*static_cast<retro_core_option_display*>(data));
 		return true;
 
+	case RETRO_ENVIRONMENT_GET_MESSAGE_INTERFACE_VERSION:
+		*static_cast<unsigned*>(data) = 1;
+		return true;
+
+	case RETRO_ENVIRONMENT_SET_MESSAGE_EXT:
+		onEnvSetMessageExt(*static_cast<const retro_message_ext*>(data));
+		return true;
+
 	case RETRO_ENVIRONMENT_SET_AUDIO_BUFFER_STATUS_CALLBACK:
 		onEnvSetAudioBufferStatusCallback(static_cast<const retro_audio_buffer_status_callback*>(data));
 		return true;
@@ -452,6 +466,12 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 
 	case RETRO_ENVIRONMENT_SET_CORE_OPTIONS_V2_INTL:
 		onEnvSetCoreOptionsV2Intl(*static_cast<const retro_core_options_v2_intl*>(data));
+		return true;
+
+	case RETRO_ENVIRONMENT_GET_SAVESTATE_CONTEXT:
+		if (data) {
+			*static_cast<int*>(data) = onEnvGetSavestateContext();
+		}
 		return true;
 
 	default:
@@ -587,7 +607,7 @@ void LibretroCore::onLog(retro_log_level level, const char* str)
 {
 	if (level != RETRO_LOG_DUMMY) {
 		const auto halleyLevel = static_cast<LoggerLevel>(level); // By sheer coincidence, the levels match
-		Logger::log(halleyLevel, "[" + systemInfo.coreName + "] " + str);
+		Logger::log(halleyLevel, "[" + systemInfo.coreName + "] " + String(str).trimBoth());
 	}
 }
 
@@ -621,6 +641,17 @@ void LibretroCore::onEnvGetSystemDirectory(const char** data)
 	*data = environment.getSystemDir().c_str();
 }
 
+void LibretroCore::onEnvSetSerializationQuirks(uint64_t& data)
+{
+	if (data & RETRO_SERIALIZATION_QUIRK_MUST_INITIALIZE) {
+		Logger::logWarning("Serialization quirk not implemented: must initialize");
+		data &= ~RETRO_SERIALIZATION_QUIRK_MUST_INITIALIZE;
+	}
+	if (data & RETRO_SERIALIZATION_QUIRK_CORE_VARIABLE_SIZE) {
+		data |= RETRO_SERIALIZATION_QUIRK_FRONT_VARIABLE_SIZE;
+	}
+}
+
 void LibretroCore::onEnvGetSaveDirectory(const char** data)
 {
 	*data = environment.getSaveDir().c_str();
@@ -631,6 +662,13 @@ void LibretroCore::onEnvSetSubsystemInfo(const retro_subsystem_info& data)
 	// TODO
 }
 
+void LibretroCore::onEnvSetMessageExt(const retro_message_ext& data)
+{
+	// TODO: missing other features
+	const auto halleyLevel = static_cast<LoggerLevel>(data.level); // By sheer coincidence, the levels match
+	Logger::log(halleyLevel, "[" + systemInfo.coreName + "] " + data.msg);
+}
+
 uint32_t LibretroCore::onEnvGetLanguage()
 {
 	return RETRO_LANGUAGE_ENGLISH;
@@ -639,6 +677,22 @@ uint32_t LibretroCore::onEnvGetLanguage()
 void LibretroCore::onEnvSetSupportAchievements(bool data)
 {
 	systemInfo.supportAchievements = data;
+}
+
+retro_savestate_context LibretroCore::onEnvGetSavestateContext()
+{
+	switch (saveStateType) {
+	case SaveStateType::Normal:
+		return RETRO_SAVESTATE_CONTEXT_NORMAL;
+	case SaveStateType::RunaheadSameInstance:
+		return RETRO_SAVESTATE_CONTEXT_RUNAHEAD_SAME_INSTANCE;
+	case SaveStateType::RunaheadSameBinary:
+		return RETRO_SAVESTATE_CONTEXT_RUNAHEAD_SAME_BINARY;
+	case SaveStateType::RollbackNetplay:
+		return RETRO_SAVESTATE_CONTEXT_ROLLBACK_NETPLAY;
+	default:
+		return RETRO_SAVESTATE_CONTEXT_UNKNOWN;
+	}
 }
 
 void LibretroCore::onEnvSetSupportNoGame(bool data)
