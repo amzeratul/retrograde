@@ -18,8 +18,8 @@ int RetrogradeGame::initPlugins(IPluginRegistry& registry)
 {
 	initOpenGLPlugin(registry);
 	initSDLSystemPlugin(registry, {});
-	//initSDLAudioPlugin(registry);
-	initXAudio2Plugin(registry);
+	initSDLAudioPlugin(registry);
+	//initXAudio2Plugin(registry);
 	initSDLInputPlugin(registry);
 
 #ifdef WITH_DX11
