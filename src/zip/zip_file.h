@@ -19,6 +19,8 @@ public:
     Vector<String> getFileNames() const;
     Bytes extractFile(size_t idx) const;
 
+    void printDiagnostics() const;
+
     static bool isZipFile(const Path& path);
     static Bytes readFile(const Path& path);
 

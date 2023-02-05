@@ -26,7 +26,7 @@ bool ZipFile::open(Path p, bool inMemory)
 		if (compressedData.empty()) {
 			return false;
 		}
-		isOpen = mz_zip_reader_init_mem(&archive, compressedData.data(), compressedData.sbo_active(), 0);
+		isOpen = mz_zip_reader_init_mem(&archive, compressedData.data(), compressedData.size(), 0);
 		if (!isOpen) {
 			compressedData.clear();
 		}
@@ -81,6 +81,7 @@ String ZipFile::getFileName(size_t idx) const
 
 	char buffer[512];
 	const auto size = mz_zip_reader_get_filename(&archive, mz_uint(idx), buffer, 4096);
+
 	return String(buffer, size);
 }
 
@@ -119,6 +120,25 @@ Bytes ZipFile::extractFile(size_t idx) const
 		return bytes;
 	} else {
 		return {};
+	}
+}
+
+void ZipFile::printDiagnostics() const
+{
+	const auto n = getNumFiles();
+	for (int i = 0; i < n; ++i) {
+		mz_zip_archive_file_stat stat;
+		mz_zip_reader_file_stat(&archive, mz_uint(i), &stat);
+
+		union {
+			uint32_t crc;
+			uint8_t crcBytes[4];
+		} c;
+		c.crc = stat.m_crc32;
+		std::swap(c.crcBytes[0], c.crcBytes[3]);
+		std::swap(c.crcBytes[1], c.crcBytes[2]);
+
+		Logger::logDev(String(stat.m_filename) + ": CRC = " + Encode::encodeBase16(gsl::as_bytes(gsl::span<const uint32_t>(&c.crc, 1))));
 	}
 }
 

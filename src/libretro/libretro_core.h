@@ -140,12 +140,14 @@ private:
 
 	uint32_t onEnvGetLanguage();
 	void onEnvSetPerformanceLevel(uint32_t level);
-	bool onEnvSetPixelFormat(retro_pixel_format data);
-	void onEnvSetGeometry(const retro_game_geometry& data);
-	int onEnvGetAudioVideoEnable();
 	void onEnvSetSupportNoGame(bool data);
 	void onEnvSetSubsystemInfo(const retro_subsystem_info& data);
 	void onEnvSetMessageExt(const retro_message_ext& data);
+
+	bool onEnvSetPixelFormat(retro_pixel_format data);
+	void onEnvSetGeometry(const retro_game_geometry& data);
+	void onEnvSetRotation(uint32_t data);
+	int onEnvGetAudioVideoEnable();
 
 	void onEnvGetSaveDirectory(const char** data);
 	void onEnvGetSystemDirectory(const char** data);

@@ -354,6 +354,10 @@ void LibretroCore::setInputDevice(int idx, std::shared_ptr<InputVirtual> input)
 bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 {
 	switch (cmd) {
+	case RETRO_ENVIRONMENT_SET_ROTATION:
+		onEnvSetRotation(*static_cast<const uint32_t*>(data));
+		return true;
+
 	case RETRO_ENVIRONMENT_SET_PERFORMANCE_LEVEL:
 		onEnvSetPerformanceLevel(*static_cast<const uint32_t*>(data));
 		return true;
@@ -489,13 +493,13 @@ void LibretroCore::onVideoRefresh(const void* data, uint32_t width, uint32_t hei
 	TextureFormat textureFormat;
 	switch (systemAVInfo.pixelFormat) {
 	case RETRO_PIXEL_FORMAT_0RGB1555:
-		textureFormat = TextureFormat::RGBA5551;
+		textureFormat = TextureFormat::BGRA5551;
 		break;
 	case RETRO_PIXEL_FORMAT_RGB565:
-		textureFormat = TextureFormat::RGB565;
+		textureFormat = TextureFormat::BGR565;
 		break;
 	case RETRO_PIXEL_FORMAT_XRGB8888:
-		textureFormat = TextureFormat::RGBA;
+		textureFormat = TextureFormat::BGRX;
 		break;
 	case RETRO_PIXEL_FORMAT_UNKNOWN:
 	default:
@@ -503,8 +507,16 @@ void LibretroCore::onVideoRefresh(const void* data, uint32_t width, uint32_t hei
 	}
 
 	const auto size = Vector2i(static_cast<int>(width), static_cast<int>(height));
-	const auto dataSpan = gsl::as_bytes(gsl::span<const char>(static_cast<const char*>(data), pitch * height));
-	cpuUpdateTexture->update(size, static_cast<int>(pitch), dataSpan, textureFormat);
+	gsl::span<const char> dataSpan;
+	Vector<char> temp;
+	if (data) {
+		dataSpan = gsl::span<const char>(static_cast<const char*>(data), pitch * height);
+	} else {
+		temp.resize(pitch * height, 0);
+		dataSpan = temp;
+	}
+
+	cpuUpdateTexture->update(size, static_cast<int>(pitch), gsl::as_bytes(dataSpan), textureFormat);
 	const auto tex = cpuUpdateTexture->getTexture();
 	videoOut.getMutableMaterial().set(0, tex);
 
@@ -625,6 +637,11 @@ bool LibretroCore::onEnvSetPixelFormat(retro_pixel_format data)
 void LibretroCore::onEnvSetGeometry(const retro_game_geometry& data)
 {
 	systemAVInfo.loadGeometry(data);
+}
+
+void LibretroCore::onEnvSetRotation(uint32_t data)
+{
+	// TODO
 }
 
 int LibretroCore::onEnvGetAudioVideoEnable()
