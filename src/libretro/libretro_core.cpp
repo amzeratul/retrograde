@@ -484,6 +484,10 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		onEnvSetRotation(*static_cast<const uint32_t*>(data));
 		return true;
 
+	case RETRO_ENVIRONMENT_GET_CAN_DUPE:
+		*static_cast<bool*>(data) = true;
+		return true;
+
 	case RETRO_ENVIRONMENT_SET_PERFORMANCE_LEVEL:
 		onEnvSetPerformanceLevel(*static_cast<const uint32_t*>(data));
 		return true;
@@ -503,6 +507,11 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		onEnvSetDiskControlInterface(*static_cast<const retro_disk_control_callback*>(data));
 		return true;
 
+	case RETRO_ENVIRONMENT_SET_HW_RENDER:
+		// TODO
+		Logger::logWarning("TODO: RETRO_ENVIRONMENT_SET_HW_RENDER");
+		return false;
+
 	case RETRO_ENVIRONMENT_GET_VARIABLE:
 		onEnvGetVariable(*static_cast<retro_variable*>(data));
 		return true;
@@ -519,9 +528,19 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		onEnvSetSupportNoGame(*static_cast<const bool*>(data));
 		return true;
 
+	case RETRO_ENVIRONMENT_GET_RUMBLE_INTERFACE:
+		// TODO
+		Logger::logWarning("TODO: RETRO_ENVIRONMENT_GET_RUMBLE_INTERFACE");
+		return false;
+
 	case RETRO_ENVIRONMENT_GET_LOG_INTERFACE:
 		static_cast<retro_log_callback*>(data)->log = &retroLogPrintf;
 		return true;
+
+	case RETRO_ENVIRONMENT_GET_PERF_INTERFACE:
+		// TODO
+		Logger::logWarning("TODO: RETRO_ENVIRONMENT_GET_PERF_INTERFACE");
+		return false;
 
 	case RETRO_ENVIRONMENT_GET_SAVE_DIRECTORY:
 		onEnvGetSaveDirectory(static_cast<const char**>(data));
@@ -536,8 +555,8 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		return true;
 
 	case RETRO_ENVIRONMENT_SET_MEMORY_MAPS:
-		// TODO (used by genesis plus gx)
-		Logger::logWarning("TODO: implement env cmd " + toString(cmd & 0xFF));
+		// TODO
+		Logger::logWarning("TODO: RETRO_ENVIRONMENT_SET_MEMORY_MAPS");
 		return false;
 
 	case RETRO_ENVIRONMENT_SET_GEOMETRY:
@@ -590,6 +609,11 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		onEnvSetCoreOptionsDisplay(*static_cast<retro_core_option_display*>(data));
 		return true;
 
+	case RETRO_ENVIRONMENT_GET_PREFERRED_HW_RENDER:
+		// TODO
+		Logger::logWarning("TODO: RETRO_ENVIRONMENT_GET_PREFERRED_HW_RENDER");
+		return false;
+
 	case RETRO_ENVIRONMENT_GET_DISK_CONTROL_INTERFACE_VERSION:
 		*static_cast<uint32_t*>(data) = 1;
 		return true;
@@ -632,6 +656,11 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		onEnvSetCoreOptionsV2Intl(*static_cast<const retro_core_options_v2_intl*>(data));
 		return true;
 
+	case RETRO_ENVIRONMENT_SET_CORE_OPTIONS_UPDATE_DISPLAY_CALLBACK:
+		// TODO
+		Logger::logWarning("TODO: RETRO_ENVIRONMENT_SET_CORE_OPTIONS_UPDATE_DISPLAY_CALLBACK");
+		return false;
+
 	case RETRO_ENVIRONMENT_GET_SAVESTATE_CONTEXT:
 		if (data) {
 			*static_cast<int*>(data) = onEnvGetSavestateContext();
@@ -672,6 +701,10 @@ void LibretroCore::onVideoRefresh(const void* data, uint32_t width, uint32_t hei
 	if (data) {
 		dataSpan = gsl::span<const char>(static_cast<const char*>(data), pitch * height);
 	} else {
+		if (cpuUpdateTexture->getTexture()) {
+			// Dupe
+			return;
+		}
 		temp.resize(pitch * height, 0);
 		dataSpan = temp;
 	}
