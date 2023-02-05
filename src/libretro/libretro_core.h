@@ -20,9 +20,10 @@ public:
 	virtual void onInputPoll() = 0;
 	virtual int16_t onInputState(uint32_t port, uint32_t device, uint32_t index, uint32_t id) = 0;
 	virtual void onLog(retro_log_level level, const char* str) = 0;
+	virtual void onSetLEDState(int led, int state) = 0;
 
 	virtual LibretroVFS& getVFS() = 0;
-	
+
 	static thread_local ILibretroCoreCallbacks* curInstance;
 };
 
@@ -106,6 +107,7 @@ protected:
 	size_t onAudioSampleBatch(const int16_t* data, size_t size) override;
 	void onInputPoll() override;
 	int16_t onInputState(uint32_t port, uint32_t device, uint32_t index, uint32_t id) override;
+	void onSetLEDState(int led, int state) override;
 	void onLog(retro_log_level level, const char* str) override;
 
 private:
@@ -134,7 +136,7 @@ private:
 	std::array<std::shared_ptr<InputVirtual>, maxInputDevices> inputDevices;
 
 	std::unique_ptr<LibretroVFS> vfs;
-
+	std::optional<retro_disk_control_ext_callback> diskControlCallbacks;
 
 	LibretroCore(DLL dll, LibretroEnvironment& environment);
 
@@ -171,6 +173,8 @@ private:
 	void onEnvGetSystemDirectory(const char** data);
 	void onEnvSetSerializationQuirks(uint64_t& data);
 	bool onEnvGetVFSInterface(retro_vfs_interface_info& data);
+	void onEnvSetDiskControlInterface(const retro_disk_control_callback& data);
+	void onEnvSetDiskControlExtInterface(const retro_disk_control_ext_callback& data);
 
 	void onEnvSetInputDescriptors(const retro_input_descriptor* data);
 	void onEnvSetControllerInfo(const retro_controller_info& data);

@@ -42,6 +42,11 @@ namespace {
 		return ILibretroCoreCallbacks::curInstance->onInputState(port, device, index, id);
 	}
 
+	void RETRO_CALLCONV retroSetLEDState(int led, int state)
+	{
+		return ILibretroCoreCallbacks::curInstance->onSetLEDState(led, state);
+	}
+
 	void RETRO_CALLCONV retroLogPrintf(retro_log_level level, const char *fmt, ...)
 	{
 		char buffer[4096];
@@ -157,12 +162,14 @@ void LibretroCore::deInit()
 {
 	unloadGame();
 
-	vfs.reset();
-
 	auto guard = ScopedGuard([=]() { curInstance = nullptr; });
 	curInstance = this;
 
 	DLL_FUNC(dll, retro_deinit)();
+
+	audioBufferStatusCallback = nullptr;
+	diskControlCallbacks.reset();
+	vfs.reset();
 }
 
 Path LibretroCore::extractIntoVFS(const Path& path)
@@ -434,9 +441,8 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		return true;
 
 	case RETRO_ENVIRONMENT_SET_DISK_CONTROL_INTERFACE:
-		// TODO (used by genesis_plus_gx)
-		Logger::logWarning("TODO: implement env cmd " + toString(cmd));
-		return false;
+		onEnvSetDiskControlInterface(*static_cast<const retro_disk_control_callback*>(data));
+		return true;
 
 	case RETRO_ENVIRONMENT_GET_VARIABLE:
 		onEnvGetVariable(*static_cast<retro_variable*>(data));
@@ -495,9 +501,8 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		return onEnvGetVFSInterface(*static_cast<retro_vfs_interface_info*>(data));
 
 	case RETRO_ENVIRONMENT_GET_LED_INTERFACE:
-		// TODO (used by genesis plus gx)
-		Logger::logWarning("TODO: implement env cmd " + toString(cmd & 0xFF));
-		return false;
+		static_cast<retro_led_interface*>(data)->set_led_state = &retroSetLEDState;
+		return true;
 
 	case RETRO_ENVIRONMENT_GET_AUDIO_VIDEO_ENABLE:
 		*static_cast<int*>(data) = onEnvGetAudioVideoEnable();
@@ -524,6 +529,14 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 
 	case RETRO_ENVIRONMENT_SET_CORE_OPTIONS_DISPLAY:
 		onEnvSetCoreOptionsDisplay(*static_cast<retro_core_option_display*>(data));
+		return true;
+
+	case RETRO_ENVIRONMENT_GET_DISK_CONTROL_INTERFACE_VERSION:
+		*static_cast<uint32_t*>(data) = 1;
+		return true;
+
+	case RETRO_ENVIRONMENT_SET_DISK_CONTROL_EXT_INTERFACE:
+		onEnvSetDiskControlExtInterface(*static_cast<retro_disk_control_ext_callback*>(data));
 		return true;
 
 	case RETRO_ENVIRONMENT_GET_MESSAGE_INTERFACE_VERSION:
@@ -703,6 +716,14 @@ int16_t LibretroCore::onInputState(uint32_t port, uint32_t device, uint32_t inde
 	return 0;
 }
 
+void LibretroCore::onSetLEDState(int led, int state)
+{
+	// TODO?
+	// Apparently:
+	// 0 = Power
+	// 1 = CD
+}
+
 void LibretroCore::onLog(retro_log_level level, const char* str)
 {
 	if (level != RETRO_LOG_DUMMY) {
@@ -769,6 +790,26 @@ bool LibretroCore::onEnvGetVFSInterface(retro_vfs_interface_info& data)
 	data.iface = LibretroVFS::getLibretroInterface();
 
 	return true;
+}
+
+void LibretroCore::onEnvSetDiskControlInterface(const retro_disk_control_callback& data)
+{
+	diskControlCallbacks = retro_disk_control_ext_callback{};
+
+	diskControlCallbacks->set_eject_state = data.set_eject_state;
+	diskControlCallbacks->get_eject_state = data.get_eject_state;
+
+	diskControlCallbacks->get_image_index = data.get_image_index;
+	diskControlCallbacks->set_image_index = data.set_image_index;
+	diskControlCallbacks->get_num_images = data.get_num_images;
+
+	diskControlCallbacks->replace_image_index = data.replace_image_index;
+	diskControlCallbacks->add_image_index = data.add_image_index;
+}
+
+void LibretroCore::onEnvSetDiskControlExtInterface(const retro_disk_control_ext_callback& data)
+{
+	diskControlCallbacks = data;
 }
 
 void LibretroCore::onEnvGetSaveDirectory(const char** data)
