@@ -216,10 +216,10 @@ bool LibretroCore::loadGame(const Path& path, gsl::span<const gsl::byte> data, s
 		unloadGame();
 	}
 
-	const auto pathStr = path.string();
+	const auto pathStr = path.getNativeString();
 
 	retro_game_info gameInfo;
-	gameInfo.path = pathStr.data();
+	gameInfo.path = pathStr.c_str();
 	gameInfo.meta = meta.data();
 	gameInfo.size = data.size();
 	gameInfo.data = data.data();

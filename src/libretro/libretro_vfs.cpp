@@ -221,7 +221,7 @@ LibretroVFSDirHandle* LibretroVFS::openDir(std::string_view dir, bool includeHid
 {
 	Logger::logWarning("LibretroVFS::openDir is untested!!");
 
-	const Path dirPath = dir;
+	const Path dirPath = String(dir);
 	Vector<LibretroVFSDirHandle::Entry> entries;
 
 	// Eh, this is not great
