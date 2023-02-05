@@ -707,7 +707,7 @@ void LibretroCore::onEnvSetSerializationQuirks(uint64_t& data)
 
 bool LibretroCore::onEnvGetVFSInterface(retro_vfs_interface_info& data)
 {
-	constexpr int versionSupported = 2;
+	constexpr int versionSupported = 3;
 	if (data.required_interface_version > versionSupported) {
 		return false;
 	}

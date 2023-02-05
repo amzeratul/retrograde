@@ -137,8 +137,128 @@ namespace {
 	}
 }
 
+
+
 retro_vfs_interface* LibretroVFS::getLibretroInterface()
 {
 	static retro_vfs_interface retroVFSInterface = makeRetroVFSInterface();
 	return &retroVFSInterface;
+}
+
+
+LibretroVFSFileHandle* LibretroVFS::open(std::string_view path, uint32_t mode, uint32_t hints)
+{
+	// TODO
+	return nullptr;
+}
+
+LibretroVFSDirHandle* LibretroVFS::openDir(std::string_view dir, bool includeHidden)
+{
+	// TODO
+	return nullptr;	
+}
+
+int LibretroVFS::remove(std::string_view path)
+{
+	// TODO
+	return 0;
+}
+
+int LibretroVFS::rename(std::string_view old_path, std::string_view new_path)
+{
+	// TODO
+	return 0;	
+}
+
+int LibretroVFS::stat(std::string_view path, int32_t& size)
+{
+	// TODO
+	return 0;
+}
+
+int LibretroVFS::mkdir(std::string_view dir)
+{
+	// TODO
+	return 0;
+}
+
+
+const char* LibretroVFSFileHandle::getPath() const
+{
+	// TODO
+	return nullptr;
+}
+
+int LibretroVFSFileHandle::close()
+{
+	// TODO
+	return 0;
+}
+
+int LibretroVFSFileHandle::flush()
+{
+	// TODO
+	return 0;
+}
+
+int64_t LibretroVFSFileHandle::size() const
+{
+	// TODO
+	return 0;
+}
+
+int64_t LibretroVFSFileHandle::tell() const
+{
+	// TODO
+	return 0;
+}
+
+int64_t LibretroVFSFileHandle::seek(int64_t int64, int seek_position)
+{
+	// TODO
+	return 0;
+}
+
+int64_t LibretroVFSFileHandle::read(gsl::span<std::byte> span)
+{
+	// TODO
+	return 0;
+}
+
+int64_t LibretroVFSFileHandle::write(gsl::span<const std::byte> span)
+{
+	// TODO
+	return 0;
+}
+
+int64_t LibretroVFSFileHandle::truncate(int64_t int64)
+{
+	// TODO
+	return 0;
+}
+
+
+
+int LibretroVFSDirHandle::close()
+{
+	// TODO
+	return 0;
+}
+
+bool LibretroVFSDirHandle::read()
+{
+	// TODO
+	return false;
+}
+
+const char* LibretroVFSDirHandle::dirEntGetName() const
+{
+	// TODO
+	return nullptr;
+}
+
+bool LibretroVFSDirHandle::dirEntIsDir() const
+{
+	// TODO
+	return false;
 }
