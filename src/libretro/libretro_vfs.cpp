@@ -219,8 +219,26 @@ LibretroVFSFileHandleVFile* LibretroVFS::openVFile(std::string_view path, bool r
 
 LibretroVFSDirHandle* LibretroVFS::openDir(std::string_view dir, bool includeHidden)
 {
-	// TODO
-	return nullptr;
+	Logger::logWarning("LibretroVFS::openDir is untested!!");
+
+	const Path dirPath = dir;
+	Vector<LibretroVFSDirHandle::Entry> entries;
+
+	// Eh, this is not great
+	for (auto& file: virtualFiles) {
+		const auto p = Path(file.first);
+		if (p.parentPath() == dirPath) {
+			entries.emplace_back(LibretroVFSDirHandle::Entry{ p.getFilename().string(), false });
+		}
+	}
+
+	for (const auto& e: std::filesystem::directory_iterator(dir)) {
+		if (e.is_directory() || e.is_regular_file()) {
+			entries.emplace_back(LibretroVFSDirHandle::Entry{ e.path().filename().string(), e.is_directory() });
+		}
+	}
+
+	return new LibretroVFSDirHandle(std::move(entries));
 }
 
 int LibretroVFS::remove(std::string_view path)
@@ -443,27 +461,29 @@ int64_t LibretroVFSFileHandleVFile::truncate(int64_t size)
 }
 
 
+LibretroVFSDirHandle::LibretroVFSDirHandle(Vector<Entry> entries)
+	: entries(std::move(entries))
+{
+}
 
 int LibretroVFSDirHandle::close()
 {
-	// TODO
+	delete this;
 	return 0;
 }
 
 bool LibretroVFSDirHandle::read()
 {
-	// TODO
-	return false;
+	++pos;
+	return pos == entries.size();
 }
 
 const char* LibretroVFSDirHandle::dirEntGetName() const
 {
-	// TODO
-	return nullptr;
+	return entries[pos - 1].name.c_str();
 }
 
 bool LibretroVFSDirHandle::dirEntIsDir() const
 {
-	// TODO
-	return false;
+	return entries[pos - 1].isDir;
 }

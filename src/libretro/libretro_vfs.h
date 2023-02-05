@@ -72,10 +72,21 @@ private:
 
 class LibretroVFSDirHandle {
 public:
+	struct Entry {
+		String name;
+		bool isDir = false;
+	};
+
+	LibretroVFSDirHandle(Vector<Entry> entries);
+
 	int close();
 	bool read();
 	const char* dirEntGetName() const;
 	bool dirEntIsDir() const;
+
+private:
+	Vector<Entry> entries;
+	size_t pos = 0;
 };
 
 class LibretroVFS {
