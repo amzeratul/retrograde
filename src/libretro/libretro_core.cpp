@@ -873,6 +873,9 @@ void LibretroCore::onEnvSetDiskControlExtInterface(const retro_disk_control_ext_
 
 void LibretroCore::onEnvSetContentInfoOverride(const retro_system_content_info_override* data)
 {
+	// Keep the original...
+	auto orig = std::move(contentInfos.front());
+
 	contentInfos.clear();
 	for (auto* cur = data; cur->extensions != nullptr; ++cur) {
 		auto& info = contentInfos.emplace_back();
@@ -880,6 +883,9 @@ void LibretroCore::onEnvSetContentInfoOverride(const retro_system_content_info_o
 		info.needFullpath = cur->need_fullpath;
 		info.persistData = cur->persistent_data;
 	}
+
+	// ...and re-add it at the end, so it's the lowest priority option
+	contentInfos.push_back(std::move(orig));
 }
 
 void LibretroCore::onEnvGetSaveDirectory(const char** data)
