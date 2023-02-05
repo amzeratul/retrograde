@@ -4,6 +4,7 @@
 
 #include "libretro.h"
 #include "src/util/dll.h"
+class ZipFile;
 class LibretroVFS;
 class CPUUpdateTexture;
 class LibretroEnvironment;
@@ -30,22 +31,31 @@ public:
 class LibretroCore : protected ILibretroCoreCallbacks {
 public:
 	struct Option {
+		struct Value {
+			String value;
+			String display;
+		};
 		String value;
 		String defaultValue;
 		String description;
 		String info;
 		String category;
+		Vector<Value> values;
 		bool visible = true;
 	};
 
 	struct SystemInfo {
 		String coreName;
 		String coreVersion;
-		Vector<String> validExtensions;
 		bool supportNoGame = false;
 		bool supportAchievements = false;
 		bool blockExtract = false;
+	};
+
+	struct ContentInfo {
+		Vector<String> validExtensions;
 		bool needFullpath = false;
+		bool persistData = false;
 
 		bool isValidExtension(std::string_view filePath) const;
 		bool isValidExtension(const Path& filePath) const;
@@ -116,11 +126,15 @@ private:
 
 	bool gameLoaded = false;
 	String gameName;
+	Bytes gameBytes;
+	Vector<retro_game_info_ext> gameInfos;
+
 	uint64_t lastSaveHash = 0;
 	mutable SaveStateType saveStateType = SaveStateType::Normal;
 
 	SystemInfo systemInfo;
 	SystemAVInfo systemAVInfo;
+	Vector<ContentInfo> contentInfos;
 
 	HashMap<String, Option> options;
 
@@ -145,9 +159,10 @@ private:
 
 	void initVideoOut();
 	void initAudioOut();
-
-	Path extractIntoVFS(const Path& path);
-	bool loadGame(const Path& path, gsl::span<const gsl::byte> data, std::string_view meta);
+	
+	std::pair<const ContentInfo*, size_t> getContentInfo(const ZipFile& zip);
+	const ContentInfo* getContentInfo(const Path& path);
+	bool doLoadGame();
 
 	void loadVFS();
 
@@ -175,6 +190,7 @@ private:
 	bool onEnvGetVFSInterface(retro_vfs_interface_info& data);
 	void onEnvSetDiskControlInterface(const retro_disk_control_callback& data);
 	void onEnvSetDiskControlExtInterface(const retro_disk_control_ext_callback& data);
+	void onEnvSetContentInfoOverride(const retro_system_content_info_override* data);
 
 	void onEnvSetInputDescriptors(const retro_input_descriptor* data);
 	void onEnvSetControllerInfo(const retro_controller_info& data);

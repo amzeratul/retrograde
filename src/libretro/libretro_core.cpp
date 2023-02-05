@@ -7,6 +7,7 @@
 #include "libretro_environment.h"
 #include "libretro_vfs.h"
 #include "src/util/cpu_update_texture.h"
+#include "src/util/c_string_cache.h"
 #include "src/zip/zip_file.h"
 
 thread_local ILibretroCoreCallbacks* ILibretroCoreCallbacks::curInstance;
@@ -62,12 +63,12 @@ namespace {
 }
 
 
-bool LibretroCore::SystemInfo::isValidExtension(std::string_view filePath) const
+bool LibretroCore::ContentInfo::isValidExtension(std::string_view filePath) const
 {
 	return isValidExtension(Path(filePath));
 }
 
-bool LibretroCore::SystemInfo::isValidExtension(const Path& filePath) const
+bool LibretroCore::ContentInfo::isValidExtension(const Path& filePath) const
 {
 	const auto ext = filePath.getExtension();
 	return std_ex::contains(validExtensions, std::string_view(ext).substr(1));
@@ -117,8 +118,11 @@ void LibretroCore::init()
 	systemInfo.coreName = retroSystemInfo.library_name;
 	systemInfo.coreVersion = retroSystemInfo.library_version;
 	systemInfo.blockExtract = retroSystemInfo.block_extract;
-	systemInfo.needFullpath = retroSystemInfo.need_fullpath;
-	systemInfo.validExtensions = String(retroSystemInfo.valid_extensions).split('|');
+	contentInfos.clear();
+	auto& cInfo = contentInfos.emplace_back();
+	cInfo.validExtensions = String(retroSystemInfo.valid_extensions).split('|');
+	cInfo.needFullpath = retroSystemInfo.need_fullpath;
+	cInfo.persistData = false;
 
 	auto guard = ScopedGuard([=]() { curInstance = nullptr; });
 	curInstance = this;
@@ -172,64 +176,117 @@ void LibretroCore::deInit()
 	vfs.reset();
 }
 
-Path LibretroCore::extractIntoVFS(const Path& path)
+std::pair<const LibretroCore::ContentInfo*, size_t> LibretroCore::getContentInfo(const ZipFile& zip)
 {
-	auto zip = ZipFile(path, false);
-	String loadPath;
-	bool foundExtension = false;
-
 	const size_t n = zip.getNumFiles();
 	for (size_t i = 0; i < n; ++i) {
-		String entryPath = "!zip/" + zip.getFileName(i);
-		vfs->setVirtualFile(entryPath, zip.extractFile(i));
-		const bool validExtension = systemInfo.isValidExtension(Path(entryPath));
-		if (loadPath.isEmpty() && (!foundExtension || validExtension)) {
-			loadPath = entryPath;
-			foundExtension = validExtension;
+		for (auto& cInfo: contentInfos) {
+			if (cInfo.isValidExtension(std::string_view(zip.getFileName(i)))) {
+				return { &cInfo, i };
+			}
 		}
 	}
+	return { &contentInfos.front(), 0 };
+}
 
-	return loadPath;
+const LibretroCore::ContentInfo* LibretroCore::getContentInfo(const Path& path)
+{
+	for (auto& cInfo : contentInfos) {
+		if (cInfo.isValidExtension(path)) {
+			return &cInfo;
+		}
+	}
+	return &contentInfos.front();
 }
 
 bool LibretroCore::loadGame(const Path& path)
-{
-	const bool canExtract = !systemInfo.blockExtract && ZipFile::isZipFile(path);
-
-	if (systemInfo.needFullpath) {
-		// Fullpath cores can still read zipped files if they support VFS
-		// In those cases, we'll extract the zip into VFS and load that instead
-		if (vfs) {
-			if (canExtract) {
-				return loadGame(extractIntoVFS(path), {}, {});
-			}
-		}
-
-		// If the core won't allow extraction or doesn't support VFS, we'll just let it handle the original file
-		return loadGame(path, {}, {});
-	} else {
-		// For cores that load from RAM, just read it and feed it to them directly
-		auto bytes = canExtract ? ZipFile::readFile(path) : Path::readFile(path);
-		if (bytes.empty()) {
-			return false;
-		}
-		return loadGame(path, gsl::as_bytes(gsl::span<const Byte>(bytes.data(), bytes.size())), {});
-	}
-}
-
-bool LibretroCore::loadGame(const Path& path, gsl::span<const gsl::byte> data, std::string_view meta)
 {
 	if (gameLoaded) {
 		unloadGame();
 	}
 
-	const auto pathStr = vfs ? path.getString() : path.getNativeString();
+	CStringCache cache;
 
+	gameInfos.clear();
+	auto& gameInfoEx = gameInfos.emplace_back();
+	gameInfoEx.full_path = nullptr;
+	gameInfoEx.archive_path = nullptr;
+	gameInfoEx.archive_file = nullptr;
+	gameInfoEx.dir = cache(path.parentPath().getNativeString());
+	gameInfoEx.name = cache(path.getFilename().replaceExtension("").getNativeString());
+	gameInfoEx.ext = nullptr;
+	gameInfoEx.meta = nullptr;
+	gameInfoEx.data = nullptr;
+	gameInfoEx.size = 0;
+	gameInfoEx.file_in_archive = false;
+	gameInfoEx.persistent_data = false;
+
+	const bool canExtract = !systemInfo.blockExtract && ZipFile::isZipFile(path);
+	ZipFile zip;
+
+	const ContentInfo* targetContentInfo = nullptr;
+	Path targetPath;
+	size_t archiveIdx = 0;
+	if (canExtract) {
+		zip.open(path, false);
+		std::tie(targetContentInfo, archiveIdx) = getContentInfo(zip);
+		const auto archiveFileName = zip.getFileName(archiveIdx);
+		targetPath = Path("!zip") / archiveFileName;
+		gameInfoEx.archive_path = cache(path.getNativeString());
+		gameInfoEx.archive_file = cache(archiveFileName);
+		gameInfoEx.file_in_archive = true;
+	} else {
+		targetContentInfo = getContentInfo(path);
+		targetPath = path;
+	}
+
+	gameInfoEx.full_path = cache(targetPath.getNativeString());
+	gameInfoEx.persistent_data = targetContentInfo->persistData;
+	gameInfoEx.ext = cache(Path(targetPath).getExtension().substr(1).asciiLower());
+
+	if (targetContentInfo->needFullpath) {
+		// Fullpath cores can still read zipped files if they support VFS
+		// In those cases, we'll extract the zip into VFS and load that instead
+		if (vfs && canExtract) {
+			zip.extractAll("!zip", *vfs);
+			gameInfoEx.full_path = cache(targetPath.getString()); // VFS requires unix style path
+		}
+	} else {
+		if (canExtract) {
+			gameBytes = zip.extractFile(archiveIdx);
+		} else {
+			gameBytes = Path::readFile(targetPath);
+		}
+		if (gameBytes.empty()) {
+			return false;
+		}
+		gameInfoEx.data = gameBytes.data();
+		gameInfoEx.size = gameBytes.size();
+	}
+
+	doLoadGame();
+
+	if (!targetContentInfo->persistData) {
+		gameBytes.clear();
+	}
+
+	if (gameLoaded) {
+		gameName = Path(path).getFilename().replaceExtension("").getString();
+	}
+
+	return gameLoaded;
+}
+
+bool LibretroCore::doLoadGame()
+{
+	assert(!gameLoaded);
+	
+	auto& info = gameInfos.front();
 	retro_game_info gameInfo;
-	gameInfo.path = pathStr.c_str();
-	gameInfo.meta = meta.data();
-	gameInfo.size = data.size();
-	gameInfo.data = data.data();
+	gameInfo.path = info.full_path;
+	gameInfo.meta = info.meta;
+	gameInfo.size = info.size;
+	gameInfo.data = info.data;
 
 	auto guard = ScopedGuard([=]() { curInstance = nullptr; });
 	curInstance = this;
@@ -244,11 +301,11 @@ bool LibretroCore::loadGame(const Path& path, gsl::span<const gsl::byte> data, s
 		systemAVInfo.sampleRate = retroAVInfo.timing.sample_rate;
 		systemAVInfo.loadGeometry(retroAVInfo.geometry);
 
-		gameName = Path(path).getFilename().replaceExtension("").getString();
-
 		initVideoOut();
 		initAudioOut();
 		loadGameData();
+	} else {
+		gameInfos.clear();
 	}
 	
 	return gameLoaded;
@@ -264,6 +321,8 @@ void LibretroCore::unloadGame()
 
 		gameLoaded = false;
 		lastSaveHash = 0;
+		gameInfos.clear();
+		gameBytes.clear();
 
 		if (vfs) {
 			vfs->clearVirtualFiles();
@@ -556,14 +615,14 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		return true;
 
 	case RETRO_ENVIRONMENT_SET_CONTENT_INFO_OVERRIDE:
-		// TODO (used by genesis plus gx)
-		Logger::logWarning("TODO: implement env cmd " + toString(cmd));
-		return false;
+		if (data) {
+			onEnvSetContentInfoOverride(static_cast<const retro_system_content_info_override*>(data));
+		}
+		return true;
 
 	case RETRO_ENVIRONMENT_GET_GAME_INFO_EXT:
-		// TODO (used by genesis plus gx)
-		Logger::logWarning("TODO: implement env cmd " + toString(cmd));
-		return false;
+		*static_cast<const retro_game_info_ext**>(data) = gameInfos.data();
+		return true;
 
 	case RETRO_ENVIRONMENT_SET_CORE_OPTIONS_V2:
 		onEnvSetCoreOptionsV2(*static_cast<const retro_core_options_v2*>(data));
@@ -812,6 +871,17 @@ void LibretroCore::onEnvSetDiskControlExtInterface(const retro_disk_control_ext_
 	diskControlCallbacks = data;
 }
 
+void LibretroCore::onEnvSetContentInfoOverride(const retro_system_content_info_override* data)
+{
+	contentInfos.clear();
+	for (auto* cur = data; cur->extensions != nullptr; ++cur) {
+		auto& info = contentInfos.emplace_back();
+		info.validExtensions = String(data->extensions).split('|');
+		info.needFullpath = cur->need_fullpath;
+		info.persistData = cur->persistent_data;
+	}
+}
+
 void LibretroCore::onEnvGetSaveDirectory(const char** data)
 {
 	*data = environment.getSaveDir().c_str();
@@ -892,6 +962,10 @@ void LibretroCore::onEnvSetCoreOptions(const retro_core_option_definition* data)
 		option.description = definition->desc;
 		option.info = definition->info;
 
+		for (int i = 0; i < RETRO_NUM_CORE_OPTION_VALUES_MAX && definition->values[i].value; ++i) {
+			option.values.push_back(Option::Value{ definition->values[i].value, definition->values[i].label });
+		}
+
 		if (option.value.isEmpty()) {
 			option.value = option.defaultValue;
 		}
@@ -912,6 +986,10 @@ void LibretroCore::onEnvSetCoreOptionsV2(const retro_core_options_v2& data)
 		option.defaultValue = definition->default_value;
 		option.description = definition->desc;
 		option.info = definition->info;
+
+		for (int i = 0; i < RETRO_NUM_CORE_OPTION_VALUES_MAX && definition->values[i].value; ++i) {
+			option.values.push_back(Option::Value{ definition->values[i].value, definition->values[i].label });
+		}
 
 		if (option.value.isEmpty()) {
 			option.value = option.defaultValue;

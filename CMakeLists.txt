@@ -43,6 +43,7 @@ set (HEADERS
 	"src/libretro/libretro.h"
 
 	"src/util/cpu_update_texture.h"
+	"src/util/c_string_cache.h"
 	"src/util/dll.h"
 
 	"src/zip/zip_file.h"

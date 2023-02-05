@@ -2,6 +2,8 @@
 #include "miniz.h"
 #include <cstdio>
 
+#include "src/libretro/libretro_vfs.h"
+
 ZipFile::ZipFile() {}
 
 ZipFile::ZipFile(Path path, bool inMemory)
@@ -120,6 +122,14 @@ Bytes ZipFile::extractFile(size_t idx) const
 		return bytes;
 	} else {
 		return {};
+	}
+}
+
+void ZipFile::extractAll(const Path& prefix, LibretroVFS& target) const
+{
+	const size_t n = getNumFiles();
+	for (size_t i = 0; i < n; ++i) {
+		target.setVirtualFile(prefix / getFileName(i), extractFile(i));
 	}
 }
 

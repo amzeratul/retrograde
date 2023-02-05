@@ -3,6 +3,7 @@
 #include <halley.hpp>
 
 #include "miniz.h"
+class LibretroVFS;
 using namespace Halley;
 
 class ZipFile {
@@ -18,6 +19,8 @@ public:
     String getFileName(size_t idx) const;
     Vector<String> getFileNames() const;
     Bytes extractFile(size_t idx) const;
+
+    void extractAll(const Path& prefix, LibretroVFS& target) const;
 
     void printDiagnostics() const;
 
