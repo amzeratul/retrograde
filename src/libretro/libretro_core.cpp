@@ -155,11 +155,31 @@ void LibretroCore::deInit()
 
 bool LibretroCore::loadGame(std::string_view path)
 {
+	const auto p = Path(path);
+	const bool canExtract = !systemInfo.blockExtract && ZipFile::isZipFile(p);
+
 	if (systemInfo.needFullpath) {
+		// Fullpath cores can still read zipped files if they support VFS
+		// In those cases, we'll extract the zip into VFS and load that instead
+		if (vfs) {
+			if (canExtract) {
+				auto zip = ZipFile(p, false);
+				const size_t n = zip.getNumFiles();
+				String loadPath;
+				for (size_t i = 0; i < n; ++i) {
+					String path = "/zip/" + zip.getFileName(i);
+					vfs->setVirtualFile(path, zip.extractFile(i));
+					loadPath = path; // TODO: check extensions
+				}
+				return loadGame(loadPath, {}, {});
+			}
+		}
+
+		// If the core won't allow extraction or doesn't support VFS, we'll just let it handle the original file
 		return loadGame(path, {}, {});
 	} else {
-		const auto p = Path(path);
-		auto bytes = !systemInfo.blockExtract && ZipFile::isZipFile(p) ? ZipFile::readFile(p) : Path::readFile(p);
+		// For cores that load from RAM, just read it and feed it to them directly
+		auto bytes = canExtract ? ZipFile::readFile(p) : Path::readFile(p);
 		if (bytes.empty()) {
 			return false;
 		}
@@ -212,6 +232,10 @@ void LibretroCore::unloadGame()
 
 		gameLoaded = false;
 		lastSaveHash = 0;
+
+		if (vfs) {
+			vfs->clearVirtualFiles();
+		}
 	}
 }
 

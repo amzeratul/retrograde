@@ -75,7 +75,6 @@ public:
 	~LibretroCore() override;
 
 	bool loadGame(std::string_view path);
-	bool loadGame(std::string_view path, gsl::span<const gsl::byte> data, std::string_view meta);
 	void unloadGame();
 	bool hasGameLoaded() const;
 
@@ -140,6 +139,8 @@ private:
 
 	void initVideoOut();
 	void initAudioOut();
+
+	bool loadGame(std::string_view path, gsl::span<const gsl::byte> data, std::string_view meta);
 
 	void loadVFS();
 

@@ -82,7 +82,7 @@ String ZipFile::getFileName(size_t idx) const
 	char buffer[512];
 	const auto size = mz_zip_reader_get_filename(&archive, mz_uint(idx), buffer, 4096);
 
-	return String(buffer, size);
+	return String(buffer, size - 1);
 }
 
 Vector<String> ZipFile::getFileNames() const

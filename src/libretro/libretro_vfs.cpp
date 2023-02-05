@@ -151,6 +151,16 @@ retro_vfs_interface* LibretroVFS::getLibretroInterface()
 	return &retroVFSInterface;
 }
 
+void LibretroVFS::setVirtualFile(String path, Bytes data)
+{
+	virtualFiles[std::move(path)] = std::move(data);
+}
+
+void LibretroVFS::clearVirtualFiles()
+{
+	virtualFiles.clear();
+}
+
 LibretroVFSFileHandle* LibretroVFS::open(std::string_view path, uint32_t mode, uint32_t hints)
 {
 	const bool read = mode & RETRO_VFS_FILE_ACCESS_READ;
@@ -158,39 +168,53 @@ LibretroVFSFileHandle* LibretroVFS::open(std::string_view path, uint32_t mode, u
 	const bool update = mode & RETRO_VFS_FILE_ACCESS_UPDATE_EXISTING;
 	const bool frequentAccess = hints & RETRO_VFS_FILE_ACCESS_HINT_FREQUENT_ACCESS;
 
-	if (true) {
-		const char* modeStr = nullptr;
-		if (write) {
-			if (read && update) {
-				modeStr = "r+b";
-			} else if (update) {
-				modeStr = "r+b";
-			} else if (read) {
-				modeStr = "w+b";
-			} else {
-				modeStr = "wb";
-			}
-		} else {
-			modeStr = "rb";
-		}
+	const auto iter = virtualFiles.find(path);
+	if (iter != virtualFiles.end()) {
+		return openVFile(path, read, write, update, frequentAccess, iter->second);
+	} else {
+		return openSTDIO(path, read, write, update, frequentAccess);
+	}
+}
 
-#ifdef _WIN32
-		FILE* fp;
-		auto error = _wfopen_s(&fp, String(path).getUTF16().c_str(), String(modeStr).getUTF16().c_str());
-		if (error != 0) {
-			return nullptr;
-		}
-#else
-		FILE* fp = fopen(path.c_str(), modeStr);
-#endif
-		if (fp) {
-			return new LibretroVFSFileHandleSTDIO(fp, path);
+LibretroVFSFileHandleSTDIO* LibretroVFS::openSTDIO(std::string_view path, bool read, bool write, bool update, bool frequentAccess)
+{
+	const char* modeStr = nullptr;
+	if (write) {
+		if (read && update) {
+			modeStr = "r+b";
+		} else if (update) {
+			modeStr = "r+b";
+		} else if (read) {
+			modeStr = "w+b";
 		} else {
-			return nullptr;
+			modeStr = "wb";
 		}
+	} else {
+		modeStr = "rb";
 	}
 
-	return nullptr;
+#ifdef _WIN32
+	FILE* fp;
+	auto error = _wfopen_s(&fp, String(path).getUTF16().c_str(), String(modeStr).getUTF16().c_str());
+	if (error != 0) {
+		return nullptr;
+	}
+#else
+	FILE* fp = fopen(path.c_str(), modeStr);
+#endif
+	if (fp) {
+		return new LibretroVFSFileHandleSTDIO(fp, path);
+	} else {
+		return nullptr;
+	}
+}
+
+LibretroVFSFileHandleVFile* LibretroVFS::openVFile(std::string_view path, bool read, bool write, bool update, bool frequentAccess, Bytes& data)
+{
+	if (write && !update) {
+		data.clear();
+	}
+	return new LibretroVFSFileHandleVFile(data, path, read, write);
 }
 
 LibretroVFSDirHandle* LibretroVFS::openDir(std::string_view dir, bool includeHidden)
@@ -244,6 +268,7 @@ int LibretroVFS::mkdir(std::string_view dir)
 }
 
 
+
 LibretroVFSFileHandleSTDIO::LibretroVFSFileHandleSTDIO(FILE* fp, String path)
 	: path(std::move(path))
 	, fp(fp)
@@ -277,7 +302,7 @@ int LibretroVFSFileHandleSTDIO::flush()
 	if (fp) {
 		return fflush(fp);
 	}
-	return 0;
+	return -1;
 }
 
 int64_t LibretroVFSFileHandleSTDIO::size() const
@@ -285,7 +310,7 @@ int64_t LibretroVFSFileHandleSTDIO::size() const
 	if (fp) {
 		return static_cast<int64_t>(fpSize);
 	}
-	return 0;
+	return -1;
 }
 
 int64_t LibretroVFSFileHandleSTDIO::tell() const
@@ -297,19 +322,20 @@ int64_t LibretroVFSFileHandleSTDIO::tell() const
 		return ftello(fp);
 #endif
 	}
-	return 0;
+	return -1;
 }
 
 int64_t LibretroVFSFileHandleSTDIO::seek(int64_t offset, int position)
 {
 	if (fp) {
 #ifdef _WIN32
-		return _fseeki64(fp, offset, position);
+		_fseeki64(fp, offset, position);
 #else
-		return fseeko(fp, offset, position);
+		fseeko(fp, offset, position);
 #endif
+		return tell();
 	}
-	return 0;
+	return -1;
 }
 
 int64_t LibretroVFSFileHandleSTDIO::read(gsl::span<std::byte> span)
@@ -317,7 +343,7 @@ int64_t LibretroVFSFileHandleSTDIO::read(gsl::span<std::byte> span)
 	if (fp) {
 		return fread(span.data(), 1, span.size(), fp);
 	}
-	return 0;
+	return -1;
 }
 
 int64_t LibretroVFSFileHandleSTDIO::write(gsl::span<const std::byte> span)
@@ -325,7 +351,7 @@ int64_t LibretroVFSFileHandleSTDIO::write(gsl::span<const std::byte> span)
 	if (fp) {
 		return fwrite(span.data(), 1, span.size(), fp);
 	}
-	return 0;
+	return -1;
 }
 
 int64_t LibretroVFSFileHandleSTDIO::truncate(int64_t sz)
@@ -337,6 +363,82 @@ int64_t LibretroVFSFileHandleSTDIO::truncate(int64_t sz)
 		return ftruncate(fileno(fp), sz);
 #endif
 	}
+	return -1;
+}
+
+
+
+LibretroVFSFileHandleVFile::LibretroVFSFileHandleVFile(Bytes& fileData, String path, bool canRead, bool canWrite)
+	: path(path)
+	, bytes(fileData)
+	, pos(0)
+	, canRead(canRead)
+	, canWrite(canWrite)
+{
+}
+
+const char* LibretroVFSFileHandleVFile::getPath() const
+{
+	return path.c_str();
+}
+
+int LibretroVFSFileHandleVFile::close()
+{
+	delete this;
+	return 0;
+}
+
+int LibretroVFSFileHandleVFile::flush()
+{
+	return 0;
+}
+
+int64_t LibretroVFSFileHandleVFile::size() const
+{
+	return static_cast<int64_t>(bytes.size());
+}
+
+int64_t LibretroVFSFileHandleVFile::tell() const
+{
+	return pos;
+}
+
+int64_t LibretroVFSFileHandleVFile::seek(int64_t offset, int position)
+{
+	if (position == RETRO_VFS_SEEK_POSITION_CURRENT) {
+		pos = clamp(pos + offset, 0ll, size());
+	} else if (position == RETRO_VFS_SEEK_POSITION_START) {
+		pos = clamp(offset, 0ll, size());
+	} else if (position == RETRO_VFS_SEEK_POSITION_END) {
+		pos = clamp(size() + offset, 0ll, size());
+	}
+	return pos;
+}
+
+int64_t LibretroVFSFileHandleVFile::read(gsl::span<std::byte> span)
+{
+	const int64_t toRead = std::min(size() - pos, static_cast<int64_t>(span.size()));
+	memcpy(span.data(), bytes.data() + pos, toRead);
+	pos += toRead;
+	return toRead;
+}
+
+int64_t LibretroVFSFileHandleVFile::write(gsl::span<const std::byte> span)
+{
+	const auto toWrite = static_cast<int64_t>(span.size());
+	if (pos + toWrite > size()) {
+		bytes.resize(pos + toWrite);
+	}
+	memcpy(bytes.data() + pos, span.data(), toWrite);
+	pos += toWrite;
+	return toWrite;
+
+}
+
+int64_t LibretroVFSFileHandleVFile::truncate(int64_t size)
+{
+	bytes.resize(size);
+	pos = std::min(pos, static_cast<int64_t>(bytes.size()));
 	return 0;
 }
 
