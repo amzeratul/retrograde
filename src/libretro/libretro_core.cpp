@@ -5,41 +5,41 @@
 
 #include "libretro.h"
 #include "libretro_environment.h"
+#include "libretro_vfs.h"
 #include "src/util/cpu_update_texture.h"
 #include "src/zip/zip_file.h"
 
+thread_local ILibretroCoreCallbacks* ILibretroCoreCallbacks::curInstance;
 
 namespace {
-	thread_local ILibretroCoreCallbacks* curInstance = nullptr;
-
 	bool RETRO_CALLCONV retroEnvironmentCallback(uint32_t cmd, void *data)
 	{
-		return curInstance->onEnvironment(cmd, data);
+		return ILibretroCoreCallbacks::curInstance->onEnvironment(cmd, data);
 	}
 	
 	void RETRO_CALLCONV retroVideoRefreshCallback(const void *data, uint32_t width, uint32_t height, size_t pitch)
 	{
-		curInstance->onVideoRefresh(data, width, height, pitch);
+		ILibretroCoreCallbacks::curInstance->onVideoRefresh(data, width, height, pitch);
 	}
 	
 	void RETRO_CALLCONV retroAudioSampleCallback(int16_t left, int16_t right)
 	{
-		curInstance->onAudioSample(left, right);
+		ILibretroCoreCallbacks::curInstance->onAudioSample(left, right);
 	}
 	
 	size_t RETRO_CALLCONV retroAudioSampleBatchCallback(const int16_t *data, size_t frames)
 	{
-		return curInstance->onAudioSampleBatch(data, frames);
+		return ILibretroCoreCallbacks::curInstance->onAudioSampleBatch(data, frames);
 	}
 	
 	void RETRO_CALLCONV retroInputPollCallback()
 	{
-		return curInstance->onInputPoll();
+		return ILibretroCoreCallbacks::curInstance->onInputPoll();
 	}
 	
 	int16_t RETRO_CALLCONV retroInputStateCallback(uint32_t port, uint32_t device, uint32_t index, uint32_t id)
 	{
-		return curInstance->onInputState(port, device, index, id);
+		return ILibretroCoreCallbacks::curInstance->onInputState(port, device, index, id);
 	}
 
 	void RETRO_CALLCONV retroLogPrintf(retro_log_level level, const char *fmt, ...)
@@ -50,13 +50,11 @@ namespace {
 		va_start(args, fmt);
 		int n = vsprintf_s(buffer, sizeof(buffer), fmt, args);
 		if (n > 0) {
-			curInstance->onLog(level, buffer);
+			ILibretroCoreCallbacks::curInstance->onLog(level, buffer);
 		}
 		va_end(args);
 	}
 }
-
-#define DLL_FUNC(dll, FUNC_NAME) static_cast<decltype(&(FUNC_NAME))>((dll).getFunction(#FUNC_NAME))
 
 
 void LibretroCore::SystemAVInfo::loadGeometry(const retro_game_geometry& geometry)
@@ -146,6 +144,8 @@ void LibretroCore::addAudioSamples(gsl::span<const float> samples)
 void LibretroCore::deInit()
 {
 	unloadGame();
+
+	vfs.reset();
 
 	auto guard = ScopedGuard([=]() { curInstance = nullptr; });
 	curInstance = this;
@@ -345,6 +345,14 @@ const LibretroCore::SystemAVInfo& LibretroCore::getSystemAVInfo() const
 	return systemAVInfo;
 }
 
+LibretroVFS& LibretroCore::getVFS()
+{
+	if (!vfs) {
+		vfs = std::make_unique<LibretroVFS>();
+	}
+	return *vfs;
+}
+
 void LibretroCore::setInputDevice(int idx, std::shared_ptr<InputVirtual> input)
 {
 	Expects(idx < maxInputDevices);
@@ -373,6 +381,11 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		onEnvSetInputDescriptors(static_cast<const retro_input_descriptor*>(data));
 		return true;
 
+	case RETRO_ENVIRONMENT_SET_DISK_CONTROL_INTERFACE:
+		// TODO (used by genesis_plus_gx)
+		Logger::logWarning("TODO: implement env cmd " + toString(cmd));
+		return false;
+
 	case RETRO_ENVIRONMENT_GET_VARIABLE:
 		onEnvGetVariable(*static_cast<retro_variable*>(data));
 		return true;
@@ -396,7 +409,7 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 	case RETRO_ENVIRONMENT_GET_SAVE_DIRECTORY:
 		onEnvGetSaveDirectory(static_cast<const char**>(data));
 		return true;
-
+		
 	case RETRO_ENVIRONMENT_SET_SUBSYSTEM_INFO:
 		onEnvSetSubsystemInfo(*static_cast<const retro_subsystem_info*>(data));
 		return true;
@@ -404,6 +417,11 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 	case RETRO_ENVIRONMENT_SET_CONTROLLER_INFO:
 		onEnvSetControllerInfo(*static_cast<const retro_controller_info*>(data));
 		return true;
+
+	case RETRO_ENVIRONMENT_SET_MEMORY_MAPS:
+		// TODO (used by genesis plus gx)
+		Logger::logWarning("TODO: implement env cmd " + toString(cmd & 0xFF));
+		return false;
 
 	case RETRO_ENVIRONMENT_SET_GEOMETRY:
 		onEnvSetGeometry(*static_cast<const retro_game_geometry*>(data));
@@ -420,6 +438,14 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 	case RETRO_ENVIRONMENT_SET_SERIALIZATION_QUIRKS:
 		onEnvSetSerializationQuirks(*static_cast<uint64_t*>(data));
 		return true;
+
+	case RETRO_ENVIRONMENT_GET_VFS_INTERFACE:
+		return onEnvGetVFSInterface(*static_cast<retro_vfs_interface_info*>(data));
+
+	case RETRO_ENVIRONMENT_GET_LED_INTERFACE:
+		// TODO (used by genesis plus gx)
+		Logger::logWarning("TODO: implement env cmd " + toString(cmd & 0xFF));
+		return false;
 
 	case RETRO_ENVIRONMENT_GET_AUDIO_VIDEO_ENABLE:
 		*static_cast<int*>(data) = onEnvGetAudioVideoEnable();
@@ -449,7 +475,7 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		return true;
 
 	case RETRO_ENVIRONMENT_GET_MESSAGE_INTERFACE_VERSION:
-		*static_cast<unsigned*>(data) = 1;
+		*static_cast<uint32_t*>(data) = 1;
 		return true;
 
 	case RETRO_ENVIRONMENT_SET_MESSAGE_EXT:
@@ -463,6 +489,16 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 	case RETRO_ENVIRONMENT_SET_MINIMUM_AUDIO_LATENCY:
 		onEnvSetMinimumAudioLatency(*static_cast<const uint32_t*>(data));
 		return true;
+
+	case RETRO_ENVIRONMENT_SET_CONTENT_INFO_OVERRIDE:
+		// TODO (used by genesis plus gx)
+		Logger::logWarning("TODO: implement env cmd " + toString(cmd));
+		return false;
+
+	case RETRO_ENVIRONMENT_GET_GAME_INFO_EXT:
+		// TODO (used by genesis plus gx)
+		Logger::logWarning("TODO: implement env cmd " + toString(cmd));
+		return false;
 
 	case RETRO_ENVIRONMENT_SET_CORE_OPTIONS_V2:
 		onEnvSetCoreOptionsV2(*static_cast<const retro_core_options_v2*>(data));
@@ -667,6 +703,20 @@ void LibretroCore::onEnvSetSerializationQuirks(uint64_t& data)
 	if (data & RETRO_SERIALIZATION_QUIRK_CORE_VARIABLE_SIZE) {
 		data |= RETRO_SERIALIZATION_QUIRK_FRONT_VARIABLE_SIZE;
 	}
+}
+
+bool LibretroCore::onEnvGetVFSInterface(retro_vfs_interface_info& data)
+{
+	constexpr int versionSupported = 2;
+	if (data.required_interface_version > versionSupported) {
+		return false;
+	}
+
+	getVFS();
+	data.required_interface_version = versionSupported;
+	data.iface = LibretroVFS::getLibretroInterface();
+
+	return true;
 }
 
 void LibretroCore::onEnvGetSaveDirectory(const char** data)

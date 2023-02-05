@@ -22,6 +22,7 @@ set (SOURCES
 
 	"src/libretro/libretro_core.cpp"
 	"src/libretro/libretro_environment.cpp"
+	"src/libretro/libretro_vfs.cpp"
 
 	"src/util/cpu_update_texture.cpp"
 	"src/util/dll.cpp"
@@ -38,6 +39,7 @@ set (HEADERS
 
 	"src/libretro/libretro_core.h"
 	"src/libretro/libretro_environment.h"
+	"src/libretro/libretro_vfs.h"
 	"src/libretro/libretro.h"
 
 	"src/util/cpu_update_texture.h"

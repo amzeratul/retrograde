@@ -4,6 +4,7 @@
 
 #include "libretro.h"
 #include "src/util/dll.h"
+class LibretroVFS;
 class CPUUpdateTexture;
 class LibretroEnvironment;
 using namespace Halley;
@@ -19,6 +20,10 @@ public:
 	virtual void onInputPoll() = 0;
 	virtual int16_t onInputState(uint32_t port, uint32_t device, uint32_t index, uint32_t id) = 0;
 	virtual void onLog(retro_log_level level, const char* str) = 0;
+
+	virtual LibretroVFS& getVFS() = 0;
+	
+	static thread_local ILibretroCoreCallbacks* curInstance;
 };
 
 class LibretroCore : protected ILibretroCoreCallbacks {
@@ -87,6 +92,8 @@ public:
 	const SystemInfo& getSystemInfo() const;
 	const SystemAVInfo& getSystemAVInfo() const;
 
+	LibretroVFS& getVFS() override;
+
 	void setInputDevice(int idx, std::shared_ptr<InputVirtual> input);
 
 protected:
@@ -123,6 +130,9 @@ private:
 	std::array<uint16_t, maxInputDevices> inputJoypads;
 	std::array<std::shared_ptr<InputVirtual>, maxInputDevices> inputDevices;
 
+	std::unique_ptr<LibretroVFS> vfs;
+
+
 	LibretroCore(DLL dll, LibretroEnvironment& environment);
 
 	void init();
@@ -138,9 +148,9 @@ private:
 	void loadGameData();
 	String getSaveFileName() const;
 
-	uint32_t onEnvGetLanguage();
-	void onEnvSetPerformanceLevel(uint32_t level);
+	[[nodiscard]] uint32_t onEnvGetLanguage();
 	void onEnvSetSupportNoGame(bool data);
+	void onEnvSetPerformanceLevel(uint32_t level);
 	void onEnvSetSubsystemInfo(const retro_subsystem_info& data);
 	void onEnvSetMessageExt(const retro_message_ext& data);
 
@@ -152,12 +162,13 @@ private:
 	void onEnvGetSaveDirectory(const char** data);
 	void onEnvGetSystemDirectory(const char** data);
 	void onEnvSetSerializationQuirks(uint64_t& data);
+	bool onEnvGetVFSInterface(retro_vfs_interface_info& data);
 
 	void onEnvSetInputDescriptors(const retro_input_descriptor* data);
 	void onEnvSetControllerInfo(const retro_controller_info& data);
 
 	void onEnvSetSupportAchievements(bool data);
-	retro_savestate_context onEnvGetSavestateContext();
+	[[nodiscard]] retro_savestate_context onEnvGetSavestateContext();
 
 	void onEnvGetVariable(retro_variable& data);
 	void onEnvSetVariables(const retro_variable* data);

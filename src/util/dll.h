@@ -22,3 +22,5 @@ public:
 private:
     void* handle = nullptr;
 };
+
+#define DLL_FUNC(dll, FUNC_NAME) static_cast<decltype(&(FUNC_NAME))>((dll).getFunction(#FUNC_NAME))
