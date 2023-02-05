@@ -151,9 +151,9 @@ retro_vfs_interface* LibretroVFS::getLibretroInterface()
 	return &retroVFSInterface;
 }
 
-void LibretroVFS::setVirtualFile(String path, Bytes data)
+void LibretroVFS::setVirtualFile(Path path, Bytes data)
 {
-	virtualFiles[std::move(path)] = std::move(data);
+	virtualFiles[path.string()] = std::move(data);
 }
 
 void LibretroVFS::clearVirtualFiles()

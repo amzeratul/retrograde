@@ -57,6 +57,17 @@ namespace {
 }
 
 
+bool LibretroCore::SystemInfo::isValidExtension(std::string_view filePath) const
+{
+	return isValidExtension(Path(filePath));
+}
+
+bool LibretroCore::SystemInfo::isValidExtension(const Path& filePath) const
+{
+	const auto ext = filePath.getExtension();
+	return std_ex::contains(validExtensions, std::string_view(ext).substr(1));
+}
+
 void LibretroCore::SystemAVInfo::loadGeometry(const retro_game_geometry& geometry)
 {
 	baseSize = Vector2i(geometry.base_width, geometry.base_height);
@@ -102,6 +113,7 @@ void LibretroCore::init()
 	systemInfo.coreVersion = retroSystemInfo.library_version;
 	systemInfo.blockExtract = retroSystemInfo.block_extract;
 	systemInfo.needFullpath = retroSystemInfo.need_fullpath;
+	systemInfo.validExtensions = String(retroSystemInfo.valid_extensions).split('|');
 
 	auto guard = ScopedGuard([=]() { curInstance = nullptr; });
 	curInstance = this;
@@ -153,25 +165,36 @@ void LibretroCore::deInit()
 	DLL_FUNC(dll, retro_deinit)();
 }
 
-bool LibretroCore::loadGame(std::string_view path)
+Path LibretroCore::extractIntoVFS(const Path& path)
 {
-	const auto p = Path(path);
-	const bool canExtract = !systemInfo.blockExtract && ZipFile::isZipFile(p);
+	auto zip = ZipFile(path, false);
+	String loadPath;
+	bool foundExtension = false;
+
+	const size_t n = zip.getNumFiles();
+	for (size_t i = 0; i < n; ++i) {
+		String entryPath = "/zip/" + zip.getFileName(i);
+		vfs->setVirtualFile(entryPath, zip.extractFile(i));
+		const bool validExtension = systemInfo.isValidExtension(Path(entryPath));
+		if (loadPath.isEmpty() && (!foundExtension || validExtension)) {
+			loadPath = entryPath;
+			foundExtension = validExtension;
+		}
+	}
+
+	return loadPath;
+}
+
+bool LibretroCore::loadGame(const Path& path)
+{
+	const bool canExtract = !systemInfo.blockExtract && ZipFile::isZipFile(path);
 
 	if (systemInfo.needFullpath) {
 		// Fullpath cores can still read zipped files if they support VFS
 		// In those cases, we'll extract the zip into VFS and load that instead
 		if (vfs) {
 			if (canExtract) {
-				auto zip = ZipFile(p, false);
-				const size_t n = zip.getNumFiles();
-				String loadPath;
-				for (size_t i = 0; i < n; ++i) {
-					String path = "/zip/" + zip.getFileName(i);
-					vfs->setVirtualFile(path, zip.extractFile(i));
-					loadPath = path; // TODO: check extensions
-				}
-				return loadGame(loadPath, {}, {});
+				return loadGame(extractIntoVFS(path), {}, {});
 			}
 		}
 
@@ -179,7 +202,7 @@ bool LibretroCore::loadGame(std::string_view path)
 		return loadGame(path, {}, {});
 	} else {
 		// For cores that load from RAM, just read it and feed it to them directly
-		auto bytes = canExtract ? ZipFile::readFile(p) : Path::readFile(p);
+		auto bytes = canExtract ? ZipFile::readFile(path) : Path::readFile(path);
 		if (bytes.empty()) {
 			return false;
 		}
@@ -187,14 +210,16 @@ bool LibretroCore::loadGame(std::string_view path)
 	}
 }
 
-bool LibretroCore::loadGame(std::string_view path, gsl::span<const gsl::byte> data, std::string_view meta)
+bool LibretroCore::loadGame(const Path& path, gsl::span<const gsl::byte> data, std::string_view meta)
 {
 	if (gameLoaded) {
 		unloadGame();
 	}
 
+	const auto pathStr = path.string();
+
 	retro_game_info gameInfo;
-	gameInfo.path = path.data();
+	gameInfo.path = pathStr.data();
 	gameInfo.meta = meta.data();
 	gameInfo.size = data.size();
 	gameInfo.data = data.data();

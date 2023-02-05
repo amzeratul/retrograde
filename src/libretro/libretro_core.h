@@ -40,10 +40,14 @@ public:
 	struct SystemInfo {
 		String coreName;
 		String coreVersion;
+		Vector<String> validExtensions;
 		bool supportNoGame = false;
 		bool supportAchievements = false;
 		bool blockExtract = false;
 		bool needFullpath = false;
+
+		bool isValidExtension(std::string_view filePath) const;
+		bool isValidExtension(const Path& filePath) const;
 	};
 
 	struct SystemAVInfo {
@@ -74,7 +78,7 @@ public:
 	static std::unique_ptr<LibretroCore> load(std::string_view filename, LibretroEnvironment& environment);
 	~LibretroCore() override;
 
-	bool loadGame(std::string_view path);
+	bool loadGame(const Path& path);
 	void unloadGame();
 	bool hasGameLoaded() const;
 
@@ -140,7 +144,8 @@ private:
 	void initVideoOut();
 	void initAudioOut();
 
-	bool loadGame(std::string_view path, gsl::span<const gsl::byte> data, std::string_view meta);
+	Path extractIntoVFS(const Path& path);
+	bool loadGame(const Path& path, gsl::span<const gsl::byte> data, std::string_view meta);
 
 	void loadVFS();
 

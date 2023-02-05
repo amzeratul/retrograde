@@ -82,7 +82,7 @@ class LibretroVFS {
 public:
 	static retro_vfs_interface* getLibretroInterface();
 
-	void setVirtualFile(String path, Bytes data);
+	void setVirtualFile(Path path, Bytes data);
 	void clearVirtualFiles();
 
 	LibretroVFSFileHandle* open(std::string_view path, uint32_t mode, uint32_t hints);
