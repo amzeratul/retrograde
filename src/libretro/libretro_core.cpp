@@ -567,6 +567,11 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		*static_cast<uint32_t*>(data) = onEnvGetLanguage();
 		return true;
 
+	case RETRO_ENVIRONMENT_GET_CURRENT_SOFTWARE_FRAMEBUFFER:
+		// TODO
+		Logger::logWarning("TODO: RETRO_ENVIRONMENT_GET_CURRENT_SOFTWARE_FRAMEBUFFER");
+		return false;
+
 	case RETRO_ENVIRONMENT_SET_SUPPORT_ACHIEVEMENTS:
 		onEnvSetSupportAchievements(*static_cast<const bool*>(data));
 		return true;
@@ -696,6 +701,10 @@ void LibretroCore::onVideoRefresh(const void* data, uint32_t width, uint32_t hei
 	}
 
 	const auto size = Vector2i(static_cast<int>(width), static_cast<int>(height));
+	if (size.x == 0 || size.y == 0) {
+		return;
+	}
+
 	gsl::span<const char> dataSpan;
 	Vector<char> temp;
 	if (data) {
