@@ -141,6 +141,8 @@ private:
 	void initVideoOut();
 	void initAudioOut();
 
+	void loadVFS();
+
 	void addAudioSamples(gsl::span<const float> samples);
 
 	void saveGameDataIfNeeded();

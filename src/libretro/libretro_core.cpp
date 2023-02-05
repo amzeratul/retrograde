@@ -347,10 +347,13 @@ const LibretroCore::SystemAVInfo& LibretroCore::getSystemAVInfo() const
 
 LibretroVFS& LibretroCore::getVFS()
 {
-	if (!vfs) {
-		vfs = std::make_unique<LibretroVFS>();
-	}
+	assert(!!vfs);
 	return *vfs;
+}
+
+void LibretroCore::loadVFS()
+{
+	vfs = std::make_unique<LibretroVFS>();
 }
 
 void LibretroCore::setInputDevice(int idx, std::shared_ptr<InputVirtual> input)
@@ -712,7 +715,7 @@ bool LibretroCore::onEnvGetVFSInterface(retro_vfs_interface_info& data)
 		return false;
 	}
 
-	getVFS();
+	loadVFS();
 	data.required_interface_version = versionSupported;
 	data.iface = LibretroVFS::getLibretroInterface();
 
