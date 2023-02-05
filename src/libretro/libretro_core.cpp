@@ -180,7 +180,7 @@ Path LibretroCore::extractIntoVFS(const Path& path)
 
 	const size_t n = zip.getNumFiles();
 	for (size_t i = 0; i < n; ++i) {
-		String entryPath = "/zip/" + zip.getFileName(i);
+		String entryPath = "!zip/" + zip.getFileName(i);
 		vfs->setVirtualFile(entryPath, zip.extractFile(i));
 		const bool validExtension = systemInfo.isValidExtension(Path(entryPath));
 		if (loadPath.isEmpty() && (!foundExtension || validExtension)) {
@@ -223,7 +223,7 @@ bool LibretroCore::loadGame(const Path& path, gsl::span<const gsl::byte> data, s
 		unloadGame();
 	}
 
-	const auto pathStr = path.getNativeString();
+	const auto pathStr = vfs ? path.getString() : path.getNativeString();
 
 	retro_game_info gameInfo;
 	gameInfo.path = pathStr.c_str();
