@@ -189,6 +189,7 @@ private:
 	void onEnvSetGeometry(const retro_game_geometry& data);
 	void onEnvSetRotation(uint32_t data);
 	bool onEnvSetHWRender(const retro_hw_render_callback& data);
+	uint32_t onEnvGetPreferredHWRender();
 
 	void onEnvGetSaveDirectory(const char** data);
 	void onEnvGetSystemDirectory(const char** data);

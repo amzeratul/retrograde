@@ -618,9 +618,8 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		return true;
 
 	case RETRO_ENVIRONMENT_GET_PREFERRED_HW_RENDER:
-		// TODO
-		Logger::logWarning("TODO: RETRO_ENVIRONMENT_GET_PREFERRED_HW_RENDER");
-		return false;
+		*static_cast<uint32_t*>(data) = onEnvGetPreferredHWRender();
+		return true;
 
 	case RETRO_ENVIRONMENT_GET_DISK_CONTROL_INTERFACE_VERSION:
 		*static_cast<uint32_t*>(data) = 1;
@@ -687,6 +686,11 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 
 void LibretroCore::onVideoRefresh(const void* data, uint32_t width, uint32_t height, size_t pitch)
 {
+	if (data == RETRO_HW_FRAME_BUFFER_VALID) {
+		// TODO
+		return;
+	}
+
 	TextureFormat textureFormat;
 	switch (systemAVInfo.pixelFormat) {
 	case RETRO_PIXEL_FORMAT_0RGB1555:
@@ -806,8 +810,8 @@ void LibretroCore::onInputPoll()
 			for (int j = 0; j < 16; ++j) {
 				inputs[i].analogButtons[j] = (value & (1 << j)) ? 1.0f : 0.0f;
 			}
-			inputs[i].analogButtons[RETRO_DEVICE_ID_JOYPAD_L2] = input->getAxis(5);
-			inputs[i].analogButtons[RETRO_DEVICE_ID_JOYPAD_R2] = input->getAxis(6);
+			inputs[i].analogButtons[RETRO_DEVICE_ID_JOYPAD_L2] = input->getAxis(4);
+			inputs[i].analogButtons[RETRO_DEVICE_ID_JOYPAD_R2] = input->getAxis(5);
 
 			inputs[i].buttonMask = value;
 		}
@@ -900,6 +904,11 @@ bool LibretroCore::onEnvSetHWRender(const retro_hw_render_callback& data)
 {
 	// TODO
 	return false;
+}
+
+uint32_t LibretroCore::onEnvGetPreferredHWRender()
+{
+	return RETRO_HW_CONTEXT_DIRECT3D;
 }
 
 int LibretroCore::onEnvGetAudioVideoEnable()
