@@ -146,8 +146,13 @@ private:
 	retro_audio_buffer_status_callback_t audioBufferStatusCallback = nullptr;
 
 	constexpr static int maxInputDevices = 8;
-	std::array<uint16_t, maxInputDevices> inputJoypads;
-	std::array<std::shared_ptr<InputVirtual>, maxInputDevices> inputDevices;
+	struct Input {
+		int16_t buttonMask = 0;
+		std::array<Vector2f, 2> sticks;
+		std::array<float, 16> analogButtons;
+		std::shared_ptr<InputVirtual> device;
+	};
+	std::array<Input, maxInputDevices> inputs;
 
 	std::unique_ptr<LibretroVFS> vfs;
 	std::optional<retro_disk_control_ext_callback> diskControlCallbacks;
@@ -175,6 +180,7 @@ private:
 
 	[[nodiscard]] uint32_t onEnvGetLanguage();
 	void onEnvSetSupportNoGame(bool data);
+	int onEnvGetAudioVideoEnable();
 	void onEnvSetPerformanceLevel(uint32_t level);
 	void onEnvSetSubsystemInfo(const retro_subsystem_info& data);
 	void onEnvSetMessageExt(const retro_message_ext& data);
@@ -182,7 +188,7 @@ private:
 	bool onEnvSetPixelFormat(retro_pixel_format data);
 	void onEnvSetGeometry(const retro_game_geometry& data);
 	void onEnvSetRotation(uint32_t data);
-	int onEnvGetAudioVideoEnable();
+	bool onEnvSetHWRender(const retro_hw_render_callback& data);
 
 	void onEnvGetSaveDirectory(const char** data);
 	void onEnvGetSystemDirectory(const char** data);

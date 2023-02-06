@@ -41,6 +41,8 @@ set (HEADERS
 	"src/libretro/libretro_environment.h"
 	"src/libretro/libretro_vfs.h"
 	"src/libretro/libretro.h"
+	"src/libretro/libretro_d3d.h"
+	"src/libretro/libretro_vulkan.h"
 
 	"src/util/cpu_update_texture.h"
 	"src/util/c_string_cache.h"

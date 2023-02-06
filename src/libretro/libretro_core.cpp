@@ -474,7 +474,7 @@ void LibretroCore::loadVFS()
 void LibretroCore::setInputDevice(int idx, std::shared_ptr<InputVirtual> input)
 {
 	Expects(idx < maxInputDevices);
-	inputDevices[idx] = std::move(input);
+	inputs[idx].device = std::move(input);
 }
 
 bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
@@ -508,9 +508,7 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		return true;
 
 	case RETRO_ENVIRONMENT_SET_HW_RENDER:
-		// TODO
-		Logger::logWarning("TODO: RETRO_ENVIRONMENT_SET_HW_RENDER");
-		return false;
+		return onEnvSetHWRender(*static_cast<retro_hw_render_callback*>(data));
 
 	case RETRO_ENVIRONMENT_GET_VARIABLE:
 		onEnvGetVariable(*static_cast<retro_variable*>(data));
@@ -570,6 +568,11 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 	case RETRO_ENVIRONMENT_GET_CURRENT_SOFTWARE_FRAMEBUFFER:
 		// TODO
 		Logger::logWarning("TODO: RETRO_ENVIRONMENT_GET_CURRENT_SOFTWARE_FRAMEBUFFER");
+		return false;
+
+	case RETRO_ENVIRONMENT_GET_HW_RENDER_INTERFACE:
+		// TODO
+		Logger::logWarning("TODO: RETRO_ENVIRONMENT_GET_HW_RENDER_INTERFACE");
 		return false;
 
 	case RETRO_ENVIRONMENT_SET_SUPPORT_ACHIEVEMENTS:
@@ -764,8 +767,8 @@ void LibretroCore::onEnvSetControllerInfo(const retro_controller_info& data)
 void LibretroCore::onInputPoll()
 {
 	for (int i = 0; i < maxInputDevices; ++i) {
-		inputJoypads[i] = 0;
-		if (auto input = inputDevices[i]; input) {
+		inputs[i].buttonMask = 0;
+		if (const auto& input = inputs[i].device; input) {
 			input->update(0); // TODO: pass correct time?
 			
 			uint16_t value = 0;
@@ -799,20 +802,59 @@ void LibretroCore::onInputPoll()
 				value |= input->getAxis(0) > threshold ? (1 << RETRO_DEVICE_ID_JOYPAD_RIGHT) : 0;
 			}
 
-			inputJoypads[i] = value;
+			// Fill analogue
+			for (int j = 0; j < 16; ++j) {
+				inputs[i].analogButtons[j] = (value & (1 << j)) ? 1.0f : 0.0f;
+			}
+			inputs[i].analogButtons[RETRO_DEVICE_ID_JOYPAD_L2] = input->getAxis(5);
+			inputs[i].analogButtons[RETRO_DEVICE_ID_JOYPAD_R2] = input->getAxis(6);
+
+			inputs[i].buttonMask = value;
 		}
 	}
 }
 
 int16_t LibretroCore::onInputState(uint32_t port, uint32_t device, uint32_t index, uint32_t id)
 {
+	auto floatToInt = [&](float value) -> int16_t
+	{
+		return static_cast<int16_t>(clamp(static_cast<int32_t>(value * 0x8000), -0x7FFF, 0x7FFF));
+	};
+
+	if (port >= maxInputDevices) {
+		return 0;
+	}
+	const auto& input = inputs[port];
+
 	if (device == RETRO_DEVICE_JOYPAD) {
-		assert(port < maxInputDevices);
 		if (id == RETRO_DEVICE_ID_JOYPAD_MASK) {
-			return inputJoypads[port];
+			return input.buttonMask;
 		} else {
-			return inputJoypads[port] & (1 << id) ? 1 : 0;
+			return input.buttonMask & (1 << id) ? 1 : 0;
 		}
+	} else if (device == RETRO_DEVICE_MOUSE) {
+		// TODO
+		return 0;
+	} else if (device == RETRO_DEVICE_KEYBOARD) {
+		// TODO
+		return 0;
+	} else if (device == RETRO_DEVICE_LIGHTGUN) {
+		// TODO
+		return 0;
+	} else if (device == RETRO_DEVICE_ANALOG) {
+		if (index == RETRO_DEVICE_INDEX_ANALOG_LEFT || index == RETRO_DEVICE_INDEX_ANALOG_RIGHT) {
+			const int axis = static_cast<int>(id); // 0 = X, 1 = Y
+			if (axis < 2) {
+				return floatToInt(input.sticks[index][axis]);
+			} else {
+				return 0;
+			}
+		} else if (index == RETRO_DEVICE_INDEX_ANALOG_BUTTON) {
+			return floatToInt(input.analogButtons[id]);
+		}
+	} else if (device == RETRO_DEVICE_POINTER) {
+		// TODO
+		return 0;
 	}
 	return 0;
 }
@@ -852,6 +894,12 @@ void LibretroCore::onEnvSetGeometry(const retro_game_geometry& data)
 void LibretroCore::onEnvSetRotation(uint32_t data)
 {
 	// TODO
+}
+
+bool LibretroCore::onEnvSetHWRender(const retro_hw_render_callback& data)
+{
+	// TODO
+	return false;
 }
 
 int LibretroCore::onEnvGetAudioVideoEnable()
