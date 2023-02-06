@@ -22,6 +22,7 @@ public:
 	virtual int16_t onInputState(uint32_t port, uint32_t device, uint32_t index, uint32_t id) = 0;
 	virtual void onLog(retro_log_level level, const char* str) = 0;
 	virtual void onSetLEDState(int led, int state) = 0;
+	virtual uintptr_t onHWGetCurrentFrameBuffer() = 0;
 
 	virtual LibretroVFS& getVFS() = 0;
 
@@ -119,6 +120,7 @@ protected:
 	int16_t onInputState(uint32_t port, uint32_t device, uint32_t index, uint32_t id) override;
 	void onSetLEDState(int led, int state) override;
 	void onLog(retro_log_level level, const char* str) override;
+	uintptr_t onHWGetCurrentFrameBuffer() override;
 
 private:
 	DLL dll;
@@ -157,6 +159,10 @@ private:
 	std::unique_ptr<LibretroVFS> vfs;
 	std::optional<retro_disk_control_ext_callback> diskControlCallbacks;
 
+	std::shared_ptr<void> hwRenderInterface;
+	std::optional<retro_hw_render_callback> hwRenderCallback;
+	bool renderCallbackNeedsReset = false;
+
 	LibretroCore(DLL dll, LibretroEnvironment& environment);
 
 	void init();
@@ -188,8 +194,11 @@ private:
 	bool onEnvSetPixelFormat(retro_pixel_format data);
 	void onEnvSetGeometry(const retro_game_geometry& data);
 	void onEnvSetRotation(uint32_t data);
-	bool onEnvSetHWRender(const retro_hw_render_callback& data);
+
+	bool onEnvSetHWRender(retro_hw_render_callback& data);
 	uint32_t onEnvGetPreferredHWRender();
+	bool onEnvGetHWRenderInterface(const retro_hw_render_interface** data);
+	const retro_hw_render_interface* getD3DHWRenderInterface();
 
 	void onEnvGetSaveDirectory(const char** data);
 	void onEnvGetSystemDirectory(const char** data);

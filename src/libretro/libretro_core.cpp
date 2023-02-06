@@ -10,6 +10,18 @@
 #include "src/util/c_string_cache.h"
 #include "src/zip/zip_file.h"
 
+#define UUID_DEFINED
+#ifdef _WIN32
+#define HAVE_D3D11
+#include "halley/src/plugins/dx11/src/dx11_video.h"
+#include "libretro_d3d.h"
+#pragma comment(lib, "D3DCompiler.lib")
+#endif
+
+#ifdef WITH_VULKAN
+#include "libretro_vulkan.h"
+#endif
+
 thread_local ILibretroCoreCallbacks* ILibretroCoreCallbacks::curInstance;
 
 namespace {
@@ -60,6 +72,20 @@ namespace {
 		}
 		va_end(args);
 	}
+
+	uintptr_t RETRO_CALLCONV retro_hw_get_current_framebuffer()
+	{
+		return ILibretroCoreCallbacks::curInstance->onHWGetCurrentFrameBuffer();
+	}
+
+#ifdef WITH_DX11
+	HRESULT WINAPI retro_d3d_compile(LPCVOID pSrcData, SIZE_T srcDataSize, LPCSTR pFileName, CONST D3D_SHADER_MACRO* pDefines, ID3DInclude* pInclude,
+		LPCSTR pEntrypoin, LPCSTR pTarget, UINT flags1, UINT flags2, ID3DBlob** ppCode, ID3DBlob** ppErrorMsgs)
+	{
+		auto result = D3DCompile(pSrcData, srcDataSize, pFileName, pDefines, pInclude, pEntrypoin, pTarget, flags1, flags2, ppCode, ppErrorMsgs);
+		return result;
+	}
+#endif
 }
 
 
@@ -173,6 +199,8 @@ void LibretroCore::deInit()
 
 	audioBufferStatusCallback = nullptr;
 	diskControlCallbacks.reset();
+	hwRenderCallback.reset();
+	hwRenderInterface.reset();
 	vfs.reset();
 }
 
@@ -341,6 +369,10 @@ void LibretroCore::runFrame()
 		audioBufferStatusCallback(true, clamp(static_cast<int>(nLeft * 100 / capacity), 0, 100), nLeft < 400);
 	}
 
+	if (renderCallbackNeedsReset) {
+		renderCallbackNeedsReset = false;
+		hwRenderCallback->context_reset();
+	}
 	DLL_FUNC(dll, retro_run)();
 
 	saveGameDataIfNeeded();
@@ -488,6 +520,11 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		*static_cast<bool*>(data) = true;
 		return true;
 
+	case RETRO_ENVIRONMENT_SET_MESSAGE:
+		// TODO
+		Logger::logWarning("TODO: RETRO_ENVIRONMENT_SET_MESSAGE");
+		return false;
+
 	case RETRO_ENVIRONMENT_SET_PERFORMANCE_LEVEL:
 		onEnvSetPerformanceLevel(*static_cast<const uint32_t*>(data));
 		return true;
@@ -571,9 +608,7 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		return false;
 
 	case RETRO_ENVIRONMENT_GET_HW_RENDER_INTERFACE:
-		// TODO
-		Logger::logWarning("TODO: RETRO_ENVIRONMENT_GET_HW_RENDER_INTERFACE");
-		return false;
+		return onEnvGetHWRenderInterface(static_cast<const retro_hw_render_interface**>(data));
 
 	case RETRO_ENVIRONMENT_SET_SUPPORT_ACHIEVEMENTS:
 		onEnvSetSupportAchievements(*static_cast<const bool*>(data));
@@ -879,6 +914,12 @@ void LibretroCore::onLog(retro_log_level level, const char* str)
 	}
 }
 
+uintptr_t LibretroCore::onHWGetCurrentFrameBuffer()
+{
+	// TODO
+	return 0;
+}
+
 void LibretroCore::onEnvSetPerformanceLevel(uint32_t level)
 {
 	// Don't care?
@@ -900,15 +941,47 @@ void LibretroCore::onEnvSetRotation(uint32_t data)
 	// TODO
 }
 
-bool LibretroCore::onEnvSetHWRender(const retro_hw_render_callback& data)
+bool LibretroCore::onEnvSetHWRender(retro_hw_render_callback& data)
 {
-	// TODO
+	if (data.context_type == RETRO_HW_CONTEXT_DIRECT3D) {
+		hwRenderCallback = data;
+		renderCallbackNeedsReset = true;
+		return true;
+	}
 	return false;
 }
 
 uint32_t LibretroCore::onEnvGetPreferredHWRender()
 {
 	return RETRO_HW_CONTEXT_DIRECT3D;
+}
+
+bool LibretroCore::onEnvGetHWRenderInterface(const retro_hw_render_interface** data)
+{
+	*data = getD3DHWRenderInterface();
+	return *data != nullptr;
+}
+
+const retro_hw_render_interface* LibretroCore::getD3DHWRenderInterface()
+{
+#ifdef WITH_DX11
+	auto hwInterface = std::make_shared<retro_hw_render_interface_d3d11>();
+
+	auto* dx11Video = static_cast<DX11Video*>(environment.getHalleyAPI().video);
+
+	hwInterface->interface_type = RETRO_HW_RENDER_INTERFACE_D3D11;
+	hwInterface->interface_version = RETRO_HW_RENDER_INTERFACE_D3D11_VERSION;
+	hwInterface->featureLevel = D3D_FEATURE_LEVEL_11_1;
+	hwInterface->handle = this;
+	hwInterface->device = &dx11Video->getDevice();
+	hwInterface->context = &dx11Video->getDeviceContext();
+	hwInterface->D3DCompile = retro_d3d_compile;
+
+	hwRenderInterface = std::move(hwInterface);
+	return static_cast<retro_hw_render_interface*>(hwRenderInterface.get());
+#else
+	return nullptr;
+#endif
 }
 
 int LibretroCore::onEnvGetAudioVideoEnable()
