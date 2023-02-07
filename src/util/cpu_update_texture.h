@@ -7,8 +7,9 @@ class CPUUpdateTexture {
 public:
     CPUUpdateTexture(VideoAPI& videoAPI);
 
-    std::shared_ptr<const Texture> getTexture() const;
+    std::shared_ptr<Texture> getTexture() const;
 
+    void updateSize(Vector2i size);
 	void update(Vector2i size, std::optional<int> stride, gsl::span<const gsl::byte> data, TextureFormat textureFormat);
 
 private:

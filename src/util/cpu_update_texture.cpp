@@ -5,16 +5,21 @@ CPUUpdateTexture::CPUUpdateTexture(VideoAPI& videoAPI)
 {
 }
 
-std::shared_ptr<const Texture> CPUUpdateTexture::getTexture() const
+std::shared_ptr<Texture> CPUUpdateTexture::getTexture() const
 {
 	return texture;
 }
 
-void CPUUpdateTexture::update(Vector2i size, std::optional<int> stride, gsl::span<const gsl::byte> data, TextureFormat textureFormat)
+void CPUUpdateTexture::updateSize(Vector2i size)
 {
 	if (!texture || texture->getSize() != size) {
 		texture = videoAPI.createTexture(size);
 	}
+}
+
+void CPUUpdateTexture::update(Vector2i size, std::optional<int> stride, gsl::span<const gsl::byte> data, TextureFormat textureFormat)
+{
+	updateSize(size);
 	updateTexture(data, stride, textureFormat);
 }
 

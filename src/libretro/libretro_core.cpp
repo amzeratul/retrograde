@@ -10,10 +10,11 @@
 #include "src/util/c_string_cache.h"
 #include "src/zip/zip_file.h"
 
-#define UUID_DEFINED
 #ifdef _WIN32
+#define UUID_DEFINED
 #define HAVE_D3D11
 #include "halley/src/plugins/dx11/src/dx11_video.h"
+#include "halley/src/plugins/dx11/src/dx11_texture.h"
 #include "libretro_d3d.h"
 #pragma comment(lib, "D3DCompiler.lib")
 #endif
@@ -721,25 +722,8 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 
 void LibretroCore::onVideoRefresh(const void* data, uint32_t width, uint32_t height, size_t pitch)
 {
-	if (data == RETRO_HW_FRAME_BUFFER_VALID) {
-		// TODO
-		return;
-	}
-
-	TextureFormat textureFormat;
-	switch (systemAVInfo.pixelFormat) {
-	case RETRO_PIXEL_FORMAT_0RGB1555:
-		textureFormat = TextureFormat::BGRA5551;
-		break;
-	case RETRO_PIXEL_FORMAT_RGB565:
-		textureFormat = TextureFormat::BGR565;
-		break;
-	case RETRO_PIXEL_FORMAT_XRGB8888:
-		textureFormat = TextureFormat::BGRX;
-		break;
-	case RETRO_PIXEL_FORMAT_UNKNOWN:
-	default:
-		return;
+	if (pitch == 0) {
+		pitch = width;
 	}
 
 	const auto size = Vector2i(static_cast<int>(width), static_cast<int>(height));
@@ -747,25 +731,31 @@ void LibretroCore::onVideoRefresh(const void* data, uint32_t width, uint32_t hei
 		return;
 	}
 
+	// Update texture
 	gsl::span<const char> dataSpan;
 	Vector<char> temp;
-	if (data) {
-		dataSpan = gsl::span<const char>(static_cast<const char*>(data), pitch * height);
-	} else {
+	if (data == nullptr || data == RETRO_HW_FRAME_BUFFER_VALID) {
 		if (cpuUpdateTexture->getTexture()) {
-			// Dupe
-			return;
+			// Dupe frame
+		} else {
+			temp.resize(pitch * height, 0);
+			dataSpan = temp;
 		}
-		temp.resize(pitch * height, 0);
-		dataSpan = temp;
+	} else {
+		dataSpan = gsl::span<const char>(static_cast<const char*>(data), pitch * height);
 	}
 
-	cpuUpdateTexture->update(size, static_cast<int>(pitch), gsl::as_bytes(dataSpan), textureFormat);
-	const auto tex = cpuUpdateTexture->getTexture();
-	videoOut.getMutableMaterial().set(0, tex);
+	if (!dataSpan.empty()) {
+		cpuUpdateTexture->update(size, static_cast<int>(pitch), gsl::as_bytes(dataSpan), getTextureFormat(systemAVInfo.pixelFormat));
+	}
+	if (data == RETRO_HW_FRAME_BUFFER_VALID) {
+		dx11UpdateTextureToCurrentBound(size, pitch);
+	}
 
+	const auto tex = cpuUpdateTexture->getTexture();
 	const auto texSize = Vector2f(tex->getSize());
 	const auto ar = systemAVInfo.aspectRatio;
+	videoOut.getMutableMaterial().set(0, tex);
 	videoOut.setSize(texSize);
 	videoOut.scaleTo(Vector2f(texSize.y * ar, texSize.y));
 }
@@ -967,14 +957,14 @@ const retro_hw_render_interface* LibretroCore::getD3DHWRenderInterface()
 #ifdef WITH_DX11
 	auto hwInterface = std::make_shared<retro_hw_render_interface_d3d11>();
 
-	auto* dx11Video = static_cast<DX11Video*>(environment.getHalleyAPI().video);
+	auto& dx11Video = static_cast<DX11Video&>(*environment.getHalleyAPI().video);
 
 	hwInterface->interface_type = RETRO_HW_RENDER_INTERFACE_D3D11;
 	hwInterface->interface_version = RETRO_HW_RENDER_INTERFACE_D3D11_VERSION;
-	hwInterface->featureLevel = D3D_FEATURE_LEVEL_11_1;
+	hwInterface->featureLevel = dx11Video.getFeatureLevel();
 	hwInterface->handle = this;
-	hwInterface->device = &dx11Video->getDevice();
-	hwInterface->context = &dx11Video->getDeviceContext();
+	hwInterface->device = &dx11Video.getDevice();
+	hwInterface->context = &dx11Video.getDeviceContext();
 	hwInterface->D3DCompile = retro_d3d_compile;
 
 	hwRenderInterface = std::move(hwInterface);
@@ -1193,4 +1183,34 @@ void LibretroCore::onEnvSetAudioBufferStatusCallback(const retro_audio_buffer_st
 void LibretroCore::onEnvSetMinimumAudioLatency(uint32_t data)
 {
 	audioOut->setLatencyTarget(std::max(1024u, data * 48));
+}
+
+void LibretroCore::dx11UpdateTextureToCurrentBound(Vector2i size, size_t pitch)
+{
+	// The following comment is from swanstation source:
+	// NOTE: libretro frontend expects the data bound to PS SRV slot 0.
+	// m_context->OMSetRenderTargets(0, nullptr, nullptr);
+	// m_context->PSSetShaderResources(0, 1, m_framebuffer.GetD3DSRVArray());
+
+	auto& dx11Video = static_cast<DX11Video&>(*environment.getHalleyAPI().video);
+	ID3D11ShaderResourceView* view;
+	dx11Video.getDeviceContext().PSGetShaderResources(0, 1, &view);
+
+	auto tex = std::dynamic_pointer_cast<DX11Texture>(cpuUpdateTexture->getTexture());
+	tex->replaceShaderResourceView(view);
+}
+
+TextureFormat LibretroCore::getTextureFormat(retro_pixel_format retroFormat) const
+{
+	switch (systemAVInfo.pixelFormat) {
+	case RETRO_PIXEL_FORMAT_0RGB1555:
+		return TextureFormat::BGRA5551;
+	case RETRO_PIXEL_FORMAT_RGB565:
+		return TextureFormat::BGR565;
+	case RETRO_PIXEL_FORMAT_XRGB8888:
+		return TextureFormat::BGRX;
+	case RETRO_PIXEL_FORMAT_UNKNOWN:
+	default:
+		return TextureFormat::BGRX;
+	}
 }

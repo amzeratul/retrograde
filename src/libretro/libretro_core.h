@@ -225,4 +225,7 @@ private:
 
 	void onEnvSetAudioBufferStatusCallback(const retro_audio_buffer_status_callback* data);
 	void onEnvSetMinimumAudioLatency(uint32_t data);
+
+	void dx11UpdateTextureToCurrentBound(Vector2i size, size_t pitch);
+	TextureFormat getTextureFormat(retro_pixel_format retroFormat) const;
 };
