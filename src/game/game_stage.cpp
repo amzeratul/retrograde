@@ -80,7 +80,7 @@ void GameStage::drawScreen(Painter& painter, Sprite screen) const
 		const auto spriteSize = screen.getScaledSize();
 		const auto windowSize = Vector2f(getVideoAPI().getWindow().getDefinition().getSize());
 		const auto scales = windowSize / spriteSize;
-		const auto scale = std::min(scales.x, scales.y);
+		const auto scale = std::min(scales.x, scales.y) * screen.getScale();
 
 		screen
 			.setScale(scale)
