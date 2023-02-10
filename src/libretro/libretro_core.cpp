@@ -548,6 +548,10 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		onEnvSetRotation(*static_cast<const uint32_t*>(data));
 		return true;
 
+	case RETRO_ENVIRONMENT_GET_OVERSCAN:
+		*static_cast<bool*>(data) = true;
+		return true;
+
 	case RETRO_ENVIRONMENT_GET_CAN_DUPE:
 		*static_cast<bool*>(data) = true;
 		return true;
@@ -555,6 +559,11 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 	case RETRO_ENVIRONMENT_SET_MESSAGE:
 		// TODO
 		Logger::logWarning("TODO: RETRO_ENVIRONMENT_SET_MESSAGE");
+		return false;
+
+	case RETRO_ENVIRONMENT_SHUTDOWN:
+		// TODO
+		Logger::logWarning("TODO: RETRO_ENVIRONMENT_SHUTDOWN");
 		return false;
 
 	case RETRO_ENVIRONMENT_SET_PERFORMANCE_LEVEL:
@@ -571,6 +580,11 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 	case RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS:
 		onEnvSetInputDescriptors(static_cast<const retro_input_descriptor*>(data));
 		return true;
+
+	case RETRO_ENVIRONMENT_SET_KEYBOARD_CALLBACK:
+		// TODO
+		Logger::logWarning("TODO: RETRO_ENVIRONMENT_SET_KEYBOARD_CALLBACK");
+		return false;
 
 	case RETRO_ENVIRONMENT_SET_DISK_CONTROL_INTERFACE:
 		onEnvSetDiskControlInterface(*static_cast<const retro_disk_control_callback*>(data));
@@ -595,9 +609,39 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		onEnvSetSupportNoGame(*static_cast<const bool*>(data));
 		return true;
 
+	case RETRO_ENVIRONMENT_GET_LIBRETRO_PATH:
+		// TODO
+		Logger::logWarning("TODO: RETRO_ENVIRONMENT_GET_LIBRETRO_PATH");
+		return false;
+
+	case RETRO_ENVIRONMENT_SET_FRAME_TIME_CALLBACK:
+		// TODO
+		Logger::logWarning("TODO: RETRO_ENVIRONMENT_SET_FRAME_TIME_CALLBACK");
+		return false;
+
+	case RETRO_ENVIRONMENT_SET_AUDIO_CALLBACK:
+		// TODO
+		Logger::logWarning("TODO: RETRO_ENVIRONMENT_SET_AUDIO_CALLBACK");
+		return false;
+
 	case RETRO_ENVIRONMENT_GET_RUMBLE_INTERFACE:
 		onEnvGetRumbleInterface(*static_cast<retro_rumble_interface*>(data));
 		return true;
+
+	case RETRO_ENVIRONMENT_GET_INPUT_DEVICE_CAPABILITIES:
+		// TODO
+		Logger::logWarning("TODO: RETRO_ENVIRONMENT_GET_INPUT_DEVICE_CAPABILITIES");
+		return false;
+
+	case RETRO_ENVIRONMENT_GET_SENSOR_INTERFACE:
+		// TODO
+		Logger::logWarning("TODO: RETRO_ENVIRONMENT_GET_SENSOR_INTERFACE");
+		return false;
+		
+	case RETRO_ENVIRONMENT_GET_CAMERA_INTERFACE:
+		// TODO
+		Logger::logWarning("TODO: RETRO_ENVIRONMENT_GET_CAMERA_INTERFACE");
+		return false;
 
 	case RETRO_ENVIRONMENT_GET_LOG_INTERFACE:
 		static_cast<retro_log_callback*>(data)->log = &retroLogPrintf;
@@ -608,9 +652,29 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		Logger::logWarning("TODO: RETRO_ENVIRONMENT_GET_PERF_INTERFACE");
 		return false;
 
+	case RETRO_ENVIRONMENT_GET_LOCATION_INTERFACE:
+		// TODO
+		Logger::logWarning("TODO: RETRO_ENVIRONMENT_GET_LOCATION_INTERFACE");
+		return false;
+
+	case RETRO_ENVIRONMENT_GET_CORE_ASSETS_DIRECTORY:
+		// TODO
+		Logger::logWarning("TODO: RETRO_ENVIRONMENT_GET_CORE_ASSETS_DIRECTORY");
+		return false;
+
 	case RETRO_ENVIRONMENT_GET_SAVE_DIRECTORY:
 		onEnvGetSaveDirectory(static_cast<const char**>(data));
 		return true;
+
+	case RETRO_ENVIRONMENT_SET_SYSTEM_AV_INFO:
+		// TODO
+		Logger::logWarning("TODO: RETRO_ENVIRONMENT_SET_SYSTEM_AV_INFO");
+		return false;
+
+	case RETRO_ENVIRONMENT_SET_PROC_ADDRESS_CALLBACK:
+		// TODO
+		Logger::logWarning("TODO: RETRO_ENVIRONMENT_SET_PROC_ADDRESS_CALLBACK");
+		return false;
 		
 	case RETRO_ENVIRONMENT_SET_SUBSYSTEM_INFO:
 		onEnvSetSubsystemInfo(*static_cast<const retro_subsystem_info*>(data));
@@ -629,6 +693,11 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		onEnvSetGeometry(*static_cast<const retro_game_geometry*>(data));
 		return true;
 
+	case RETRO_ENVIRONMENT_GET_USERNAME:
+		// TODO
+		Logger::logWarning("TODO: RETRO_ENVIRONMENT_GET_USERNAME");
+		return false;
+
 	case RETRO_ENVIRONMENT_GET_LANGUAGE:
 		*static_cast<uint32_t*>(data) = onEnvGetLanguage();
 		return true;
@@ -645,6 +714,11 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		onEnvSetSupportAchievements(*static_cast<const bool*>(data));
 		return true;
 
+	case RETRO_ENVIRONMENT_SET_HW_RENDER_CONTEXT_NEGOTIATION_INTERFACE:
+		// TODO
+		Logger::logWarning("TODO: RETRO_ENVIRONMENT_SET_HW_RENDER_CONTEXT_NEGOTIATION_INTERFACE");
+		return false;
+
 	case RETRO_ENVIRONMENT_SET_SERIALIZATION_QUIRKS:
 		onEnvSetSerializationQuirks(*static_cast<uint64_t*>(data));
 		return true;
@@ -660,9 +734,19 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		*static_cast<int*>(data) = onEnvGetAudioVideoEnable();
 		return true;
 
+	case RETRO_ENVIRONMENT_GET_MIDI_INTERFACE:
+		// TODO
+		Logger::logWarning("TODO: RETRO_ENVIRONMENT_GET_MIDI_INTERFACE");
+		return false;
+
 	case RETRO_ENVIRONMENT_GET_FASTFORWARDING:
 		*static_cast<bool*>(data) = false;
 		return true;
+
+	case RETRO_ENVIRONMENT_GET_TARGET_REFRESH_RATE:
+		// TODO
+		Logger::logWarning("TODO: RETRO_ENVIRONMENT_GET_TARGET_REFRESH_RATE");
+		return false;
 
 	case RETRO_ENVIRONMENT_GET_INPUT_BITMASKS:
 		return true;
@@ -703,6 +787,11 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		onEnvSetMessageExt(*static_cast<const retro_message_ext*>(data));
 		return true;
 
+	case RETRO_ENVIRONMENT_GET_INPUT_MAX_USERS:
+		// TODO
+		Logger::logWarning("TODO: RETRO_ENVIRONMENT_GET_INPUT_MAX_USERS");
+		return false;
+
 	case RETRO_ENVIRONMENT_SET_AUDIO_BUFFER_STATUS_CALLBACK:
 		onEnvSetAudioBufferStatusCallback(static_cast<const retro_audio_buffer_status_callback*>(data));
 		return true;
@@ -710,6 +799,11 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 	case RETRO_ENVIRONMENT_SET_MINIMUM_AUDIO_LATENCY:
 		onEnvSetMinimumAudioLatency(*static_cast<const uint32_t*>(data));
 		return true;
+
+	case RETRO_ENVIRONMENT_SET_FASTFORWARDING_OVERRIDE:
+		// TODO
+		Logger::logWarning("TODO: RETRO_ENVIRONMENT_SET_FASTFORWARDING_OVERRIDE");
+		return false;
 
 	case RETRO_ENVIRONMENT_SET_CONTENT_INFO_OVERRIDE:
 		if (data) {
@@ -732,6 +826,16 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 	case RETRO_ENVIRONMENT_SET_CORE_OPTIONS_UPDATE_DISPLAY_CALLBACK:
 		// TODO
 		Logger::logWarning("TODO: RETRO_ENVIRONMENT_SET_CORE_OPTIONS_UPDATE_DISPLAY_CALLBACK");
+		return false;
+
+	case RETRO_ENVIRONMENT_SET_VARIABLE:
+		// TODO
+		Logger::logWarning("TODO: RETRO_ENVIRONMENT_SET_VARIABLE");
+		return false;
+
+	case RETRO_ENVIRONMENT_GET_THROTTLE_STATE:
+		// TODO
+		Logger::logWarning("TODO: RETRO_ENVIRONMENT_GET_THROTTLE_STATE");
 		return false;
 
 	case RETRO_ENVIRONMENT_GET_SAVESTATE_CONTEXT:
