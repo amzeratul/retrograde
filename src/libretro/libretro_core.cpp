@@ -1114,8 +1114,24 @@ void LibretroCore::onEnvGetVariable(retro_variable& data)
 
 void LibretroCore::onEnvSetVariables(const retro_variable* data)
 {
-	for (const retro_variable* var = data; var->value || var->key; ++var) {
-		Logger::logDev("Set variable: " + String(var->key) + " = " + var->value);
+	for (const retro_variable* var = data; var->value && var->key; ++var) {
+		auto str = std::string_view(var->value);
+		const size_t semiColonPos = str.find_first_of(';');
+		String desc = String(str.substr(0, semiColonPos)).trimBoth();
+		Vector<String> values = String(str.substr(semiColonPos + 1)).trimBoth().split('|');
+		
+		Option& option = options[var->key];
+		option.defaultValue = values.front();
+		option.info = desc;
+		option.description = std::move(desc);
+
+		for (auto& v : values) {
+			option.values.push_back(Option::Value{ v, v });
+		}
+
+		if (option.value.isEmpty()) {
+			option.value = option.defaultValue;
+		}
 	}
 }
 
