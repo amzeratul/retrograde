@@ -617,7 +617,7 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		return true;
 
 	case RETRO_ENVIRONMENT_SET_CONTROLLER_INFO:
-		onEnvSetControllerInfo(*static_cast<const retro_controller_info*>(data));
+		onEnvSetControllerInfo(static_cast<const retro_controller_info*>(data));
 		return true;
 
 	case RETRO_ENVIRONMENT_SET_MEMORY_MAPS:
@@ -815,12 +815,30 @@ size_t LibretroCore::onAudioSampleBatch(const int16_t* data, size_t frames)
 
 void LibretroCore::onEnvSetInputDescriptors(const retro_input_descriptor* data)
 {
-	// TODO
+	for (auto* descriptor = data; descriptor->description; ++descriptor) {
+		if (descriptor->device == RETRO_DEVICE_ANALOG) {
+			hasAnalogStick = true;
+		}
+
+		// TODO: store this?
+		const char* devNames[] = { "RETRO_DEVICE_NONE", "RETRO_DEVICE_JOYPAD", "RETRO_DEVICE_MOUSE", "RETRO_DEVICE_KEYBOARD", "RETRO_DEVICE_LIGHTGUN", "RETRO_DEVICE_ANALOG", "RETRO_DEVICE_POINTER" };
+		const bool hasIdx = descriptor->device == RETRO_DEVICE_ANALOG;
+		Logger::logDev("[" + toString(descriptor->port) + "] " + devNames[descriptor->device] + (hasIdx ? "_" + toString(descriptor->index) : String()) + " id" + toString(descriptor->id) + " = " + descriptor->description);
+	}
 }
 
-void LibretroCore::onEnvSetControllerInfo(const retro_controller_info& data)
+void LibretroCore::onEnvSetControllerInfo(const retro_controller_info* data)
 {
-	// TODO
+	int port = 0;
+	for (auto* info = data; info->num_types != 0; ++info) {
+		for (uint32_t i = 0; i < info->num_types; ++i) {
+			const auto& type = info->types[i];
+
+			// TODO: apparently this is relevant for SNES light guns?
+			Logger::logDev("Can plug " + toString(type.id) + " (" + type.desc + ") on port " + toString(port));
+		}
+		++port;
+	}
 }
 
 void LibretroCore::onEnvGetRumbleInterface(retro_rumble_interface& data)
@@ -857,8 +875,8 @@ void LibretroCore::onInputPoll()
 			value |= input->isButtonDown(14) ? (1 << RETRO_DEVICE_ID_JOYPAD_L3) : 0;
 			value |= input->isButtonDown(15) ? (1 << RETRO_DEVICE_ID_JOYPAD_R3) : 0;
 
-			bool leftStickAsDPad = true;
-			if (leftStickAsDPad) {
+			if (!hasAnalogStick) {
+				// Use left stick as d-pad if this core doesn't use analog sticks
 				const float threshold = 0.2f;
 				value |= input->getAxis(1) < -threshold ? (1 << RETRO_DEVICE_ID_JOYPAD_UP) : 0;
 				value |= input->getAxis(1) > threshold ? (1 << RETRO_DEVICE_ID_JOYPAD_DOWN) : 0;

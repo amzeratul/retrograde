@@ -135,6 +135,7 @@ private:
 	bool optionsModified = false;
 	bool renderCallbackNeedsReset = false;
 	bool coreHandlesSaveData = false;
+	bool hasAnalogStick = false;
 
 	String gameName;
 	Bytes gameBytes;
@@ -217,7 +218,7 @@ private:
 	void onEnvSetContentInfoOverride(const retro_system_content_info_override* data);
 
 	void onEnvSetInputDescriptors(const retro_input_descriptor* data);
-	void onEnvSetControllerInfo(const retro_controller_info& data);
+	void onEnvSetControllerInfo(const retro_controller_info* data);
 	void onEnvGetRumbleInterface(retro_rumble_interface& data);
 
 	void onEnvSetSupportAchievements(bool data);
