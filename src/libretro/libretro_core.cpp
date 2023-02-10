@@ -510,6 +510,28 @@ void LibretroCore::setInputDevice(int idx, std::shared_ptr<InputVirtual> input)
 	inputs[idx].device = std::move(input);
 }
 
+const HashMap<String, LibretroCore::Option>& LibretroCore::getOptions() const
+{
+	return options;
+}
+
+void LibretroCore::setOption(const String& key, const String& value)
+{
+	const auto iter = options.find(key);
+	if (iter == options.end()) {
+		Logger::logError("Unknown option \"" + key + "\"");
+		return;
+	}
+
+	auto& option = iter->second;
+	if (std_ex::contains_if(option.values, [&] (const Option::Value& v) { return v.value == value; })) {
+		option.value = value;
+		optionsModified = true;
+	} else {
+		Logger::logError("Unknown value \"" + value + "\" for option \"" + key + "\"");
+	}
+}
+
 bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 {
 	switch (cmd) {
@@ -1137,7 +1159,9 @@ void LibretroCore::onEnvSetVariables(const retro_variable* data)
 
 bool LibretroCore::onEnvGetVariableUpdate()
 {
-	return false;
+	const bool modified = optionsModified;
+	optionsModified = false;
+	return modified;
 }
 
 void LibretroCore::onEnvSetCoreOptions(const retro_core_option_definition* data) 

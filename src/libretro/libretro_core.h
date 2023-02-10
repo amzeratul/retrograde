@@ -111,6 +111,9 @@ public:
 
 	void setInputDevice(int idx, std::shared_ptr<InputVirtual> input);
 
+	const HashMap<String, Option>& getOptions() const;
+	void setOption(const String& key, const String& value);
+
 protected:
 	bool onEnvironment(uint32_t cmd, void* data) override;
 	void onVideoRefresh(const void* data, uint32_t width, uint32_t height, size_t pitch) override;
@@ -127,6 +130,9 @@ private:
 	LibretroEnvironment& environment;
 
 	bool gameLoaded = false;
+	bool optionsModified = false;
+	bool renderCallbackNeedsReset = false;
+
 	String gameName;
 	Bytes gameBytes;
 	Vector<retro_game_info_ext> gameInfos;
@@ -161,8 +167,7 @@ private:
 
 	std::shared_ptr<void> hwRenderInterface;
 	std::optional<retro_hw_render_callback> hwRenderCallback;
-	bool renderCallbackNeedsReset = false;
-
+	
 	LibretroCore(DLL dll, LibretroEnvironment& environment);
 
 	void init();
