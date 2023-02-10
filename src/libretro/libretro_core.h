@@ -132,6 +132,7 @@ private:
 	bool gameLoaded = false;
 	bool optionsModified = false;
 	bool renderCallbackNeedsReset = false;
+	bool coreHandlesSaveData = false;
 
 	String gameName;
 	Bytes gameBytes;

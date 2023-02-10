@@ -332,7 +332,10 @@ bool LibretroCore::doLoadGame()
 
 		initVideoOut();
 		initAudioOut();
-		loadGameData();
+
+		if (!coreHandlesSaveData) {
+			loadGameData();
+		}
 	} else {
 		gameInfos.clear();
 	}
@@ -376,7 +379,9 @@ void LibretroCore::runFrame()
 	}
 	DLL_FUNC(dll, retro_run)();
 
-	saveGameDataIfNeeded();
+	if (!coreHandlesSaveData) {
+		saveGameDataIfNeeded();
+	}
 }
 
 bool LibretroCore::hasGameLoaded() const
@@ -1079,6 +1084,7 @@ void LibretroCore::onEnvSetContentInfoOverride(const retro_system_content_info_o
 void LibretroCore::onEnvGetSaveDirectory(const char** data)
 {
 	*data = environment.getSaveDir().c_str();
+	coreHandlesSaveData = true;
 }
 
 void LibretroCore::onEnvSetSubsystemInfo(const retro_subsystem_info& data)
