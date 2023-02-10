@@ -779,15 +779,17 @@ void LibretroCore::onVideoRefresh(const void* data, uint32_t width, uint32_t hei
 		cpuUpdateTexture->update(size, static_cast<int>(pitch), gsl::as_bytes(dataSpan), getTextureFormat(systemAVInfo.pixelFormat));
 	}
 	if (data == RETRO_HW_FRAME_BUFFER_VALID) {
-		dx11UpdateTextureToCurrentBound(size, pitch);
+		dx11UpdateTextureToCurrentBound();
 	}
 
 	const auto tex = cpuUpdateTexture->getTexture();
 	const auto texSize = Vector2f(tex->getSize());
 	const auto ar = systemAVInfo.aspectRatio;
 	videoOut.getMutableMaterial().set(0, tex);
-	videoOut.setSize(texSize);
-	videoOut.scaleTo(Vector2f(texSize.y * ar, texSize.y));
+	videoOut
+		.setSize(texSize)
+		.scaleTo(systemAVInfo.rotation % 2 == 0 ? Vector2f(texSize.y * ar, texSize.y) : Vector2f(texSize.y, texSize.y * ar))
+		.setRotation(Angle1f::fromDegrees(360.0f - systemAVInfo.rotation * 90.0f));
 }
 
 void LibretroCore::onAudioSample(int16_t left, int16_t right)
@@ -964,6 +966,7 @@ void LibretroCore::onLog(retro_log_level level, const char* str)
 uintptr_t LibretroCore::onHWGetCurrentFrameBuffer()
 {
 	// TODO
+	Logger::logError("LibretroCore::onHWGetCurrentFrameBuffer not implemented");
 	return 0;
 }
 
@@ -1006,7 +1009,7 @@ void LibretroCore::onEnvSetGeometry(const retro_game_geometry& data)
 
 void LibretroCore::onEnvSetRotation(uint32_t data)
 {
-	// TODO
+	systemAVInfo.rotation = data;
 }
 
 bool LibretroCore::onEnvSetHWRender(retro_hw_render_callback& data)
@@ -1209,6 +1212,9 @@ void LibretroCore::onEnvSetVariables(const retro_variable* data)
 			option.value = option.defaultValue;
 		}
 	}
+
+	setOption("parallel-n64-gfxplugin", "angrylion");
+	setOption("parallel-n64-pak1", "rumble");
 }
 
 bool LibretroCore::onEnvGetVariableUpdate()
@@ -1283,16 +1289,11 @@ void LibretroCore::onEnvSetMinimumAudioLatency(uint32_t data)
 	audioOut->setLatencyTarget(std::max(1024u, data * 48));
 }
 
-void LibretroCore::dx11UpdateTextureToCurrentBound(Vector2i size, size_t pitch)
+void LibretroCore::dx11UpdateTextureToCurrentBound()
 {
-	// The following comment is from swanstation source:
-	// NOTE: libretro frontend expects the data bound to PS SRV slot 0.
-	// m_context->OMSetRenderTargets(0, nullptr, nullptr);
-	// m_context->PSSetShaderResources(0, 1, m_framebuffer.GetD3DSRVArray());
-
 	auto& dx11Video = static_cast<DX11Video&>(*environment.getHalleyAPI().video);
 	ID3D11ShaderResourceView* view;
-	dx11Video.getDeviceContext().PSGetShaderResources(0, 1, &view);
+	dx11Video.getDeviceContext().PSGetShaderResources(0, 1, &view); // Framebuffer is stored here by the core
 
 	auto tex = std::dynamic_pointer_cast<DX11Texture>(cpuUpdateTexture->getTexture());
 	tex->replaceShaderResourceView(view);
@@ -1300,7 +1301,7 @@ void LibretroCore::dx11UpdateTextureToCurrentBound(Vector2i size, size_t pitch)
 
 TextureFormat LibretroCore::getTextureFormat(retro_pixel_format retroFormat) const
 {
-	switch (systemAVInfo.pixelFormat) {
+	switch (retroFormat) {
 	case RETRO_PIXEL_FORMAT_0RGB1555:
 		return TextureFormat::BGRA5551;
 	case RETRO_PIXEL_FORMAT_RGB565:

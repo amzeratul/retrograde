@@ -77,7 +77,7 @@ void GameStage::onRender(RenderContext& rc) const
 void GameStage::drawScreen(Painter& painter, Sprite screen) const
 {
 	if (screen.hasMaterial()) {
-		const auto spriteSize = screen.getScaledSize();
+		const auto spriteSize = screen.getScaledSize().rotate(screen.getRotation()).abs();
 		const auto windowSize = Vector2f(getVideoAPI().getWindow().getDefinition().getSize());
 		const auto scales = windowSize / spriteSize;
 		const auto scale = std::min(scales.x, scales.y) * screen.getScale();

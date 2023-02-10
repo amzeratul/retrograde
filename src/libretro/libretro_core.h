@@ -70,7 +70,8 @@ public:
 		float aspectRatio = 4.0f / 3.0f;
 		Vector2i baseSize;
 		Vector2i maxSize;
-		
+		int rotation = 0;
+
 		void loadGeometry(const retro_game_geometry& geometry);
 	};
 
@@ -236,6 +237,6 @@ private:
 	void onEnvSetAudioBufferStatusCallback(const retro_audio_buffer_status_callback* data);
 	void onEnvSetMinimumAudioLatency(uint32_t data);
 
-	void dx11UpdateTextureToCurrentBound(Vector2i size, size_t pitch);
+	void dx11UpdateTextureToCurrentBound();
 	TextureFormat getTextureFormat(retro_pixel_format retroFormat) const;
 };
