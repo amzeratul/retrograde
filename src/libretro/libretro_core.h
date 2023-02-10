@@ -23,6 +23,7 @@ public:
 	virtual void onLog(retro_log_level level, const char* str) = 0;
 	virtual void onSetLEDState(int led, int state) = 0;
 	virtual uintptr_t onHWGetCurrentFrameBuffer() = 0;
+	virtual bool onSetRumbleState(uint32_t port, retro_rumble_effect effect, uint16_t strength) = 0;
 
 	virtual LibretroVFS& getVFS() = 0;
 
@@ -124,6 +125,7 @@ protected:
 	void onSetLEDState(int led, int state) override;
 	void onLog(retro_log_level level, const char* str) override;
 	uintptr_t onHWGetCurrentFrameBuffer() override;
+	bool onSetRumbleState(uint32_t port, retro_rumble_effect effect, uint16_t strength) override;
 
 private:
 	DLL dll;
@@ -216,6 +218,7 @@ private:
 
 	void onEnvSetInputDescriptors(const retro_input_descriptor* data);
 	void onEnvSetControllerInfo(const retro_controller_info& data);
+	void onEnvGetRumbleInterface(retro_rumble_interface& data);
 
 	void onEnvSetSupportAchievements(bool data);
 	[[nodiscard]] retro_savestate_context onEnvGetSavestateContext();

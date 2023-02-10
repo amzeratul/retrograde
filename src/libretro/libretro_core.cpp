@@ -74,17 +74,21 @@ namespace {
 		va_end(args);
 	}
 
-	uintptr_t RETRO_CALLCONV retro_hw_get_current_framebuffer()
+	uintptr_t RETRO_CALLCONV retroHWGetCurrentFramebuffer()
 	{
 		return ILibretroCoreCallbacks::curInstance->onHWGetCurrentFrameBuffer();
 	}
 
+	bool RETRO_CALLCONV retroSetRumbleState(uint32_t port, retro_rumble_effect effect, uint16_t strength)
+	{
+		return ILibretroCoreCallbacks::curInstance->onSetRumbleState(port, effect, strength);
+	}
+
 #ifdef WITH_DX11
-	HRESULT WINAPI retro_d3d_compile(LPCVOID pSrcData, SIZE_T srcDataSize, LPCSTR pFileName, CONST D3D_SHADER_MACRO* pDefines, ID3DInclude* pInclude,
+	HRESULT WINAPI retroD3DCompile(LPCVOID pSrcData, SIZE_T srcDataSize, LPCSTR pFileName, CONST D3D_SHADER_MACRO* pDefines, ID3DInclude* pInclude,
 		LPCSTR pEntrypoin, LPCSTR pTarget, UINT flags1, UINT flags2, ID3DBlob** ppCode, ID3DBlob** ppErrorMsgs)
 	{
-		auto result = D3DCompile(pSrcData, srcDataSize, pFileName, pDefines, pInclude, pEntrypoin, pTarget, flags1, flags2, ppCode, ppErrorMsgs);
-		return result;
+		return D3DCompile(pSrcData, srcDataSize, pFileName, pDefines, pInclude, pEntrypoin, pTarget, flags1, flags2, ppCode, ppErrorMsgs);
 	}
 #endif
 }
@@ -592,9 +596,8 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		return true;
 
 	case RETRO_ENVIRONMENT_GET_RUMBLE_INTERFACE:
-		// TODO
-		Logger::logWarning("TODO: RETRO_ENVIRONMENT_GET_RUMBLE_INTERFACE");
-		return false;
+		onEnvGetRumbleInterface(*static_cast<retro_rumble_interface*>(data));
+		return true;
 
 	case RETRO_ENVIRONMENT_GET_LOG_INTERFACE:
 		static_cast<retro_log_callback*>(data)->log = &retroLogPrintf;
@@ -820,6 +823,11 @@ void LibretroCore::onEnvSetControllerInfo(const retro_controller_info& data)
 	// TODO
 }
 
+void LibretroCore::onEnvGetRumbleInterface(retro_rumble_interface& data)
+{
+	data.set_rumble_state = retroSetRumbleState;
+}
+
 void LibretroCore::onInputPoll()
 {
 	for (int i = 0; i < maxInputDevices; ++i) {
@@ -941,6 +949,27 @@ uintptr_t LibretroCore::onHWGetCurrentFrameBuffer()
 	return 0;
 }
 
+bool LibretroCore::onSetRumbleState(uint32_t port, retro_rumble_effect effect, uint16_t strength)
+{
+	if (port > maxInputDevices) {
+		return false;
+	}
+	auto device = inputs[port].device;
+	if (!device) {
+		return false;
+	}
+
+	auto [low, high] = device->getVibration();
+	if (effect == RETRO_RUMBLE_STRONG) {
+		low = strength;
+	} else if (effect == RETRO_RUMBLE_WEAK) {
+		high = strength;
+	}
+	device->setVibration(low, high);
+	
+	return false;
+}
+
 void LibretroCore::onEnvSetPerformanceLevel(uint32_t level)
 {
 	// Don't care?
@@ -996,7 +1025,7 @@ const retro_hw_render_interface* LibretroCore::getD3DHWRenderInterface()
 	hwInterface->handle = this;
 	hwInterface->device = &dx11Video.getDevice();
 	hwInterface->context = &dx11Video.getDeviceContext();
-	hwInterface->D3DCompile = retro_d3d_compile;
+	hwInterface->D3DCompile = retroD3DCompile;
 
 	hwRenderInterface = std::move(hwInterface);
 	return static_cast<retro_hw_render_interface*>(hwRenderInterface.get());
@@ -1136,6 +1165,7 @@ void LibretroCore::onEnvGetVariable(retro_variable& data)
 	if (iter == options.end()) {
 		data.value = nullptr;
 	} else {
+		assert(!iter->second.value.isEmpty());
 		data.value = iter->second.value.c_str();
 	}
 }
