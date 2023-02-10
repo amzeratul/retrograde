@@ -838,6 +838,10 @@ void LibretroCore::onInputPoll()
 			inputs[i].analogButtons[RETRO_DEVICE_ID_JOYPAD_L2] = input->getAxis(4);
 			inputs[i].analogButtons[RETRO_DEVICE_ID_JOYPAD_R2] = input->getAxis(5);
 
+			// Fill sticks
+			inputs[i].sticks[0] = Vector2f(input->getAxis(0), input->getAxis(1));
+			inputs[i].sticks[1] = Vector2f(input->getAxis(2), input->getAxis(3));
+
 			inputs[i].buttonMask = value;
 		}
 	}
@@ -1140,11 +1144,6 @@ void LibretroCore::onEnvSetCoreOptions(const retro_core_option_definition* data)
 	}
 }
 
-void LibretroCore::onEnvSetCoreOptionsIntl(const retro_core_options_intl& data) 
-{
-	onEnvSetCoreOptions(data.us);
-}
-
 void LibretroCore::onEnvSetCoreOptionsV2(const retro_core_options_v2& data) 
 {
 	retro_core_option_v2_definition emptyDef = {};
@@ -1163,6 +1162,11 @@ void LibretroCore::onEnvSetCoreOptionsV2(const retro_core_options_v2& data)
 			option.value = option.defaultValue;
 		}
 	}
+}
+
+void LibretroCore::onEnvSetCoreOptionsIntl(const retro_core_options_intl& data) 
+{
+	onEnvSetCoreOptions(data.us);
 }
 
 void LibretroCore::onEnvSetCoreOptionsV2Intl(const retro_core_options_v2_intl& data) 
