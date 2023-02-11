@@ -53,13 +53,18 @@ void GameStage::onVariableUpdate(Time t)
 		return;
 	}
 	
+	// TODO: move to fixed update?
 	if (libretroCore && libretroCore->hasGameLoaded()) {
 		libretroCore->runFrame();
+		dynamic_cast<RetrogradeGame&>(getGame()).setTargetFPS(static_cast<int>(lroundl(libretroCore->getSystemAVInfo().fps)));
+	} else {
+		dynamic_cast<RetrogradeGame&>(getGame()).setTargetFPS(std::nullopt);
 	}
 }
 
 void GameStage::onFixedUpdate(Time t)
 {
+
 }
 
 void GameStage::onRender(RenderContext& rc) const

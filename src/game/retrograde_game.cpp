@@ -64,7 +64,7 @@ std::unique_ptr<Stage> RetrogradeGame::startGame()
 {
 	bool vsync = true;
 
-	getAPI().video->setWindow(WindowDefinition(WindowType::ResizableWindow, Vector2i(1280, 720), getName()));
+	getAPI().video->setWindow(WindowDefinition(WindowType::ResizableWindow, Vector2i(1280, 960), getName()));
 	getAPI().video->setVsync(vsync);
 	getAPI().audio->startPlayback();
 	getAPI().audio->setListener(AudioListenerData(Vector3f()));
@@ -76,14 +76,14 @@ const Vector<String>& RetrogradeGame::getArgs() const
 	return args;
 }
 
-int RetrogradeGame::getTargetBackgroundFPS() const
-{
-	return 0;
-}
-
 int RetrogradeGame::getTargetFPS() const
 {
-	return 0;
+	return targetFps.value_or(60);
+}
+
+void RetrogradeGame::setTargetFPS(std::optional<int> fps)
+{
+	targetFps = fps;
 }
 
 HalleyGame(RetrogradeGame);

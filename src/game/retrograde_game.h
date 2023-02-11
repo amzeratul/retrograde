@@ -1,6 +1,9 @@
 #pragma once
 
 #include <halley.hpp>
+
+#include "game_stage.h"
+#include "src/libretro/libretro_core.h"
 using namespace Halley;
 
 class RetrogradeGame : public Game {
@@ -15,11 +18,12 @@ public:
 	std::unique_ptr<Stage> startGame() override;
 
 	const Vector<String>& getArgs() const;
-
-	int getTargetBackgroundFPS() const override;
+	
 	int getTargetFPS() const override;
+	void setTargetFPS(std::optional<int> fps);
 
 private:
 	const HalleyAPI* api;
 	Vector<String> args;
+	std::optional<int> targetFps;
 };
