@@ -1,0 +1,24 @@
+Front-end
+* Basic Profile selector
+* Basic Console selector
+* Basic Game selector
+* Basic In-game menu
+- Input chooser
+
+Metadata
+- Scrape data
+- Show videos
+
+Configuration
+* Console properties
+* Core properties
+- Input properties
+
+Game running features
+* Manual save state/load
+- Retroarch shader support
+- Automatic save state/rewind
+- Light gun support
+- Mouse support
+- Keyboard support
+- Swap discs
