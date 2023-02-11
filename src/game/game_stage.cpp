@@ -1,6 +1,7 @@
 #include "game_stage.h"
 
 #include "retrograde_game.h"
+#include "src/config/core_config.h"
 #include "src/config/system_config.h"
 #include "src/libretro/libretro_core.h"
 #include "src/game/retrograde_environment.h"
@@ -93,6 +94,7 @@ void GameStage::loadGame(const String& systemId, const String& gamePath)
 {
 	const auto& systemConfig = libretroEnvironment->getConfigDatabase().get<SystemConfig>(systemId);
 	const String coreId = systemConfig.getCores().at(0);
+	const auto& coreConfig = libretroEnvironment->getConfigDatabase().get<CoreConfig>(coreId);
 	const String corePath = coreId + "_libretro.dll";
 
 	libretroCore = LibretroCore::load(libretroEnvironment->getCoresDir() + "/" + corePath, *libretroEnvironment);
@@ -101,6 +103,10 @@ void GameStage::loadGame(const String& systemId, const String& gamePath)
 	}
 	
 	if (libretroCore) {
+		for (const auto& [k, v]: coreConfig.getOptions()) {
+			libretroCore->setOption(k, v);
+		}
+
 		const bool ok = libretroCore->loadGame(Path(libretroEnvironment->getRomsDir() + "/" + gamePath).getNativeString());
 		if (ok) {
 			audioStreamHandle = getAudioAPI().play(libretroCore->getAudioOut(), getAudioAPI().getGlobalEmitter(), 1, true);
