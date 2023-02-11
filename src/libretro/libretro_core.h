@@ -137,12 +137,14 @@ private:
 	bool renderCallbackNeedsReset = false;
 	bool coreHandlesSaveData = false;
 	bool hasAnalogStick = false;
+	bool needsToSaveSRAM = false;
 
 	String gameName;
 	Bytes gameBytes;
 	Vector<retro_game_info_ext> gameInfos;
 
 	uint64_t lastSaveHash = 0;
+	int framesSinceSRAMModified = 0;
 	mutable SaveStateType saveStateType = SaveStateType::Normal;
 
 	SystemInfo systemInfo;

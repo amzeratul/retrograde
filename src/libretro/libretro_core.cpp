@@ -462,10 +462,17 @@ void LibretroCore::saveGameDataIfNeeded()
 		hasher.feedBytes(gsl::as_bytes(sram));
 		const auto hash = hasher.digest();
 		if (hash != lastSaveHash) {
+			needsToSaveSRAM = true;
+			framesSinceSRAMModified = 0;
 			lastSaveHash = hash;
-			saveGameData(sram);
 		}
 	}
+
+	if (needsToSaveSRAM && framesSinceSRAMModified > 10) {
+		saveGameData(sram);
+		needsToSaveSRAM = false;
+	}
+	framesSinceSRAMModified++;
 }
 
 void LibretroCore::saveGameData(gsl::span<Byte> data)
