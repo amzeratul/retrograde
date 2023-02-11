@@ -17,11 +17,15 @@ endif()
 set (SOURCES
 	"prec.cpp"
 	
-	"src/game/retrograde_game.cpp"
+	"src/config/config_database.cpp"
+	"src/config/core_config.cpp"
+	"src/config/system_config.cpp"
+
 	"src/game/game_stage.cpp"
+	"src/game/retrograde_environment.cpp"
+	"src/game/retrograde_game.cpp"
 
 	"src/libretro/libretro_core.cpp"
-	"src/libretro/libretro_environment.cpp"
 	"src/libretro/libretro_vfs.cpp"
 
 	"src/util/cpu_update_texture.cpp"
@@ -33,12 +37,17 @@ set (SOURCES
 
 set (HEADERS
 	"prec.h"
+	"todo.txt"
 	
-	"src/game/retrograde_game.h"
+	"src/config/config_database.h"
+	"src/config/core_config.h"
+	"src/config/system_config.h"
+
 	"src/game/game_stage.h"
+	"src/game/retrograde_environment.h"
+	"src/game/retrograde_game.h"
 
 	"src/libretro/libretro_core.h"
-	"src/libretro/libretro_environment.h"
 	"src/libretro/libretro_vfs.h"
 	"src/libretro/libretro.h"
 	"src/libretro/libretro_d3d.h"

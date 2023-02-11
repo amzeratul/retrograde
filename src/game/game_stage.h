@@ -1,7 +1,7 @@
 #pragma once
 
 #include <halley.hpp>
-class LibretroEnvironment;
+class RetrogradeEnvironment;
 class LibretroCore;
 using namespace Halley;
 
@@ -21,10 +21,11 @@ private:
 
 	AudioHandle audioStreamHandle;
 
-	std::unique_ptr<LibretroEnvironment> libretroEnvironment;
+	std::unique_ptr<RetrogradeEnvironment> libretroEnvironment;
 	std::unique_ptr<LibretroCore> libretroCore;
 
 	void drawScreen(Painter& painter, Sprite screen) const;
 
 	std::shared_ptr<InputVirtual> makeInput(int idx);
+	void loadGame(const String& systemId, const String& gamePath);
 };

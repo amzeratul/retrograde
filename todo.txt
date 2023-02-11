@@ -6,8 +6,12 @@ Front-end
 - Input chooser
 
 Metadata
-- Scrape data
+* Enumerate games
+- Scrape online data
+- Show screenshots
 - Show videos
+- Show metadata
+- Render PDF manual
 
 Configuration
 * Console properties

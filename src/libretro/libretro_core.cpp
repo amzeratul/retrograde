@@ -4,7 +4,7 @@
 #include <cstdarg>
 
 #include "libretro.h"
-#include "libretro_environment.h"
+#include "../game/retrograde_environment.h"
 #include "libretro_vfs.h"
 #include "src/util/cpu_update_texture.h"
 #include "src/util/c_string_cache.h"
@@ -115,7 +115,7 @@ void LibretroCore::SystemAVInfo::loadGeometry(const retro_game_geometry& geometr
 	}
 }
 
-std::unique_ptr<LibretroCore> LibretroCore::load(std::string_view filename, LibretroEnvironment& environment)
+std::unique_ptr<LibretroCore> LibretroCore::load(std::string_view filename, RetrogradeEnvironment& environment)
 {
 	DLL dll;
 	
@@ -129,7 +129,7 @@ std::unique_ptr<LibretroCore> LibretroCore::load(std::string_view filename, Libr
 	return {};
 }
 
-LibretroCore::LibretroCore(DLL dll, LibretroEnvironment& environment)
+LibretroCore::LibretroCore(DLL dll, RetrogradeEnvironment& environment)
 	: dll(std::move(dll))
 	, environment(environment)
 {
@@ -1331,9 +1331,6 @@ void LibretroCore::onEnvSetVariables(const retro_variable* data)
 			option.value = option.defaultValue;
 		}
 	}
-
-	setOption("parallel-n64-gfxplugin", "angrylion");
-	setOption("parallel-n64-pak1", "rumble");
 }
 
 bool LibretroCore::onEnvGetVariableUpdate()

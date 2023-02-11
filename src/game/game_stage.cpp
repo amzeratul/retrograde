@@ -1,8 +1,9 @@
 #include "game_stage.h"
 
 #include "retrograde_game.h"
+#include "src/config/system_config.h"
 #include "src/libretro/libretro_core.h"
-#include "src/libretro/libretro_environment.h"
+#include "src/game/retrograde_environment.h"
 
 GameStage::GameStage() = default;
 
@@ -18,31 +19,14 @@ void GameStage::init()
 {
 	auto& game = static_cast<RetrogradeGame&>(getGame());
 	String systemId;
-	String corePath;
 	String gamePath;
-	if (game.getArgs().size() >= 3) {
+	if (game.getArgs().size() >= 2) {
 		systemId = game.getArgs()[0];
-		corePath = game.getArgs()[1];
-		gamePath = String::concatList(gsl::span<const String>(game.getArgs()).subspan(2), " ");
+		gamePath = String::concatList(gsl::span<const String>(game.getArgs()).subspan(1), " ");
 	}
 
-	libretroEnvironment = std::make_unique<LibretroEnvironment>("..", systemId, getResources(), getAPI());
-	
-	libretroCore = LibretroCore::load(libretroEnvironment->getCoresDir() + "/" + corePath, *libretroEnvironment);
-	for (int i = 0; i < 4; ++i) {
-		libretroCore->setInputDevice(i, makeInput(i));
-	}
-	
-	if (libretroCore) {
-		const bool ok = libretroCore->loadGame(Path(libretroEnvironment->getRomsDir() + "/" + gamePath).getNativeString());
-		if (ok) {
-			audioStreamHandle = getAudioAPI().play(libretroCore->getAudioOut(), getAudioAPI().getGlobalEmitter(), 1, true);
-		} else {
-			Logger::logError("Failed to load game " + String(gamePath));
-		}
-	} else {
-		Logger::logError("Failed to load core " + String(corePath));
-	}
+	libretroEnvironment = std::make_unique<RetrogradeEnvironment>("..", systemId, getResources(), getAPI());
+	loadGame(systemId, gamePath);
 
 	perfStats = std::make_shared<PerformanceStatsView>(getResources(), getAPI());
 	perfStats->setActive(false);
@@ -104,6 +88,30 @@ void GameStage::drawScreen(Painter& painter, Sprite screen) const
 			.draw(painter);
 	}
 }
+
+void GameStage::loadGame(const String& systemId, const String& gamePath)
+{
+	const auto& systemConfig = libretroEnvironment->getConfigDatabase().get<SystemConfig>(systemId);
+	const String coreId = systemConfig.getCores().at(0);
+	const String corePath = coreId + "_libretro.dll";
+
+	libretroCore = LibretroCore::load(libretroEnvironment->getCoresDir() + "/" + corePath, *libretroEnvironment);
+	for (int i = 0; i < 4; ++i) {
+		libretroCore->setInputDevice(i, makeInput(i));
+	}
+	
+	if (libretroCore) {
+		const bool ok = libretroCore->loadGame(Path(libretroEnvironment->getRomsDir() + "/" + gamePath).getNativeString());
+		if (ok) {
+			audioStreamHandle = getAudioAPI().play(libretroCore->getAudioOut(), getAudioAPI().getGlobalEmitter(), 1, true);
+		} else {
+			Logger::logError("Failed to load game " + String(gamePath));
+		}
+	} else {
+		Logger::logError("Failed to load core " + String(corePath));
+	}
+}
+
 
 std::shared_ptr<InputVirtual> GameStage::makeInput(int idx)
 {

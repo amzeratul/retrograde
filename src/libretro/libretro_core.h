@@ -7,7 +7,7 @@
 class ZipFile;
 class LibretroVFS;
 class CPUUpdateTexture;
-class LibretroEnvironment;
+class RetrogradeEnvironment;
 using namespace Halley;
 
 class ILibretroCoreCallbacks {
@@ -89,7 +89,7 @@ public:
 		RollbackNetplay
 	};
 
-	static std::unique_ptr<LibretroCore> load(std::string_view filename, LibretroEnvironment& environment);
+	static std::unique_ptr<LibretroCore> load(std::string_view filename, RetrogradeEnvironment& environment);
 	~LibretroCore() override;
 
 	bool loadGame(const Path& path);
@@ -130,7 +130,7 @@ protected:
 
 private:
 	DLL dll;
-	LibretroEnvironment& environment;
+	RetrogradeEnvironment& environment;
 
 	bool gameLoaded = false;
 	bool optionsModified = false;
@@ -174,7 +174,7 @@ private:
 	std::shared_ptr<void> hwRenderInterface;
 	std::optional<retro_hw_render_callback> hwRenderCallback;
 	
-	LibretroCore(DLL dll, LibretroEnvironment& environment);
+	LibretroCore(DLL dll, RetrogradeEnvironment& environment);
 
 	void init();
 	void deInit();
