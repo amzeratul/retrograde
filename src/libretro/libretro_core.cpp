@@ -468,7 +468,7 @@ void LibretroCore::saveGameDataIfNeeded()
 		}
 	}
 
-	if (needsToSaveSRAM && framesSinceSRAMModified > 10) {
+	if (needsToSaveSRAM && framesSinceSRAMModified > 5) {
 		saveGameData(sram);
 		needsToSaveSRAM = false;
 	}
