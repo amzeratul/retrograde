@@ -1,48 +1,48 @@
 systems:
   - id: snes
-    names: 
+    regions: 
       - name: Super Nintendo Entertainment System
         region: [world]
       - name: Super Famicom
         region: [jp]
     cores: [snes9x]
     manufacturer: Nintendo
-    release: 1990-11-21
+    releaseDate: 1990-11-21
   - id: megadrive
-    names:
+    regions:
       - name: Mega Drive
         region: [world]
       - name: Sega Genesis
         region: [us]
     cores: [genesis_plus_gx]
     manufacturer: Sega
-    release: 1988-10-29
+    releaseDate: 1988-10-29
   - id: psx
-    names:
+    regions:
       - name: PlayStation
         region: [world]
     cores: [swanstation]
     manufacturer: Sony
-    release: 1994-12-03
+    releaseDate: 1994-12-03
   - id: neogeo
-    names:
+    regions:
       - name: Neo Geo
         region: [world]
     cores: [fbneo]
     manufacturer: SNK
-    release: 1990-04-26
+    releaseDate: 1990-04-26
   - id: cps2
-    names:
+    regions:
       - name: CP System II
         region: [world]
     cores: [fbneo]
     manufacturer: Capcom
-    release: 1993-09-10
+    releaseDate: 1993-09-10
   - id: n64
-    names:
+    regions:
       - name: Nintendo 64
         region: [world]
     cores: [parallel_n64]
     manufacturer: Nintendo
-    release: 1996-06-23
+    releaseDate: 1996-06-23
 
