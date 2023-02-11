@@ -17,7 +17,7 @@ public:
 	void onRender(RenderContext&) const override;
 
 private:
-	std::shared_ptr<Texture> texture;
+	std::shared_ptr<PerformanceStatsView> perfStats;
 
 	AudioHandle audioStreamHandle;
 

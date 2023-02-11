@@ -43,6 +43,9 @@ void GameStage::init()
 	} else {
 		Logger::logError("Failed to load core " + String(corePath));
 	}
+
+	perfStats = std::make_shared<PerformanceStatsView>(getResources(), getAPI());
+	perfStats->setActive(false);
 }
 
 void GameStage::onVariableUpdate(Time t)
@@ -52,6 +55,11 @@ void GameStage::onVariableUpdate(Time t)
 		getCoreAPI().quit();
 		return;
 	}
+
+	if (getInputAPI().getKeyboard()->isButtonPressed(KeyCode::F2)) {
+		perfStats->setActive(!perfStats->isActive());
+	}
+	perfStats->update(t);
 	
 	// TODO: move to fixed update?
 	if (libretroCore && libretroCore->hasGameLoaded()) {
@@ -76,6 +84,8 @@ void GameStage::onRender(RenderContext& rc) const
 		if (libretroCore && libretroCore->hasGameLoaded()) {
 			drawScreen(painter, libretroCore->getVideoOut());
 		}
+
+		perfStats->paint(painter);
 	});
 }
 

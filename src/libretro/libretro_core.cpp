@@ -953,9 +953,10 @@ void LibretroCore::onEnvSetControllerInfo(const retro_controller_info* data)
 	for (auto* info = data; info->num_types != 0; ++info) {
 		for (uint32_t i = 0; i < info->num_types; ++i) {
 			const auto& type = info->types[i];
-
-			// TODO: apparently this is relevant for SNES light guns?
-			Logger::logDev("Can plug " + toString(type.id) + " (" + type.desc + ") on port " + toString(port));
+			if (type.desc) {
+				// TODO: apparently this is relevant for SNES light guns?
+				Logger::logDev("Can plug " + toString(type.id) + " (" + type.desc + ") on port " + toString(port));
+			}
 		}
 		++port;
 	}
