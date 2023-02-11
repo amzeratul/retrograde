@@ -19,11 +19,12 @@ public:
 
 	const Vector<String>& getArgs() const;
 	
-	int getTargetFPS() const override;
-	void setTargetFPS(std::optional<int> fps);
+	double getTargetFPS() const override;
+	double getFixedUpdateFPS() const override;
+	void setTargetFPS(std::optional<double> fps);
 
 private:
 	const HalleyAPI* api;
 	Vector<String> args;
-	std::optional<int> targetFps;
+	std::optional<double> targetFps;
 };

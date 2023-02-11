@@ -157,6 +157,7 @@ private:
 	std::shared_ptr<AudioClipStreaming> audioOut;
 	Vector<float> audioBuffer;
 	retro_audio_buffer_status_callback_t audioBufferStatusCallback = nullptr;
+	std::shared_ptr<SingleThreadExecutor> audioThread;
 
 	constexpr static int maxInputDevices = 8;
 	struct Input {

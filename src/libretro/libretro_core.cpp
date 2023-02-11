@@ -181,6 +181,10 @@ void LibretroCore::initVideoOut()
 
 void LibretroCore::initAudioOut()
 {
+	audioThread = std::make_shared<SingleThreadExecutor>("libretro_audio", [=](String name, std::function<void()> f) {
+		return environment.getHalleyAPI().system->createThread(name, ThreadPriority::High, std::move(f));
+	});
+
 	std::array<float, 64> buffer;
 	buffer.fill(0);
 	audioOut = std::make_shared<AudioClipStreaming>(2);
@@ -189,8 +193,16 @@ void LibretroCore::initAudioOut()
 
 void LibretroCore::addAudioSamples(gsl::span<const float> samples)
 {
-	constexpr float maxPitchShift = 0.005f;
-	audioOut->addInterleavedSamplesWithResampleSync(samples, static_cast<float>(systemAVInfo.sampleRate), maxPitchShift);
+	Vector<float> buffer;
+	buffer.resize(samples.size());
+	memcpy(buffer.data(), samples.data(), samples.size_bytes());
+
+	Concurrent::execute(audioThread->getQueue(), [this, buffer = std::move(buffer)]()
+	{
+		constexpr float maxPitchShift = 0.005f;
+		const auto span = gsl::span<const float>(buffer.data(), buffer.size());
+		audioOut->addInterleavedSamplesWithResampleSync(span, static_cast<float>(systemAVInfo.sampleRate), maxPitchShift);
+	});
 }
 
 void LibretroCore::deInit()
@@ -207,6 +219,8 @@ void LibretroCore::deInit()
 	hwRenderCallback.reset();
 	hwRenderInterface.reset();
 	vfs.reset();
+	audioThread.reset();
+	audioOut.reset();
 }
 
 std::pair<const LibretroCore::ContentInfo*, size_t> LibretroCore::getContentInfo(const ZipFile& zip)
