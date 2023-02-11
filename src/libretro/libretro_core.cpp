@@ -115,7 +115,7 @@ void LibretroCore::SystemAVInfo::loadGeometry(const retro_game_geometry& geometr
 	}
 }
 
-std::unique_ptr<LibretroCore> LibretroCore::load(std::string_view filename, RetrogradeEnvironment& environment)
+std::unique_ptr<LibretroCore> LibretroCore::load(std::string_view filename, const RetrogradeEnvironment& environment)
 {
 	DLL dll;
 	
@@ -129,7 +129,7 @@ std::unique_ptr<LibretroCore> LibretroCore::load(std::string_view filename, Retr
 	return {};
 }
 
-LibretroCore::LibretroCore(DLL dll, RetrogradeEnvironment& environment)
+LibretroCore::LibretroCore(DLL dll, const RetrogradeEnvironment& environment)
 	: dll(std::move(dll))
 	, environment(environment)
 {

@@ -57,3 +57,8 @@ const ConfigDatabase& RetrogradeEnvironment::getConfigDatabase() const
 {
 	return configDatabase;
 }
+
+ConfigDatabase& RetrogradeEnvironment::getConfigDatabase()
+{
+	return configDatabase;
+}

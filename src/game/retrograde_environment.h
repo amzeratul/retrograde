@@ -17,6 +17,7 @@ public:
 	Resources& getResources() const;
 	const HalleyAPI& getHalleyAPI() const;
 	const ConfigDatabase& getConfigDatabase() const;
+	ConfigDatabase& getConfigDatabase();
 
 private:
 	Resources& resources;

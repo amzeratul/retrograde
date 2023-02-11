@@ -35,6 +35,8 @@ void GameStage::init()
 
 void GameStage::onVariableUpdate(Time t)
 {
+	libretroEnvironment->getConfigDatabase().update();
+
 	if (getInputAPI().getKeyboard()->isButtonPressed(KeyCode::Esc)) {
 		libretroCore.reset();
 		getCoreAPI().quit();

@@ -89,7 +89,7 @@ public:
 		RollbackNetplay
 	};
 
-	static std::unique_ptr<LibretroCore> load(std::string_view filename, RetrogradeEnvironment& environment);
+	static std::unique_ptr<LibretroCore> load(std::string_view filename, const RetrogradeEnvironment& environment);
 	~LibretroCore() override;
 
 	bool loadGame(const Path& path);
@@ -130,7 +130,7 @@ protected:
 
 private:
 	DLL dll;
-	RetrogradeEnvironment& environment;
+	const RetrogradeEnvironment& environment;
 
 	bool gameLoaded = false;
 	bool optionsModified = false;
@@ -174,7 +174,7 @@ private:
 	std::shared_ptr<void> hwRenderInterface;
 	std::optional<retro_hw_render_callback> hwRenderCallback;
 	
-	LibretroCore(DLL dll, RetrogradeEnvironment& environment);
+	LibretroCore(DLL dll, const RetrogradeEnvironment& environment);
 
 	void init();
 	void deInit();

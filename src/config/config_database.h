@@ -85,6 +85,8 @@ private:
 class ConfigDatabase {
 public:
     void load(Resources& resources, const String& prefix);
+    void loadFile(const ConfigFile& configFile);
+    void update();
 
     template <typename T>
     void init(String key)
@@ -124,10 +126,13 @@ public:
 
 private:
     HashMap<std::type_index, std::unique_ptr<IConfigDatabaseType>> dbs;
+    Vector<ConfigObserver> observers;
 
     template <typename T>
     ConfigDatabaseType<T>& of() const
     {
         return static_cast<ConfigDatabaseType<T>&>(*dbs.at(std::type_index(typeid(T))));
     }
+
+    void loadConfig(const ConfigNode& node);
 };
