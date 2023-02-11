@@ -95,10 +95,13 @@ public:
 	bool loadGame(const Path& path);
 	void unloadGame();
 	bool hasGameLoaded() const;
+	const String& getGameName() const;
 
+	size_t getSaveStateSize(SaveStateType type) const;
 	Bytes saveState(SaveStateType type) const;
-	void loadState(SaveStateType type, gsl::span<const gsl::byte> bytes);
-	void loadState(SaveStateType type, const Bytes& bytes);
+	void saveState(SaveStateType type, gsl::span<gsl::byte> bytes) const;
+	void loadState(gsl::span<const gsl::byte> bytes);
+	void loadState(const Bytes& bytes);
 
 	gsl::span<Byte> getMemory(MemoryType type);
 

@@ -407,25 +407,40 @@ bool LibretroCore::hasGameLoaded() const
 	return gameLoaded;
 }
 
-Bytes LibretroCore::saveState(SaveStateType type) const
+const String& LibretroCore::getGameName() const
+{
+	return gameName;
+}
+
+size_t LibretroCore::getSaveStateSize(SaveStateType type) const
 {
 	saveStateType = type;
-	size_t size = DLL_FUNC(dll, retro_serialize_size)();
+	return DLL_FUNC(dll, retro_serialize_size)();
+}
+
+Bytes LibretroCore::saveState(SaveStateType type) const
+{
 	Bytes bytes;
-	bytes.resize(size);
-	DLL_FUNC(dll, retro_serialize)(bytes.data(), bytes.size());
+	bytes.resize(getSaveStateSize(type));
+	saveState(type, gsl::as_writable_bytes(gsl::span<Byte>(bytes)));
 	return bytes;
 }
 
-void LibretroCore::loadState(SaveStateType type, gsl::span<const gsl::byte> bytes)
+void LibretroCore::saveState(SaveStateType type, gsl::span<gsl::byte> bytes) const
 {
 	saveStateType = type;
+	DLL_FUNC(dll, retro_serialize)(bytes.data(), bytes.size());
+}
+
+void LibretroCore::loadState(gsl::span<const gsl::byte> bytes)
+{
+	saveStateType = SaveStateType::Normal;
 	DLL_FUNC(dll, retro_unserialize)(bytes.data(), bytes.size());
 }
 
-void LibretroCore::loadState(SaveStateType type, const Bytes& bytes)
+void LibretroCore::loadState(const Bytes& bytes)
 {
-	loadState(type, gsl::as_bytes(gsl::span<const Byte>(bytes)));
+	loadState(gsl::as_bytes(gsl::span<const Byte>(bytes)));
 }
 
 gsl::span<Byte> LibretroCore::getMemory(MemoryType type)

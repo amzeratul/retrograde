@@ -1,5 +1,5 @@
 Front-end
-* Basic Profile selector
+- Basic Profile selector
 * Basic Console selector
 * Basic Game selector
 * Basic In-game menu
@@ -14,12 +14,9 @@ Metadata
 - Render PDF manual
 
 Configuration
-* Console properties
-* Core properties
-- Input properties
+- Input device properties
 
 Game running features
-* Manual save state/load
 - Retroarch shader support
 - Automatic save state/rewind
 - Light gun support

@@ -21,7 +21,7 @@ private:
 
 	AudioHandle audioStreamHandle;
 
-	std::unique_ptr<RetrogradeEnvironment> libretroEnvironment;
+	std::unique_ptr<RetrogradeEnvironment> env;
 	std::unique_ptr<LibretroCore> libretroCore;
 
 	void drawScreen(Painter& painter, Sprite screen) const;

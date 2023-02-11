@@ -26,7 +26,7 @@ void GameStage::init()
 		gamePath = String::concatList(gsl::span<const String>(game.getArgs()).subspan(1), " ");
 	}
 
-	libretroEnvironment = std::make_unique<RetrogradeEnvironment>("..", systemId, getResources(), getAPI());
+	env = std::make_unique<RetrogradeEnvironment>("..", systemId, getResources(), getAPI());
 	loadGame(systemId, gamePath);
 
 	perfStats = std::make_shared<PerformanceStatsView>(getResources(), getAPI());
@@ -35,7 +35,7 @@ void GameStage::init()
 
 void GameStage::onVariableUpdate(Time t)
 {
-	libretroEnvironment->getConfigDatabase().update();
+	env->getConfigDatabase().update();
 
 	if (getInputAPI().getKeyboard()->isButtonPressed(KeyCode::Esc)) {
 		libretroCore.reset();
@@ -43,14 +43,26 @@ void GameStage::onVariableUpdate(Time t)
 		return;
 	}
 
-	if (getInputAPI().getKeyboard()->isButtonPressed(KeyCode::F2)) {
+	if (getInputAPI().getKeyboard()->isButtonPressed(KeyCode::F11)) {
 		perfStats->setActive(!perfStats->isActive());
 	}
 	perfStats->update(t);
-	
+
 	// TODO: move to fixed update?
 	if (libretroCore && libretroCore->hasGameLoaded()) {
+		if (getInputAPI().getKeyboard()->isButtonPressed(KeyCode::F2)) {
+			Path::writeFile(Path(env->getSaveDir()) / (libretroCore->getGameName() + ".state0"), libretroCore->saveState(LibretroCore::SaveStateType::Normal));
+		}
+
+		if (getInputAPI().getKeyboard()->isButtonPressed(KeyCode::F4)) {
+			const auto saveState = Path::readFile(Path(env->getSaveDir()) / (libretroCore->getGameName() + ".state0"));
+			if (!saveState.empty()) {
+				libretroCore->loadState(saveState);
+			}
+		}
+
 		libretroCore->runFrame();
+
 		dynamic_cast<RetrogradeGame&>(getGame()).setTargetFPS(libretroCore->getSystemAVInfo().fps);
 	} else {
 		dynamic_cast<RetrogradeGame&>(getGame()).setTargetFPS(std::nullopt);
@@ -94,12 +106,12 @@ void GameStage::drawScreen(Painter& painter, Sprite screen) const
 
 void GameStage::loadGame(const String& systemId, const String& gamePath)
 {
-	const auto& systemConfig = libretroEnvironment->getConfigDatabase().get<SystemConfig>(systemId);
+	const auto& systemConfig = env->getConfigDatabase().get<SystemConfig>(systemId);
 	const String coreId = systemConfig.getCores().at(0);
-	const auto& coreConfig = libretroEnvironment->getConfigDatabase().get<CoreConfig>(coreId);
+	const auto& coreConfig = env->getConfigDatabase().get<CoreConfig>(coreId);
 	const String corePath = coreId + "_libretro.dll";
 
-	libretroCore = LibretroCore::load(libretroEnvironment->getCoresDir() + "/" + corePath, *libretroEnvironment);
+	libretroCore = LibretroCore::load(env->getCoresDir() + "/" + corePath, *env);
 	for (int i = 0; i < 4; ++i) {
 		libretroCore->setInputDevice(i, makeInput(i));
 	}
@@ -109,7 +121,7 @@ void GameStage::loadGame(const String& systemId, const String& gamePath)
 			libretroCore->setOption(k, v);
 		}
 
-		const bool ok = libretroCore->loadGame(Path(libretroEnvironment->getRomsDir() + "/" + gamePath).getNativeString());
+		const bool ok = libretroCore->loadGame(Path(env->getRomsDir() + "/" + gamePath).getNativeString());
 		if (ok) {
 			audioStreamHandle = getAudioAPI().play(libretroCore->getAudioOut(), getAudioAPI().getGlobalEmitter(), 1, true);
 		} else {
