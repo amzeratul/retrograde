@@ -23,7 +23,8 @@
 #include "libretro_vulkan.h"
 #endif
 
-thread_local ILibretroCoreCallbacks* ILibretroCoreCallbacks::curInstance;
+thread_local ILibretroCoreCallbacks* ILibretroCoreCallbacks::curInstance = nullptr;
+thread_local size_t ILibretroCoreCallbacks::curInstanceDepth = 0;
 
 namespace {
 	bool RETRO_CALLCONV retroEnvironmentCallback(uint32_t cmd, void *data)
@@ -155,8 +156,8 @@ void LibretroCore::init()
 	cInfo.needFullpath = retroSystemInfo.need_fullpath;
 	cInfo.persistData = false;
 
-	auto guard = ScopedGuard([=]() { curInstance = nullptr; });
-	curInstance = this;
+	auto guard = ScopedGuard([=]() { popInstance(); });
+	pushInstance();
 
 	DLL_FUNC(dll, retro_set_environment)(&retroEnvironmentCallback);
 	DLL_FUNC(dll, retro_init)();
@@ -209,8 +210,8 @@ void LibretroCore::deInit()
 {
 	unloadGame();
 
-	auto guard = ScopedGuard([=]() { curInstance = nullptr; });
-	curInstance = this;
+	auto guard = ScopedGuard([=]() { popInstance(); });
+	pushInstance();
 
 	DLL_FUNC(dll, retro_deinit)();
 
@@ -335,8 +336,8 @@ bool LibretroCore::doLoadGame()
 	gameInfo.size = info.size;
 	gameInfo.data = info.data;
 
-	auto guard = ScopedGuard([=]() { curInstance = nullptr; });
-	curInstance = this;
+	auto guard = ScopedGuard([=]() { popInstance(); });
+	pushInstance();
 
 	gameLoaded = DLL_FUNC(dll, retro_load_game)(&gameInfo);
 
@@ -364,8 +365,8 @@ bool LibretroCore::doLoadGame()
 void LibretroCore::unloadGame()
 {
 	if (gameLoaded) {
-		auto guard = ScopedGuard([=]() { curInstance = nullptr; });
-		curInstance = this;
+		auto guard = ScopedGuard([=]() { popInstance(); });
+		pushInstance();
 
 		DLL_FUNC(dll, retro_unload_game)();
 
@@ -382,8 +383,8 @@ void LibretroCore::unloadGame()
 
 void LibretroCore::runFrame()
 {
-	auto guard = ScopedGuard([=]() { curInstance = nullptr; });
-	curInstance = this;
+	auto guard = ScopedGuard([=]() { popInstance(); });
+	pushInstance();
 
 	if (audioBufferStatusCallback) {
 		const size_t nLeft = audioOut->getSamplesLeft();
@@ -414,6 +415,9 @@ const String& LibretroCore::getGameName() const
 
 size_t LibretroCore::getSaveStateSize(SaveStateType type) const
 {
+	auto guard = ScopedGuard([=]() { popInstance(); });
+	pushInstance();
+
 	saveStateType = type;
 	return DLL_FUNC(dll, retro_serialize_size)();
 }
@@ -428,12 +432,18 @@ Bytes LibretroCore::saveState(SaveStateType type) const
 
 void LibretroCore::saveState(SaveStateType type, gsl::span<gsl::byte> bytes) const
 {
+	auto guard = ScopedGuard([=]() { popInstance(); });
+	pushInstance();
+
 	saveStateType = type;
 	DLL_FUNC(dll, retro_serialize)(bytes.data(), bytes.size());
 }
 
 void LibretroCore::loadState(gsl::span<const gsl::byte> bytes)
 {
+	auto guard = ScopedGuard([=]() { popInstance(); });
+	pushInstance();
+
 	saveStateType = SaveStateType::Normal;
 	DLL_FUNC(dll, retro_unserialize)(bytes.data(), bytes.size());
 }
@@ -461,8 +471,8 @@ gsl::span<Byte> LibretroCore::getMemory(MemoryType type)
 		break;
 	}
 
-	auto guard = ScopedGuard([=]() { curInstance = nullptr; });
-	curInstance = this;
+	auto guard = ScopedGuard([=]() { popInstance(); });
+	pushInstance();
 
 	const auto size = DLL_FUNC(dll, retro_get_memory_size)(id);
 	auto* data = DLL_FUNC(dll, retro_get_memory_data)(id);
@@ -1200,7 +1210,7 @@ int LibretroCore::onEnvGetAudioVideoEnable()
 {
 	constexpr int enableVideo = 0x1;
 	constexpr int enableAudio = 0x2;
-	constexpr int fastSaveSate = 0x4;
+	constexpr int fastSaveState = 0x4;
 	constexpr int hardDisableAudio = 0x8;
 	return enableVideo | enableAudio;
 }
@@ -1449,5 +1459,25 @@ TextureFormat LibretroCore::getTextureFormat(retro_pixel_format retroFormat) con
 	case RETRO_PIXEL_FORMAT_UNKNOWN:
 	default:
 		return TextureFormat::BGRX;
+	}
+}
+
+void LibretroCore::pushInstance() const
+{
+	if (curInstanceDepth == 0) {
+		curInstance = const_cast<LibretroCore*>(this);
+	} else {
+		assert(curInstance == this);
+	}
+	++curInstanceDepth;
+}
+
+void LibretroCore::popInstance() const
+{
+	assert(curInstance == this);
+	assert(curInstanceDepth > 0);
+	--curInstanceDepth;
+	if (curInstanceDepth == 0) {
+		curInstance = nullptr;
 	}
 }

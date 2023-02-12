@@ -28,6 +28,7 @@ public:
 	virtual LibretroVFS& getVFS() = 0;
 
 	static thread_local ILibretroCoreCallbacks* curInstance;
+	static thread_local size_t curInstanceDepth;
 };
 
 class LibretroCore : protected ILibretroCoreCallbacks {
@@ -245,4 +246,7 @@ private:
 
 	void dx11UpdateTextureToCurrentBound();
 	TextureFormat getTextureFormat(retro_pixel_format retroFormat) const;
+
+	void pushInstance() const;
+	void popInstance() const;
 };
