@@ -28,6 +28,8 @@ set (SOURCES
 	"src/libretro/libretro_core.cpp"
 	"src/libretro/libretro_vfs.cpp"
 
+	"src/savestate/rewind_data.cpp"
+
 	"src/util/cpu_update_texture.cpp"
 	"src/util/dll.cpp"
 
@@ -52,6 +54,8 @@ set (HEADERS
 	"src/libretro/libretro.h"
 	"src/libretro/libretro_d3d.h"
 	"src/libretro/libretro_vulkan.h"
+
+	"src/savestate/rewind_data.h"
 
 	"src/util/cpu_update_texture.h"
 	"src/util/c_string_cache.h"

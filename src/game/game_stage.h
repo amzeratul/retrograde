@@ -1,6 +1,7 @@
 #pragma once
 
 #include <halley.hpp>
+class RewindData;
 class RetrogradeEnvironment;
 class LibretroCore;
 using namespace Halley;
@@ -23,6 +24,7 @@ private:
 
 	std::unique_ptr<RetrogradeEnvironment> env;
 	std::unique_ptr<LibretroCore> libretroCore;
+	std::unique_ptr<RewindData> rewindData;
 
 	void drawScreen(Painter& painter, Sprite screen) const;
 

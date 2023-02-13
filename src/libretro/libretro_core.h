@@ -106,6 +106,7 @@ public:
 
 	gsl::span<Byte> getMemory(MemoryType type);
 
+	void setRewinding(bool rewind);
 	void runFrame();
 	const Sprite& getVideoOut() const;
 	const std::shared_ptr<AudioClipStreaming>& getAudioOut() const;
@@ -142,6 +143,7 @@ private:
 	bool coreHandlesSaveData = false;
 	bool hasAnalogStick = false;
 	bool needsToSaveSRAM = false;
+	bool rewinding = false;
 
 	String gameName;
 	Bytes gameBytes;

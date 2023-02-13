@@ -479,6 +479,11 @@ gsl::span<Byte> LibretroCore::getMemory(MemoryType type)
 	return gsl::span<Byte>(static_cast<Byte*>(data), size);
 }
 
+void LibretroCore::setRewinding(bool rewind)
+{
+	rewinding = rewind;
+}
+
 void LibretroCore::saveGameDataIfNeeded()
 {
 	auto sram = getMemory(MemoryType::SaveRAM);
@@ -944,8 +949,10 @@ void LibretroCore::onVideoRefresh(const void* data, uint32_t width, uint32_t hei
 
 void LibretroCore::onAudioSample(int16_t left, int16_t right)
 {
-	const float samples[2] = { left / 32768.0f, right / 32768.0f };
-	addAudioSamples(gsl::span(samples));
+	if (!rewinding) {
+		const float samples[2] = { left / 32768.0f, right / 32768.0f };
+		addAudioSamples(gsl::span(samples));
+	}
 }
 
 size_t LibretroCore::onAudioSampleBatch(const int16_t* data, size_t frames)
@@ -958,6 +965,10 @@ size_t LibretroCore::onAudioSampleBatch(const int16_t* data, size_t frames)
 
 	for (size_t i = 0; i < samples; ++i) {
 		audioBuffer[i] = data[i] / 32768.0f;
+	}
+
+	if (rewinding) {
+		std::reverse(audioBuffer.begin(), audioBuffer.begin() + samples);
 	}
 
 	addAudioSamples(gsl::span<const float>(audioBuffer.data(), samples));

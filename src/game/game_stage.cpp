@@ -5,6 +5,7 @@
 #include "src/config/system_config.h"
 #include "src/libretro/libretro_core.h"
 #include "src/game/retrograde_environment.h"
+#include "src/savestate/rewind_data.h"
 
 GameStage::GameStage() = default;
 
@@ -31,6 +32,8 @@ void GameStage::init()
 
 	perfStats = std::make_shared<PerformanceStatsView>(getResources(), getAPI());
 	perfStats->setActive(false);
+
+	rewindData = std::make_unique<RewindData>(16 * 1024 * 1024);
 }
 
 void GameStage::onVariableUpdate(Time t)
@@ -61,7 +64,21 @@ void GameStage::onVariableUpdate(Time t)
 			}
 		}
 
-		libretroCore->runFrame();
+		const bool rewind = getInputAPI().getKeyboard()->isButtonDown(KeyCode::Grave);
+
+		libretroCore->setRewinding(rewind);
+		if (rewind) {
+			const auto bytes = rewindData->popFrame();
+			if (bytes) {
+				libretroCore->loadState(*bytes);
+				libretroCore->runFrame();
+			}
+		} else {
+			libretroCore->runFrame();
+		}
+		if (!rewind) {
+			rewindData->pushFrame(libretroCore->saveState(LibretroCore::SaveStateType::RunaheadSameInstance));
+		}
 
 		dynamic_cast<RetrogradeGame&>(getGame()).setTargetFPS(libretroCore->getSystemAVInfo().fps);
 	} else {
