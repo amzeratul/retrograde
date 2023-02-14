@@ -54,8 +54,10 @@ void RewindData::compress(Bytes& oldFrame, const Bytes& newFrame)
 	// Delta compress
 	assert(oldFrame.size() == newFrame.size());
 	size_t n = oldFrame.size();
+	auto* oldData = oldFrame.data();
+	const auto* newData = newFrame.data();
 	for (size_t i = 0; i < n; ++i) {
-		oldFrame[i] -= newFrame[i];
+		oldData[i] -= newData[i];
 	}
 
 	// Deflate
@@ -81,9 +83,12 @@ void RewindData::decompress(Bytes& oldFrame, const Bytes& newFrame)
 	// Delta decompress
 	assert(oldFrame.size() == newFrame.size());
 	size_t n = oldFrame.size();
+	auto* oldData = oldFrame.data();
+	const auto* newData = newFrame.data();
 	for (size_t i = 0; i < n; ++i) {
-		oldFrame[i] += newFrame[i];
+		oldData[i] += newData[i];
 	}
+
 }
 
 void RewindData::dropOldest()
