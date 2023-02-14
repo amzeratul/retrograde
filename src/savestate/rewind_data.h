@@ -16,6 +16,7 @@ public:
 private:
     std::deque<Bytes> frames;
     Vector<Bytes> spareBuffers;
+    Bytes compressBuffer;
     size_t capacity = 0;
     size_t curSize = 0;
 

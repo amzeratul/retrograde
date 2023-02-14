@@ -2,7 +2,6 @@
 
 #include <halley.hpp>
 
-#include "src/config/config_database.h"
 using namespace Halley;
 
 class RetrogradeEnvironment {

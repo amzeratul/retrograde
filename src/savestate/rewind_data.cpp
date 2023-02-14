@@ -59,11 +59,14 @@ void RewindData::compress(Bytes& oldFrame, const Bytes& newFrame)
 	}
 
 	// Deflate
-	auto prev = std::move(oldFrame);
-	oldFrame = Compression::compress(prev, 1);
-	spareBuffers.push_back(std::move(prev));
+	compressBuffer.resize(std::max(compressBuffer.size(), oldFrame.size() + 16));
+	const auto size = Compression::lz4Compress(oldFrame, compressBuffer);
+	spareBuffers.push_back(std::move(oldFrame));
+	oldFrame = Bytes();
+	oldFrame.resize(size);
+	memcpy(oldFrame.data(), compressBuffer.data(), size);
 
-	curSize += oldFrame.size();
+	curSize += size;
 }
 
 void RewindData::decompress(Bytes& oldFrame, const Bytes& newFrame)
@@ -71,7 +74,9 @@ void RewindData::decompress(Bytes& oldFrame, const Bytes& newFrame)
 	curSize -= oldFrame.size();
 
 	// Inflate
-	oldFrame = Compression::decompress(oldFrame);
+	auto size = Compression::lz4Decompress(oldFrame, compressBuffer);
+	oldFrame = getBuffer(*size);
+	memcpy(oldFrame.data(), compressBuffer.data(), *size);
 
 	// Delta decompress
 	assert(oldFrame.size() == newFrame.size());

@@ -17,7 +17,6 @@ endif()
 set (SOURCES
 	"prec.cpp"
 	
-	"src/config/config_database.cpp"
 	"src/config/core_config.cpp"
 	"src/config/system_config.cpp"
 
@@ -41,7 +40,6 @@ set (HEADERS
 	"prec.h"
 	"todo.txt"
 	
-	"src/config/config_database.h"
 	"src/config/core_config.h"
 	"src/config/system_config.h"
 
