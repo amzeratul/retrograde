@@ -64,20 +64,26 @@ void GameStage::onVariableUpdate(Time t)
 			}
 		}
 
-		const bool rewind = getInputAPI().getKeyboard()->isButtonDown(KeyCode::Grave);
+		const bool rewind = getInputAPI().getKeyboard()->isButtonDown(KeyCode::F6);
+		const bool ffwd = !rewind && getInputAPI().getKeyboard()->isButtonDown(KeyCode::F7);
 
 		libretroCore->setRewinding(rewind);
 		if (rewind) {
 			const auto bytes = rewindData->popFrame();
 			if (bytes) {
+				libretroCore->setFastFowarding(false);
 				libretroCore->loadState(*bytes);
 				libretroCore->runFrame();
 			}
 		} else {
-			libretroCore->runFrame();
-		}
-		if (!rewind) {
-			rewindData->pushFrame(libretroCore->saveState(LibretroCore::SaveStateType::RunaheadSameInstance));
+			const int n = ffwd ? 8 : 1;
+			for (int i = 0; i < n; ++i) {
+				libretroCore->setFastFowarding(i < n - 1);
+				libretroCore->runFrame();
+				auto save = rewindData->getBuffer(libretroCore->getSaveStateSize(LibretroCore::SaveStateType::RewindRecording));
+				libretroCore->saveState(LibretroCore::SaveStateType::RewindRecording, gsl::as_writable_bytes(gsl::span<Byte>(save)));
+				rewindData->pushFrame(std::move(save));
+			}
 		}
 
 		dynamic_cast<RetrogradeGame&>(getGame()).setTargetFPS(libretroCore->getSystemAVInfo().fps);

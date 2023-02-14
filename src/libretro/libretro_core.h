@@ -85,6 +85,7 @@ public:
 
 	enum class SaveStateType {
 		Normal,
+		RewindRecording,
 		RunaheadSameInstance,
 		RunaheadSameBinary,
 		RollbackNetplay
@@ -107,6 +108,7 @@ public:
 	gsl::span<Byte> getMemory(MemoryType type);
 
 	void setRewinding(bool rewind);
+	void setFastFowarding(bool ffwd);
 	void runFrame();
 	const Sprite& getVideoOut() const;
 	const std::shared_ptr<AudioClipStreaming>& getAudioOut() const;
@@ -144,6 +146,7 @@ private:
 	bool hasAnalogStick = false;
 	bool needsToSaveSRAM = false;
 	bool rewinding = false;
+	bool fastForwarding = false;
 
 	String gameName;
 	Bytes gameBytes;

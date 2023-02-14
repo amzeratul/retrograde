@@ -424,8 +424,9 @@ size_t LibretroCore::getSaveStateSize(SaveStateType type) const
 
 Bytes LibretroCore::saveState(SaveStateType type) const
 {
+	size_t sz = getSaveStateSize(type);
 	Bytes bytes;
-	bytes.resize(getSaveStateSize(type));
+	bytes.resize(sz);
 	saveState(type, gsl::as_writable_bytes(gsl::span<Byte>(bytes)));
 	return bytes;
 }
@@ -482,6 +483,11 @@ gsl::span<Byte> LibretroCore::getMemory(MemoryType type)
 void LibretroCore::setRewinding(bool rewind)
 {
 	rewinding = rewind;
+}
+
+void LibretroCore::setFastFowarding(bool ffwd)
+{
+	fastForwarding = ffwd;
 }
 
 void LibretroCore::saveGameDataIfNeeded()
@@ -1223,7 +1229,7 @@ int LibretroCore::onEnvGetAudioVideoEnable()
 	constexpr int enableAudio = 0x2;
 	constexpr int fastSaveState = 0x4;
 	constexpr int hardDisableAudio = 0x8;
-	return enableVideo | enableAudio;
+	return (fastForwarding ? 0 : enableVideo | enableAudio) | (saveStateType == SaveStateType::RewindRecording ? fastSaveState : 0);
 }
 
 void LibretroCore::onEnvGetSystemDirectory(const char** data)
@@ -1325,6 +1331,7 @@ retro_savestate_context LibretroCore::onEnvGetSavestateContext()
 {
 	switch (saveStateType) {
 	case SaveStateType::Normal:
+	case SaveStateType::RewindRecording:
 		return RETRO_SAVESTATE_CONTEXT_NORMAL;
 	case SaveStateType::RunaheadSameInstance:
 		return RETRO_SAVESTATE_CONTEXT_RUNAHEAD_SAME_INSTANCE;

@@ -38,6 +38,17 @@ std::optional<Bytes> RewindData::popFrame()
 	return bytes;
 }
 
+Bytes RewindData::getBuffer(size_t size)
+{
+	Bytes buffer;
+	if (!spareBuffers.empty()) {
+		buffer = std::move(spareBuffers.back());
+		spareBuffers.pop_back();
+	}
+	buffer.resize(size);
+	return buffer;
+}
+
 void RewindData::compress(Bytes& oldFrame, const Bytes& newFrame)
 {
 	// Delta compress
@@ -48,7 +59,9 @@ void RewindData::compress(Bytes& oldFrame, const Bytes& newFrame)
 	}
 
 	// Deflate
-	oldFrame = Compression::compress(oldFrame);
+	auto prev = std::move(oldFrame);
+	oldFrame = Compression::compress(prev, 1);
+	spareBuffers.push_back(std::move(prev));
 
 	curSize += oldFrame.size();
 }

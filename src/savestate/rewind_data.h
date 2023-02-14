@@ -11,8 +11,11 @@ public:
     void pushFrame(Bytes saveState);
     std::optional<Bytes> popFrame();
 
+    Bytes getBuffer(size_t size);
+
 private:
     std::deque<Bytes> frames;
+    Vector<Bytes> spareBuffers;
     size_t capacity = 0;
     size_t curSize = 0;
 
