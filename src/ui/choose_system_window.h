@@ -14,4 +14,6 @@ public:
 private:
     UIFactory& factory;
     RetrogradeEnvironment& retrogradeEnvironment;
+
+    void loadSystem(const String& systemId);
 };

@@ -1,10 +1,13 @@
 uuid: 76b2fe6d-3f0d-4819-9439-5cafc2c1c189
+sizer:
+  columnProportions: []
 widget:
   class: widget
 children:
   - uuid: 4eb96e13-c19a-4890-a741-3c67a3cc2b2b
     sizer:
       columnProportions: []
+      type: vertical
     widget:
       class: image
       colour: "#381922"
@@ -21,6 +24,7 @@ children:
           size: [400, 400]
         children:
           - uuid: 370cad4d-6003-4382-bd63-5e94d96238ab
+            proportion: 1
             sizer:
               columnProportions: []
             widget:
@@ -28,3 +32,10 @@ children:
               id: systemList
               options: []
               size: [0, 0]
+      - uuid: 078f7fd5-0953-49f7-9b7b-ced57ca43fa7
+        sizer:
+          columnProportions: []
+        widget:
+          class: button
+          id: exit
+          text: Exit

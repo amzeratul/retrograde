@@ -23,8 +23,11 @@ public:
 	double getFixedUpdateFPS() const override;
 	void setTargetFPS(std::optional<double> fps);
 
+	I18N& getI18N();
+
 private:
 	const HalleyAPI* api;
 	Vector<String> args;
 	std::optional<double> targetFps;
+	std::unique_ptr<I18N> i18n;
 };

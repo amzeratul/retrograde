@@ -21,4 +21,5 @@ private:
 	std::shared_ptr<PerformanceStatsView> perfStats;
 	std::unique_ptr<RetrogradeEnvironment> env;
 	std::unique_ptr<UIRoot> uiRoot;
+	std::unique_ptr<UIFactory> uiFactory;
 };

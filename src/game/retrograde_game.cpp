@@ -68,6 +68,9 @@ std::unique_ptr<Stage> RetrogradeGame::startGame()
 	getAPI().video->setVsync(vsync);
 	getAPI().audio->startPlayback();
 	getAPI().audio->setListener(AudioListenerData(Vector3f()));
+
+	i18n = std::make_unique<I18N>(getResources());
+
 	return std::make_unique<GameStage>();
 }
 
@@ -90,6 +93,11 @@ double RetrogradeGame::getFixedUpdateFPS() const
 void RetrogradeGame::setTargetFPS(std::optional<double> fps)
 {
 	targetFps = fps;
+}
+
+I18N& RetrogradeGame::getI18N()
+{
+	return *i18n;
 }
 
 HalleyGame(RetrogradeGame);
