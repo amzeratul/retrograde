@@ -11,3 +11,4 @@ cores:
   - id: mgba
   - id: gambatte
   - id: mednafen_gba
+  - id: desmume
