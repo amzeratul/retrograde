@@ -182,9 +182,11 @@ void LibretroCore::initVideoOut()
 
 void LibretroCore::initAudioOut()
 {
-	audioThread = std::make_shared<SingleThreadExecutor>("libretro_audio", [=](String name, std::function<void()> f) {
-		return environment.getHalleyAPI().system->createThread(name, ThreadPriority::High, std::move(f));
-	});
+	if (!audioThread) {
+		audioThread = std::make_shared<SingleThreadExecutor>("libretro_audio", [=](String name, std::function<void()> f) {
+			return environment.getHalleyAPI().system->createThread(name, ThreadPriority::High, std::move(f));
+		});
+	}
 
 	std::array<float, 64> buffer;
 	buffer.fill(0);
@@ -320,6 +322,8 @@ bool LibretroCore::loadGame(const Path& path)
 
 	if (gameLoaded) {
 		gameName = Path(path).getFilename().replaceExtension("").getString();
+		auto& audio = *environment.getHalleyAPI().audio;
+		audioStreamHandle = audio.play(audioOut, audio.getGlobalEmitter(), 1, true);
 	}
 
 	return gameLoaded;
@@ -378,6 +382,11 @@ void LibretroCore::unloadGame()
 		if (vfs) {
 			vfs->clearVirtualFiles();
 		}
+
+		if (audioStreamHandle) {
+			audioStreamHandle->stop();
+		}
+		audioOut.reset();
 	}
 }
 
@@ -541,11 +550,6 @@ String LibretroCore::getSaveFileName() const
 const Sprite& LibretroCore::getVideoOut() const
 {
 	return videoOut;
-}
-
-const std::shared_ptr<AudioClipStreaming>& LibretroCore::getAudioOut() const
-{
-	return audioOut;
 }
 
 const LibretroCore::SystemInfo& LibretroCore::getSystemInfo() const

@@ -11,9 +11,6 @@ GameStage::GameStage() = default;
 
 GameStage::~GameStage()
 {
-	if (audioStreamHandle) {
-		audioStreamHandle->stop();
-	}
 	libretroCore.reset();
 }
 
@@ -52,44 +49,7 @@ void GameStage::onVariableUpdate(Time t)
 	perfStats->update(t);
 
 	// TODO: move to fixed update?
-	if (libretroCore && libretroCore->hasGameLoaded()) {
-		if (getInputAPI().getKeyboard()->isButtonPressed(KeyCode::F2)) {
-			Path::writeFile(Path(env->getSaveDir()) / (libretroCore->getGameName() + ".state0"), libretroCore->saveState(LibretroCore::SaveStateType::Normal));
-		}
-
-		if (getInputAPI().getKeyboard()->isButtonPressed(KeyCode::F4)) {
-			const auto saveState = Path::readFile(Path(env->getSaveDir()) / (libretroCore->getGameName() + ".state0"));
-			if (!saveState.empty()) {
-				libretroCore->loadState(saveState);
-			}
-		}
-
-		const bool rewind = getInputAPI().getKeyboard()->isButtonDown(KeyCode::F6);
-		const bool ffwd = !rewind && getInputAPI().getKeyboard()->isButtonDown(KeyCode::F7);
-
-		libretroCore->setRewinding(rewind);
-		if (rewind) {
-			const auto bytes = rewindData->popFrame();
-			if (bytes) {
-				libretroCore->setFastFowarding(false);
-				libretroCore->loadState(*bytes);
-				libretroCore->runFrame();
-			}
-		} else {
-			const int n = ffwd ? 8 : 1;
-			for (int i = 0; i < n; ++i) {
-				libretroCore->setFastFowarding(i < n - 1);
-				libretroCore->runFrame();
-				auto save = rewindData->getBuffer(libretroCore->getSaveStateSize(LibretroCore::SaveStateType::RewindRecording));
-				libretroCore->saveState(LibretroCore::SaveStateType::RewindRecording, gsl::as_writable_bytes(gsl::span<Byte>(save)));
-				rewindData->pushFrame(std::move(save));
-			}
-		}
-
-		dynamic_cast<RetrogradeGame&>(getGame()).setTargetFPS(libretroCore->getSystemAVInfo().fps);
-	} else {
-		dynamic_cast<RetrogradeGame&>(getGame()).setTargetFPS(std::nullopt);
-	}
+	stepGame(t);
 }
 
 void GameStage::onFixedUpdate(Time t)
@@ -145,13 +105,53 @@ void GameStage::loadGame(const String& systemId, const String& gamePath)
 		}
 
 		const bool ok = libretroCore->loadGame(Path(env->getRomsDir() + "/" + gamePath).getNativeString());
-		if (ok) {
-			audioStreamHandle = getAudioAPI().play(libretroCore->getAudioOut(), getAudioAPI().getGlobalEmitter(), 1, true);
-		} else {
+		if (!ok) {
 			Logger::logError("Failed to load game " + String(gamePath));
 		}
 	} else {
 		Logger::logError("Failed to load core " + String(corePath));
+	}
+}
+
+void GameStage::stepGame(Time t)
+{
+	if (libretroCore && libretroCore->hasGameLoaded()) {
+		if (getInputAPI().getKeyboard()->isButtonPressed(KeyCode::F2)) {
+			Path::writeFile(Path(env->getSaveDir()) / (libretroCore->getGameName() + ".state0"), libretroCore->saveState(LibretroCore::SaveStateType::Normal));
+		}
+
+		if (getInputAPI().getKeyboard()->isButtonPressed(KeyCode::F4)) {
+			const auto saveState = Path::readFile(Path(env->getSaveDir()) / (libretroCore->getGameName() + ".state0"));
+			if (!saveState.empty()) {
+				libretroCore->loadState(saveState);
+			}
+		}
+
+		const bool rewind = getInputAPI().getKeyboard()->isButtonDown(KeyCode::F6);
+		const bool ffwd = !rewind && getInputAPI().getKeyboard()->isButtonDown(KeyCode::F7);
+
+		libretroCore->setRewinding(rewind);
+		if (rewind) {
+			const auto bytes = rewindData->popFrame();
+			if (bytes) {
+				libretroCore->setFastFowarding(false);
+				libretroCore->loadState(*bytes);
+				libretroCore->runFrame();
+			}
+		} else {
+			const int n = ffwd ? 8 : 1;
+			for (int i = 0; i < n; ++i) {
+				libretroCore->setFastFowarding(i < n - 1);
+				libretroCore->runFrame();
+				auto save = rewindData->getBuffer(libretroCore->getSaveStateSize(LibretroCore::SaveStateType::RewindRecording));
+				libretroCore->saveState(LibretroCore::SaveStateType::RewindRecording, gsl::as_writable_bytes(gsl::span<Byte>(save)));
+				rewindData->pushFrame(std::move(save));
+			}
+		}
+
+		dynamic_cast<RetrogradeGame&>(getGame()).setTargetFPS(libretroCore->getSystemAVInfo().fps);
+	} else {
+		dynamic_cast<RetrogradeGame&>(getGame()).setTargetFPS(std::nullopt);
 	}
 }
 

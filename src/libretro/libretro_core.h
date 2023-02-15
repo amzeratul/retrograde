@@ -111,7 +111,6 @@ public:
 	void setFastFowarding(bool ffwd);
 	void runFrame();
 	const Sprite& getVideoOut() const;
-	const std::shared_ptr<AudioClipStreaming>& getAudioOut() const;
 
 	const SystemInfo& getSystemInfo() const;
 	const SystemAVInfo& getSystemAVInfo() const;
@@ -169,6 +168,7 @@ private:
 	Vector<float> audioBuffer;
 	retro_audio_buffer_status_callback_t audioBufferStatusCallback = nullptr;
 	std::shared_ptr<SingleThreadExecutor> audioThread;
+	AudioHandle audioStreamHandle;
 
 	constexpr static int maxInputDevices = 8;
 	struct Input {

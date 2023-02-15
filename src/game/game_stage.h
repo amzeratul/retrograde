@@ -20,8 +20,6 @@ public:
 private:
 	std::shared_ptr<PerformanceStatsView> perfStats;
 
-	AudioHandle audioStreamHandle;
-
 	std::unique_ptr<RetrogradeEnvironment> env;
 	std::unique_ptr<LibretroCore> libretroCore;
 	std::unique_ptr<RewindData> rewindData;
@@ -30,4 +28,5 @@ private:
 
 	std::shared_ptr<InputVirtual> makeInput(int idx);
 	void loadGame(const String& systemId, const String& gamePath);
+	void stepGame(Time t);
 };
