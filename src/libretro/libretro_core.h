@@ -3,6 +3,7 @@
 #include <halley.hpp>
 
 #include "libretro.h"
+#include "src/util/c_string_cache.h"
 #include "src/util/dll.h"
 class ZipFile;
 class LibretroVFS;
@@ -184,6 +185,8 @@ private:
 
 	std::shared_ptr<void> hwRenderInterface;
 	std::optional<retro_hw_render_callback> hwRenderCallback;
+
+	CStringCache stringCache;
 	
 	LibretroCore(DLL dll, const RetrogradeEnvironment& environment);
 

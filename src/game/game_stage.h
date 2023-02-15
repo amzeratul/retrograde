@@ -19,14 +19,6 @@ public:
 
 private:
 	std::shared_ptr<PerformanceStatsView> perfStats;
-
 	std::unique_ptr<RetrogradeEnvironment> env;
-	std::unique_ptr<LibretroCore> libretroCore;
-	std::unique_ptr<RewindData> rewindData;
-
-	void drawScreen(Painter& painter, Sprite screen) const;
-
-	std::shared_ptr<InputVirtual> makeInput(int idx);
-	void loadGame(const String& systemId, const String& gamePath);
-	void stepGame(Time t);
+	std::unique_ptr<UIRoot> uiRoot;
 };

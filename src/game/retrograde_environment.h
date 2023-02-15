@@ -2,32 +2,39 @@
 
 #include <halley.hpp>
 
+class LibretroCore;
+class RetrogradeGame;
 using namespace Halley;
 
 class RetrogradeEnvironment {
 public:
-	RetrogradeEnvironment(String rootDir, String systemId, Resources& resources, const HalleyAPI& halleyAPI);
+	RetrogradeEnvironment(RetrogradeGame& game, Path rootDir, Resources& resources, const HalleyAPI& halleyAPI);
 
-	const String& getSystemDir() const;
-	const String& getSaveDir() const;
-	const String& getCoresDir() const;
-	const String& getRomsDir() const;
+	const Path& getSystemDir() const;
+	const Path& getSaveDir() const;
+	const Path& getCoresDir() const;
+	const Path& getRomsDir() const;
 
 	Resources& getResources() const;
 	const HalleyAPI& getHalleyAPI() const;
 	const ConfigDatabase& getConfigDatabase() const;
 	ConfigDatabase& getConfigDatabase();
+	RetrogradeGame& getGame();
+
+	std::unique_ptr<LibretroCore> loadCore(const String& systemId, const String& gamePath = {});
 
 private:
+	RetrogradeGame& game;
 	Resources& resources;
 	const HalleyAPI& halleyAPI;
 
 	ConfigDatabase configDatabase;
 	
-	String systemId;
-	String rootDir;
-	String systemDir;
-	String saveDir;
-	String coresDir;
-	String romsDir;
+	Path rootDir;
+	Path systemDir;
+	Path saveDir;
+	Path coresDir;
+	Path romsDir;
+
+	std::shared_ptr<InputVirtual> makeInput(int idx);
 };

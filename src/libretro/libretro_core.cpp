@@ -410,6 +410,8 @@ void LibretroCore::runFrame()
 	if (!coreHandlesSaveData) {
 		saveGameDataIfNeeded();
 	}
+
+	stringCache.clear();
 }
 
 bool LibretroCore::hasGameLoaded() const
@@ -1238,7 +1240,7 @@ int LibretroCore::onEnvGetAudioVideoEnable()
 
 void LibretroCore::onEnvGetSystemDirectory(const char** data)
 {
-	*data = environment.getSystemDir().c_str();
+	*data = stringCache(environment.getSystemDir().getNativeString());
 }
 
 void LibretroCore::onEnvSetSerializationQuirks(uint64_t& data)
@@ -1305,7 +1307,7 @@ void LibretroCore::onEnvSetContentInfoOverride(const retro_system_content_info_o
 
 void LibretroCore::onEnvGetSaveDirectory(const char** data)
 {
-	*data = environment.getSaveDir().c_str();
+	*data = stringCache(environment.getSaveDir().getNativeString());
 	coreHandlesSaveData = true;
 }
 
