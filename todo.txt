@@ -1,12 +1,9 @@
 Front-end
 - Basic Profile selector
-* Basic Console selector
-* Basic Game selector
 * Basic In-game menu
 - Input chooser
 
 Metadata
-* Enumerate games
 - Scrape online data
 - Show screenshots
 - Show videos
