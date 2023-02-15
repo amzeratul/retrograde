@@ -116,7 +116,7 @@ void LibretroCore::SystemAVInfo::loadGeometry(const retro_game_geometry& geometr
 	}
 }
 
-std::unique_ptr<LibretroCore> LibretroCore::load(std::string_view filename, const RetrogradeEnvironment& environment)
+std::unique_ptr<LibretroCore> LibretroCore::load(std::string_view filename, String systemId, const RetrogradeEnvironment& environment)
 {
 	DLL dll;
 	
@@ -124,15 +124,16 @@ std::unique_ptr<LibretroCore> LibretroCore::load(std::string_view filename, cons
 		const auto retroAPIVersion = static_cast<decltype(&retro_api_version)>(dll.getFunction("retro_api_version"));
 		const auto dllVersion = retroAPIVersion();
 		if (dllVersion == RETRO_API_VERSION) {
-			return std::unique_ptr<LibretroCore>(new LibretroCore(std::move(dll), environment));
+			return std::unique_ptr<LibretroCore>(new LibretroCore(std::move(dll), std::move(systemId), environment));
 		}
 	}
 	return {};
 }
 
-LibretroCore::LibretroCore(DLL dll, const RetrogradeEnvironment& environment)
+LibretroCore::LibretroCore(DLL dll, String systemId, const RetrogradeEnvironment& environment)
 	: dll(std::move(dll))
 	, environment(environment)
+	, systemId(std::move(systemId))
 {
 	init();
 }
@@ -424,6 +425,11 @@ const String& LibretroCore::getGameName() const
 	return gameName;
 }
 
+const String& LibretroCore::getSystemId() const
+{
+	return systemId;
+}
+
 size_t LibretroCore::getSaveStateSize(SaveStateType type) const
 {
 	auto guard = ScopedGuard([=]() { popInstance(); });
@@ -546,7 +552,7 @@ void LibretroCore::loadGameData()
 
 String LibretroCore::getSaveFileName() const
 {
-	return environment.getSaveDir() + "/" + gameName + ".srm";
+	return (environment.getSaveDir(systemId) / (gameName + ".srm")).getNativeString();
 }
 
 const Sprite& LibretroCore::getVideoOut() const
@@ -1307,7 +1313,7 @@ void LibretroCore::onEnvSetContentInfoOverride(const retro_system_content_info_o
 
 void LibretroCore::onEnvGetSaveDirectory(const char** data)
 {
-	*data = stringCache(environment.getSaveDir().getNativeString());
+	*data = stringCache(environment.getSaveDir(systemId).getNativeString());
 	coreHandlesSaveData = true;
 }
 

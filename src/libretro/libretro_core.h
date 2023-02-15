@@ -92,13 +92,14 @@ public:
 		RollbackNetplay
 	};
 
-	static std::unique_ptr<LibretroCore> load(std::string_view filename, const RetrogradeEnvironment& environment);
+	static std::unique_ptr<LibretroCore> load(std::string_view filename, String systemId, const RetrogradeEnvironment& environment);
 	~LibretroCore() override;
 
 	bool loadGame(const Path& path);
 	void unloadGame();
 	bool hasGameLoaded() const;
 	const String& getGameName() const;
+	const String& getSystemId() const;
 
 	size_t getSaveStateSize(SaveStateType type) const;
 	Bytes saveState(SaveStateType type) const;
@@ -149,6 +150,7 @@ private:
 	bool fastForwarding = false;
 
 	String gameName;
+	String systemId;
 	Bytes gameBytes;
 	Vector<retro_game_info_ext> gameInfos;
 
@@ -188,7 +190,7 @@ private:
 
 	CStringCache stringCache;
 	
-	LibretroCore(DLL dll, const RetrogradeEnvironment& environment);
+	LibretroCore(DLL dll, String systemId, const RetrogradeEnvironment& environment);
 
 	void init();
 	void deInit();

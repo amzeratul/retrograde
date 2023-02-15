@@ -11,9 +11,9 @@ public:
 	RetrogradeEnvironment(RetrogradeGame& game, Path rootDir, Resources& resources, const HalleyAPI& halleyAPI);
 
 	const Path& getSystemDir() const;
-	const Path& getSaveDir() const;
 	const Path& getCoresDir() const;
-	const Path& getRomsDir() const;
+	Path getSaveDir(const String& system) const;
+	Path getRomsDir(const String& system) const;
 
 	Resources& getResources() const;
 	const HalleyAPI& getHalleyAPI() const;

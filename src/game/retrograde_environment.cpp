@@ -29,19 +29,19 @@ const Path& RetrogradeEnvironment::getSystemDir() const
 	return systemDir;
 }
 
-const Path& RetrogradeEnvironment::getSaveDir() const
-{
-	return saveDir;
-}
-
 const Path& RetrogradeEnvironment::getCoresDir() const
 {
 	return coresDir;
 }
 
-const Path& RetrogradeEnvironment::getRomsDir() const
+Path RetrogradeEnvironment::getSaveDir(const String& system) const
 {
-	return romsDir;
+	return saveDir / system;
+}
+
+Path RetrogradeEnvironment::getRomsDir(const String& system) const
+{
+	return romsDir / system;
 }
 
 Resources& RetrogradeEnvironment::getResources() const
@@ -76,7 +76,7 @@ std::unique_ptr<LibretroCore> RetrogradeEnvironment::loadCore(const String& syst
 	const auto& coreConfig = getConfigDatabase().get<CoreConfig>(coreId);
 	const String corePath = coreId + "_libretro.dll";
 
-	auto core = LibretroCore::load(getCoresDir() + "/" + corePath, *this);
+	auto core = LibretroCore::load(getCoresDir() + "/" + corePath, systemId, *this);
 	for (int i = 0; i < 4; ++i) {
 		core->setInputDevice(i, makeInput(i));
 	}
@@ -91,7 +91,7 @@ std::unique_ptr<LibretroCore> RetrogradeEnvironment::loadCore(const String& syst
 	}
 
 	if (!gamePath.isEmpty()) {
-		core->loadGame(getRomsDir() / systemId / gamePath);
+		core->loadGame(getRomsDir(systemId) / gamePath);
 	}
 
 	return core;

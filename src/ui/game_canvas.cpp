@@ -67,11 +67,11 @@ void GameCanvas::stepGame()
 		auto& inputAPI = *environment.getHalleyAPI().input;
 
 		if (inputAPI.getKeyboard()->isButtonPressed(KeyCode::F2)) {
-			Path::writeFile(Path(environment.getSaveDir()) / (core->getGameName() + ".state0"), core->saveState(LibretroCore::SaveStateType::Normal));
+			Path::writeFile(Path(environment.getSaveDir(core->getSystemId())) / (core->getGameName() + ".state0"), core->saveState(LibretroCore::SaveStateType::Normal));
 		}
 
 		if (inputAPI.getKeyboard()->isButtonPressed(KeyCode::F4)) {
-			const auto saveState = Path::readFile(Path(environment.getSaveDir()) / (core->getGameName() + ".state0"));
+			const auto saveState = Path::readFile(Path(environment.getSaveDir(core->getSystemId())) / (core->getGameName() + ".state0"));
 			if (!saveState.empty()) {
 				core->loadState(saveState);
 			}
