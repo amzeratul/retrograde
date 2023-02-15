@@ -1,5 +1,5 @@
 assetPackManifest: halley_project/asset_manifest.yaml
-binName: ""
+binName: retrograde
 defaultZoom: 1
 importByExtension: false
 name: Retrograde

@@ -29,6 +29,9 @@ set (SOURCES
 
 	"src/savestate/rewind_data.cpp"
 
+	"src/ui/choose_game_window.cpp"
+	"src/ui/choose_system_window.cpp"
+
 	"src/util/cpu_update_texture.cpp"
 	"src/util/dll.cpp"
 
@@ -54,6 +57,9 @@ set (HEADERS
 	"src/libretro/libretro_vulkan.h"
 
 	"src/savestate/rewind_data.h"
+
+	"src/ui/choose_game_window.h"
+	"src/ui/choose_system_window.h"
 
 	"src/util/cpu_update_texture.h"
 	"src/util/c_string_cache.h"
