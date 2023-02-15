@@ -1,9 +1,13 @@
 cores:
+  - id: bsnes
   - id: snes9x
   - id: fbneo
   - id: genesis_plus_gx
   - id: parallel_n64
     options:
       parallel-n64-gfxplugin: angrylion
-      parallel-n64-pak1: rumble
+      parallel-n64-pak1: memory
   - id: swanstation
+  - id: mgba
+  - id: gambatte
+  - id: mednafen_gba

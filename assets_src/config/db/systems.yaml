@@ -5,7 +5,7 @@ systems:
         region: [world]
       - name: Super Famicom
         region: [jp]
-    cores: [snes9x]
+    cores: [snes9x, bsnes]
     manufacturer: Nintendo
     releaseDate: 1990-11-21
   - id: megadrive
@@ -45,4 +45,18 @@ systems:
     cores: [parallel_n64]
     manufacturer: Nintendo
     releaseDate: 1996-06-23
-
+  - id: gba
+    regions:
+      - name: Game Boy Advance
+        region: [world]
+    cores: [mgba, mednafen_gba]
+  - id: gb
+    regions:
+      - name: Game Boy
+        region: [world]
+    cores: [gambatte]
+  - id: gbc
+    regions:
+      - name: Game Boy Color
+        region: [world]
+    cores: [gambatte]
