@@ -99,7 +99,7 @@ std::unique_ptr<LibretroCore> RetrogradeEnvironment::loadCore(const String& syst
 
 std::shared_ptr<InputVirtual> RetrogradeEnvironment::makeInput(int idx)
 {
-	auto input = std::make_shared<InputVirtual>(16, 6);
+	auto input = std::make_shared<InputVirtual>(17, 6);
 
 	auto joy = halleyAPI.input->getJoystick(idx);
 	if (joy) {
@@ -122,6 +122,7 @@ std::shared_ptr<InputVirtual> RetrogradeEnvironment::makeInput(int idx)
 		input->bindButton(13, joy, joy->getButtonAtPosition(JoystickButtonPosition::TriggerRight));
 		input->bindButton(14, joy, joy->getButtonAtPosition(JoystickButtonPosition::LeftStick));
 		input->bindButton(15, joy, joy->getButtonAtPosition(JoystickButtonPosition::RightStick));
+		input->bindButton(16, joy, joy->getButtonAtPosition(JoystickButtonPosition::System));
 
 		input->bindAxis(0, joy, 0);
 		input->bindAxis(1, joy, 1);
