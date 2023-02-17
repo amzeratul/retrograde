@@ -97,6 +97,57 @@ std::unique_ptr<LibretroCore> RetrogradeEnvironment::loadCore(const String& syst
 	return core;
 }
 
+std::shared_ptr<InputVirtual> RetrogradeEnvironment::getUIInput()
+{
+	if (!uiInput) {
+		uiInput = makeUIInput();
+	}
+	return uiInput;
+}
+
+std::shared_ptr<InputVirtual> RetrogradeEnvironment::makeUIInput()
+{
+	auto input = std::make_shared<InputVirtual>(13, 6);
+
+	auto joy = halleyAPI.input->getJoystick(0);
+	if (joy) {
+		input->bindButton(0, joy, joy->getButtonAtPosition(JoystickButtonPosition::PlatformAcceptButton));
+		input->bindButton(1, joy, joy->getButtonAtPosition(JoystickButtonPosition::PlatformCancelButton));
+		input->bindButton(2, joy, joy->getButtonAtPosition(JoystickButtonPosition::FaceLeft));
+		input->bindButton(3, joy, joy->getButtonAtPosition(JoystickButtonPosition::FaceTop));
+
+		input->bindButton(4, joy, joy->getButtonAtPosition(JoystickButtonPosition::Select));
+		input->bindButton(5, joy, joy->getButtonAtPosition(JoystickButtonPosition::Start));
+
+		input->bindButton(6, joy, joy->getButtonAtPosition(JoystickButtonPosition::BumperLeft));
+		input->bindButton(7, joy, joy->getButtonAtPosition(JoystickButtonPosition::BumperRight));
+
+		input->bindButton(8, joy, joy->getButtonAtPosition(JoystickButtonPosition::TriggerLeft));
+		input->bindButton(9, joy, joy->getButtonAtPosition(JoystickButtonPosition::TriggerRight));
+		input->bindButton(10, joy, joy->getButtonAtPosition(JoystickButtonPosition::LeftStick));
+		input->bindButton(11, joy, joy->getButtonAtPosition(JoystickButtonPosition::RightStick));
+		input->bindButton(12, joy, joy->getButtonAtPosition(JoystickButtonPosition::System));
+
+		input->bindAxis(0, joy, 0);
+		input->bindAxis(1, joy, 1);
+		input->bindAxisButton(0, joy, joy->getButtonAtPosition(JoystickButtonPosition::DPadLeft), joy->getButtonAtPosition(JoystickButtonPosition::DPadRight));
+		input->bindAxisButton(1, joy, joy->getButtonAtPosition(JoystickButtonPosition::DPadUp), joy->getButtonAtPosition(JoystickButtonPosition::DPadDown));
+		input->bindAxis(2, joy, 2);
+		input->bindAxis(3, joy, 3);
+	}
+
+	auto kb = halleyAPI.input->getKeyboard();
+	if (kb) {
+		input->bindButton(0, kb, KeyCode::Enter);
+		input->bindButton(1, kb, KeyCode::Esc);
+
+		input->bindAxisButton(0, kb, KeyCode::Left, KeyCode::Right);
+		input->bindAxisButton(1, joy, KeyCode::Up, KeyCode::Down);
+	}
+
+	return input;
+}
+
 std::shared_ptr<InputVirtual> RetrogradeEnvironment::makeInput(int idx)
 {
 	auto input = std::make_shared<InputVirtual>(17, 6);

@@ -23,6 +23,8 @@ public:
 
 	std::unique_ptr<LibretroCore> loadCore(const String& systemId, const String& gamePath = {});
 
+	std::shared_ptr<InputVirtual> getUIInput();
+
 private:
 	RetrogradeGame& game;
 	Resources& resources;
@@ -36,5 +38,8 @@ private:
 	Path coresDir;
 	Path romsDir;
 
+	std::shared_ptr<InputVirtual> uiInput;
+
+	std::shared_ptr<InputVirtual> makeUIInput();
 	std::shared_ptr<InputVirtual> makeInput(int idx);
 };

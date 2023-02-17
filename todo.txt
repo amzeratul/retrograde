@@ -1,5 +1,4 @@
 General
-* Gamepad input on UI
 * Per-system available game enumeration
 - Input device properties
 

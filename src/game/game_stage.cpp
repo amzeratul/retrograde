@@ -16,7 +16,20 @@ void GameStage::init()
 	perfStats->setActive(false);
 
 	auto& game = dynamic_cast<RetrogradeGame&>(getGame());
+
 	uiFactory = game.createUIFactory(getAPI(), getResources(), game.getI18N());
+	UIInputButtons buttons;
+	buttons.accept = 0;
+	buttons.cancel = 1;
+	buttons.hold = 2;
+	buttons.prev = 6;
+	buttons.next = 7;
+	buttons.secondary = 2;
+	buttons.tertiary = 3;
+	buttons.xAxis = 0;
+	buttons.yAxis = 1;
+	uiFactory->setInputButtons("list", buttons);
+
 	uiRoot = std::make_unique<UIRoot>(getAPI(), Rect4f(getVideoAPI().getWindow().getWindowRect()));
 	env = std::make_unique<RetrogradeEnvironment>(game, "..", getResources(), getAPI());
 
@@ -54,8 +67,10 @@ void GameStage::onUpdate(Time t)
 		return;
 	}
 
+	auto uiInput = env->getUIInput();
+	uiInput->update(t);
 	uiRoot->setRect(Rect4f(Vector2f(), Vector2f(getVideoAPI().getWindow().getWindowRect().getSize())));
-	uiRoot->update(t, UIInputType::Mouse, getInputAPI().getMouse(), {});
+	uiRoot->update(t, UIInputType::Gamepad, getInputAPI().getMouse(), uiInput);
 
 	if (getInputAPI().getKeyboard()->isButtonPressed(KeyCode::F11)) {
 		perfStats->setActive(!perfStats->isActive());
