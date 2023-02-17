@@ -25,18 +25,23 @@ void GameStage::init()
 
 void GameStage::onVariableUpdate(Time t)
 {
+	onUpdate(t);
+	/*
 	const auto& game = dynamic_cast<RetrogradeGame&>(getGame());
 	if (!game.getTargetFPSOverride()) {
 		onUpdate(t);
 	}
+	*/
 }
 
 void GameStage::onFixedUpdate(Time t)
 {
+	/*
 	const auto& game = dynamic_cast<RetrogradeGame&>(getGame());
 	if (game.getTargetFPSOverride()) {
 		onUpdate(t);
 	}
+	*/
 }
 
 void GameStage::onUpdate(Time t)

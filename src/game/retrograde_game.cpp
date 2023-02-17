@@ -81,8 +81,7 @@ const Vector<String>& RetrogradeGame::getArgs() const
 
 double RetrogradeGame::getTargetFPS() const
 {
-	return 0;
-	//return targetFps.value_or(0);
+	return targetFps.value_or(0);
 }
 
 double RetrogradeGame::getFixedUpdateFPS() const
