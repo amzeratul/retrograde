@@ -997,14 +997,16 @@ size_t LibretroCore::onAudioSampleBatch(const int16_t* data, size_t frames)
 void LibretroCore::onEnvSetInputDescriptors(const retro_input_descriptor* data)
 {
 	for (auto* descriptor = data; descriptor->description; ++descriptor) {
-		if (descriptor->device == RETRO_DEVICE_ANALOG) {
+		const bool isStick = descriptor->device == RETRO_DEVICE_ANALOG && (descriptor->index == RETRO_DEVICE_INDEX_ANALOG_LEFT || descriptor->index == RETRO_DEVICE_INDEX_ANALOG_RIGHT);
+		if (isStick) {
 			hasAnalogStick = true;
 		}
 
 		// TODO: store this?
 		const char* devNames[] = { "RETRO_DEVICE_NONE", "RETRO_DEVICE_JOYPAD", "RETRO_DEVICE_MOUSE", "RETRO_DEVICE_KEYBOARD", "RETRO_DEVICE_LIGHTGUN", "RETRO_DEVICE_ANALOG", "RETRO_DEVICE_POINTER" };
+		const char* idxNames[] = { "RETRO_DEVICE_INDEX_ANALOG_LEFT", "RETRO_DEVICE_INDEX_ANALOG_RIGHT", "RETRO_DEVICE_INDEX_ANALOG_BUTTON" };
 		const bool hasIdx = descriptor->device == RETRO_DEVICE_ANALOG;
-		Logger::logDev("[" + toString(descriptor->port) + "] " + devNames[descriptor->device] + (hasIdx ? "_" + toString(descriptor->index) : String()) + " id" + toString(descriptor->id) + " = " + descriptor->description);
+		Logger::logDev("[" + toString(descriptor->port) + "] " + (hasIdx ? idxNames[descriptor->index] : devNames[descriptor->device]) + " id" + toString(descriptor->id) + " = " + descriptor->description);
 	}
 }
 
@@ -1102,12 +1104,15 @@ int16_t LibretroCore::onInputState(uint32_t port, uint32_t device, uint32_t inde
 		}
 	} else if (device == RETRO_DEVICE_MOUSE) {
 		// TODO
+		Logger::logError("LibretroCore::onInputState - RETRO_DEVICE_MOUSE not implemented");
 		return 0;
 	} else if (device == RETRO_DEVICE_KEYBOARD) {
 		// TODO
+		Logger::logError("LibretroCore::onInputState - RETRO_DEVICE_KEYBOARD not implemented");
 		return 0;
 	} else if (device == RETRO_DEVICE_LIGHTGUN) {
 		// TODO
+		Logger::logError("LibretroCore::onInputState - RETRO_DEVICE_LIGHTGUN not implemented");
 		return 0;
 	} else if (device == RETRO_DEVICE_ANALOG) {
 		if (index == RETRO_DEVICE_INDEX_ANALOG_LEFT || index == RETRO_DEVICE_INDEX_ANALOG_RIGHT) {
@@ -1122,6 +1127,7 @@ int16_t LibretroCore::onInputState(uint32_t port, uint32_t device, uint32_t inde
 		}
 	} else if (device == RETRO_DEVICE_POINTER) {
 		// TODO
+		Logger::logError("LibretroCore::onInputState - RETRO_DEVICE_POINTER not implemented");
 		return 0;
 	}
 	return 0;
