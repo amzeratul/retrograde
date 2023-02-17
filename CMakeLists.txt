@@ -32,6 +32,7 @@ set (SOURCES
 	"src/ui/choose_game_window.cpp"
 	"src/ui/choose_system_window.cpp"
 	"src/ui/game_canvas.cpp"
+	"src/ui/in_game_menu.cpp"
 
 	"src/util/cpu_update_texture.cpp"
 	"src/util/dll.cpp"
@@ -62,6 +63,7 @@ set (HEADERS
 	"src/ui/choose_game_window.h"
 	"src/ui/choose_system_window.h"
 	"src/ui/game_canvas.h"
+	"src/ui/in_game_menu.h"
 
 	"src/util/cpu_update_texture.h"
 	"src/util/c_string_cache.h"

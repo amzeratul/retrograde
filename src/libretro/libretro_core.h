@@ -111,6 +111,7 @@ public:
 
 	void setRewinding(bool rewind);
 	void setFastFowarding(bool ffwd);
+	void setPaused(bool paused);
 	void runFrame();
 	const Sprite& getVideoOut() const;
 
@@ -148,6 +149,7 @@ private:
 	bool needsToSaveSRAM = false;
 	bool rewinding = false;
 	bool fastForwarding = false;
+	bool paused = false;
 
 	String gameName;
 	String systemId;

@@ -7,15 +7,21 @@
 #include "src/game/retrograde_environment.h"
 #include "src/libretro/libretro_core.h"
 
-ChooseGameWindow::ChooseGameWindow(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, String systemId)
+ChooseGameWindow::ChooseGameWindow(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, String systemId, UIWidget& parentMenu)
 	: UIWidget("choose_game", Vector2f(), UISizer())
 	, factory(factory)
 	, retrogradeEnvironment(retrogradeEnvironment)
 	, systemId(std::move(systemId))
+	, parentMenu(parentMenu)
 {
 	factory.loadUI(*this, "choose_game");
 
 	setAnchor(UIAnchor());
+
+	UIInputButtons buttons;
+	buttons.accept = 0;
+	buttons.cancel = 1;
+	setInputButtons(buttons);
 }
 
 void ChooseGameWindow::onMakeUI()
@@ -35,15 +41,37 @@ void ChooseGameWindow::onMakeUI()
 		loadGame(event.getStringData());
 	});
 
+	setHandle(UIEventType::ListCancel, "gameList", [=](const UIEvent& event)
+	{
+		close();
+	});
+
 	setHandle(UIEventType::ButtonClicked, "back", [=] (const UIEvent& event)
 	{
-		destroy();
-		getRoot()->addChild(std::make_shared<ChooseSystemWindow>(factory, retrogradeEnvironment));
+		close();
 	});
+}
+
+void ChooseGameWindow::close()
+{
+	parentMenu.setActive(true);
+	parentMenu.layout();
+	destroy();
+}
+
+void ChooseGameWindow::onGamepadInput(const UIInputResults& input, Time time)
+{
+	if (input.isButtonPressed(UIGamepadInput::Button::Accept)) {
+		loadGame(getWidgetAs<UIList>("gameList")->getSelectedOptionId());
+	}
+
+	if (input.isButtonPressed(UIGamepadInput::Button::Cancel)) {
+		close();
+	}
 }
 
 void ChooseGameWindow::loadGame(const String& gameId)
 {
-	destroy();
-	getRoot()->addChild(std::make_shared<GameCanvas>(retrogradeEnvironment, retrogradeEnvironment.loadCore(systemId, gameId)));
+	setActive(false);
+	getRoot()->addChild(std::make_shared<GameCanvas>(factory, retrogradeEnvironment, retrogradeEnvironment.loadCore(systemId, gameId), *this));
 }

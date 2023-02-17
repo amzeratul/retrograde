@@ -1,24 +1,22 @@
 #pragma once
 
 #include <halley.hpp>
+class GameCanvas;
 using namespace Halley;
 
 class RetrogradeEnvironment;
 
-class ChooseGameWindow : public UIWidget {
+class InGameMenu : public UIWidget {
 public:
-    ChooseGameWindow(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, String systemId, UIWidget& parentMenu);
+    InGameMenu(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, GameCanvas& gameCanvas);
 
     void onMakeUI() override;
-
-    void close();
 
 private:
     UIFactory& factory;
     RetrogradeEnvironment& retrogradeEnvironment;
-    String systemId;
-    UIWidget& parentMenu;
+    GameCanvas& gameCanvas;
 
+    void onChooseOption(const String& optionId);
     void onGamepadInput(const UIInputResults& input, Time time) override;
-    void loadGame(const String& gameId);
 };

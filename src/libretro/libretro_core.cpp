@@ -204,7 +204,7 @@ void LibretroCore::addAudioSamples(gsl::span<const float> samples)
 
 	Concurrent::execute(audioThread->getQueue(), [this, buffer = std::move(buffer)]()
 	{
-		constexpr float maxPitchShift = 0.005f;
+		constexpr float maxPitchShift = 0.05f;
 		const auto span = gsl::span<const float>(buffer.data(), buffer.size());
 		audioOut->addInterleavedSamplesWithResampleSync(span, static_cast<float>(systemAVInfo.sampleRate), maxPitchShift);
 	});
@@ -508,6 +508,14 @@ void LibretroCore::setRewinding(bool rewind)
 void LibretroCore::setFastFowarding(bool ffwd)
 {
 	fastForwarding = ffwd;
+}
+
+void LibretroCore::setPaused(bool paused)
+{
+	this->paused = paused;
+	if (audioOut) {
+		audioOut->setPaused(paused);
+	}
 }
 
 void LibretroCore::saveGameDataIfNeeded()

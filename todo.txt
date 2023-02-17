@@ -18,14 +18,12 @@ Game list UI:
 - Render PDF manual
 
 In-game UI:
-* Basic menu
 - Swap disc
 - Manual Save/load state
 - Change input
 - Configure core
 
 Game running features
-* Fix the audio delay/sync
 * Retroarch shader support
 * Better pixel resample shader
 - Light gun support

@@ -34,6 +34,6 @@ void ChooseSystemWindow::onMakeUI()
 
 void ChooseSystemWindow::loadSystem(const String& systemId)
 {
-	destroy();
-	getRoot()->addChild(std::make_shared<ChooseGameWindow>(factory, retrogradeEnvironment, systemId));
+	setActive(false);
+	getRoot()->addChild(std::make_shared<ChooseGameWindow>(factory, retrogradeEnvironment, systemId, *this));
 }
