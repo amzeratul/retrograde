@@ -2,6 +2,7 @@
 
 #define RETRO_IMPORT_SYMBOLS
 #include <cstdarg>
+#include <filesystem>
 
 #include "libretro.h"
 #include "../game/retrograde_environment.h"
@@ -541,6 +542,14 @@ void LibretroCore::saveGameDataIfNeeded()
 
 void LibretroCore::saveGameData(gsl::span<Byte> data)
 {
+	auto saveFile = getSaveFileName();
+	auto dir = Path(saveFile).parentPath().getNativeString();
+
+	std::error_code ec;
+	if (!std::filesystem::is_directory(dir.cppStr(), ec)) {
+		std::filesystem::create_directories(dir.cppStr(), ec);
+	}
+
 	Path::writeFile(getSaveFileName(), gsl::as_bytes(data));
 	Logger::logDev("Saved " + getSaveFileName());
 }
