@@ -1,22 +1,34 @@
-Front-end
-- Basic Profile selector
-* Basic In-game menu
-- Input chooser
+General
+* Gamepad input on UI
+* Per-system available game enumeration
+- Input device properties
 
-Metadata
+Profile selector:
+- Basic UI
+
+Console selector:
+* Only show consoles that have games
+- Better UI
+
+Game list UI:
+- Input chooser UI
 - Scrape online data
 - Show screenshots
 - Show videos
 - Show metadata
 - Render PDF manual
 
-Configuration
-- Input device properties
+In-game UI:
+* Basic menu
+- Swap disc
+- Manual Save/load state
+- Change input
+- Configure core
 
 Game running features
-- Retroarch shader support
-- Automatic save state/rewind
+* Fix the audio delay/sync
+* Retroarch shader support
+* Better pixel resample shader
 - Light gun support
 - Mouse support
 - Keyboard support
-- Swap discs
