@@ -21,7 +21,8 @@ public:
 	
 	double getTargetFPS() const override;
 	double getFixedUpdateFPS() const override;
-	void setTargetFPS(std::optional<double> fps);
+	void setTargetFPSOverride(std::optional<double> fps);
+	std::optional<double> getTargetFPSOverride() const;
 
 	I18N& getI18N();
 

@@ -12,26 +12,34 @@ GameStage::~GameStage()
 
 void GameStage::init()
 {
-	auto& game = static_cast<RetrogradeGame&>(getGame());
-	String systemId;
-	String gamePath;
-	if (game.getArgs().size() >= 2) {
-		systemId = game.getArgs()[0];
-		gamePath = String::concatList(gsl::span<const String>(game.getArgs()).subspan(1), " ");
-	}
-
 	perfStats = std::make_shared<PerformanceStatsView>(getResources(), getAPI());
 	perfStats->setActive(false);
 
+	auto& game = dynamic_cast<RetrogradeGame&>(getGame());
 	uiFactory = game.createUIFactory(getAPI(), getResources(), game.getI18N());
 	uiRoot = std::make_unique<UIRoot>(getAPI(), Rect4f(getVideoAPI().getWindow().getWindowRect()));
 	env = std::make_unique<RetrogradeEnvironment>(game, "..", getResources(), getAPI());
 
-	//uiRoot->addChild(std::make_shared<GameCanvas>(*env, env->loadCore(systemId, gamePath)));
 	uiRoot->addChild(std::make_shared<ChooseSystemWindow>(*uiFactory, *env));
 }
 
 void GameStage::onVariableUpdate(Time t)
+{
+	const auto& game = dynamic_cast<RetrogradeGame&>(getGame());
+	if (!game.getTargetFPSOverride()) {
+		onUpdate(t);
+	}
+}
+
+void GameStage::onFixedUpdate(Time t)
+{
+	const auto& game = dynamic_cast<RetrogradeGame&>(getGame());
+	if (game.getTargetFPSOverride()) {
+		onUpdate(t);
+	}
+}
+
+void GameStage::onUpdate(Time t)
 {
 	env->getConfigDatabase().update();
 
@@ -48,11 +56,6 @@ void GameStage::onVariableUpdate(Time t)
 		perfStats->setActive(!perfStats->isActive());
 	}
 	perfStats->update(t);
-}
-
-void GameStage::onFixedUpdate(Time t)
-{
-
 }
 
 void GameStage::onRender(RenderContext& rc) const

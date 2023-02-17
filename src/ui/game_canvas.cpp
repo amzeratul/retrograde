@@ -99,8 +99,8 @@ void GameCanvas::stepGame()
 			}
 		}
 
-		environment.getGame().setTargetFPS(core->getSystemAVInfo().fps);
+		environment.getGame().setTargetFPSOverride(core->getSystemAVInfo().fps);
 	} else {
-		environment.getGame().setTargetFPS(std::nullopt);
+		environment.getGame().setTargetFPSOverride(std::nullopt);
 	}
 }

@@ -64,7 +64,7 @@ ConfigDatabase& RetrogradeEnvironment::getConfigDatabase()
 	return configDatabase;
 }
 
-RetrogradeGame& RetrogradeEnvironment::getGame()
+RetrogradeGame& RetrogradeEnvironment::getGame() const
 {
 	return game;
 }

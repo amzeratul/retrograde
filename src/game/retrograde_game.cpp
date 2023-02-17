@@ -81,8 +81,8 @@ const Vector<String>& RetrogradeGame::getArgs() const
 
 double RetrogradeGame::getTargetFPS() const
 {
-	return 0.0;
-	return targetFps.value_or(0);
+	return 0;
+	//return targetFps.value_or(0);
 }
 
 double RetrogradeGame::getFixedUpdateFPS() const
@@ -90,9 +90,14 @@ double RetrogradeGame::getFixedUpdateFPS() const
 	return targetFps.value_or(60);
 }
 
-void RetrogradeGame::setTargetFPS(std::optional<double> fps)
+void RetrogradeGame::setTargetFPSOverride(std::optional<double> fps)
 {
 	targetFps = fps;
+}
+
+std::optional<double> RetrogradeGame::getTargetFPSOverride() const
+{
+	return targetFps;
 }
 
 I18N& RetrogradeGame::getI18N()

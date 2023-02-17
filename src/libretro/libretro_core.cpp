@@ -6,6 +6,7 @@
 #include "libretro.h"
 #include "../game/retrograde_environment.h"
 #include "libretro_vfs.h"
+#include "src/game/retrograde_game.h"
 #include "src/util/cpu_update_texture.h"
 #include "src/util/c_string_cache.h"
 #include "src/zip/zip_file.h"
@@ -225,6 +226,8 @@ void LibretroCore::deInit()
 	vfs.reset();
 	audioThread.reset();
 	audioOut.reset();
+
+	environment.getGame().setTargetFPSOverride(std::nullopt);
 }
 
 std::pair<const LibretroCore::ContentInfo*, size_t> LibretroCore::getContentInfo(const ZipFile& zip)

@@ -22,4 +22,6 @@ private:
 	std::unique_ptr<RetrogradeEnvironment> env;
 	std::unique_ptr<UIRoot> uiRoot;
 	std::unique_ptr<UIFactory> uiFactory;
+
+	void onUpdate(Time t);
 };

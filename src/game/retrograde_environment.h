@@ -19,7 +19,7 @@ public:
 	const HalleyAPI& getHalleyAPI() const;
 	const ConfigDatabase& getConfigDatabase() const;
 	ConfigDatabase& getConfigDatabase();
-	RetrogradeGame& getGame();
+	RetrogradeGame& getGame() const;
 
 	std::unique_ptr<LibretroCore> loadCore(const String& systemId, const String& gamePath = {});
 
