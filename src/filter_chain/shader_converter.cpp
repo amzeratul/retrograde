@@ -6,7 +6,9 @@ String ShaderConverter::convertShader(const String& src, ShaderFormat inputForma
 		return src;
 	}
 
-	// Strategy: convert shader to SPIR-V via glslc, then SPIR-V to HLSL via spirv-cross
+	// Strategy:
+	//  GLSL --> [glslc] --> SPIR-V --> [spirv-cross] --> HLSL
+
 	// TODO
 	return {};
 }

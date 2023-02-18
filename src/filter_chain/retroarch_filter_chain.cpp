@@ -3,6 +3,8 @@
 #include "retroarch_shader_parser.h"
 #include "shader_converter.h"
 
+// Details: https://github.com/libretro/slang-shaders
+
 
 RetroarchFilterChain::Stage::Stage(int idx, const ConfigNode& params, const Path& basePath, VideoAPI& video)
 {
