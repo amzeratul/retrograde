@@ -2,6 +2,8 @@
 
 #include <halley.hpp>
 
+#include "src/filter_chain/filter_chain.h"
+
 class LibretroCore;
 class RetrogradeGame;
 using namespace Halley;
@@ -22,6 +24,7 @@ public:
 	RetrogradeGame& getGame() const;
 
 	std::unique_ptr<LibretroCore> loadCore(const String& systemId, const String& gamePath = {});
+	std::unique_ptr<FilterChain> makeFilterChain(const String& path);
 
 	std::shared_ptr<InputVirtual> getUIInput();
 
@@ -37,6 +40,7 @@ private:
 	Path saveDir;
 	Path coresDir;
 	Path romsDir;
+	Path shadersDir;
 
 	std::shared_ptr<InputVirtual> uiInput;
 

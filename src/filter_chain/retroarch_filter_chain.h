@@ -7,5 +7,8 @@ using namespace Halley;
 
 class RetroarchFilterChain : public FilterChain {
 public:
+	RetroarchFilterChain() = default;
+	RetroarchFilterChain(Path path);
 
+	Sprite run(const Sprite& src, RenderContext& rc) override;
 };

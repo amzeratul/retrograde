@@ -3,6 +3,7 @@
 
 #include "src/config/core_config.h"
 #include "src/config/system_config.h"
+#include "src/filter_chain/retroarch_filter_chain.h"
 #include "src/libretro/libretro_core.h"
 
 RetrogradeEnvironment::RetrogradeEnvironment(RetrogradeGame& game, Path _rootDir, Resources& resources, const HalleyAPI& halleyAPI)
@@ -15,6 +16,7 @@ RetrogradeEnvironment::RetrogradeEnvironment(RetrogradeGame& game, Path _rootDir
 	coresDir = rootDir / "cores";
 	saveDir = rootDir / "save";
 	romsDir = rootDir / "roms";
+	shadersDir = rootDir / "shaders";
 
 	std::error_code ec;
 	std::filesystem::create_directories(saveDir.getNativeString().cppStr(), ec);
@@ -95,6 +97,11 @@ std::unique_ptr<LibretroCore> RetrogradeEnvironment::loadCore(const String& syst
 	}
 
 	return core;
+}
+
+std::unique_ptr<FilterChain> RetrogradeEnvironment::makeFilterChain(const String& path)
+{
+	return std::make_unique<RetroarchFilterChain>(shadersDir / path);
 }
 
 std::shared_ptr<InputVirtual> RetrogradeEnvironment::getUIInput()
