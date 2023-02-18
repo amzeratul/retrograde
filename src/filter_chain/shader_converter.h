@@ -37,4 +37,7 @@ public:
 
 private:
 	static size_t nInstances;
+
+	Bytes convertToSpirv(const String& src, ShaderStage stage, ShaderFormat inputFormat);
+	String convertSpirvToHLSL(const Bytes& spirv, ShaderStage stage);
 };

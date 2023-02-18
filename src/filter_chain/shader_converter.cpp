@@ -138,12 +138,24 @@ String ShaderConverter::convertShader(const String& src, ShaderStage stage, Shad
 		return src;
 	}
 
-	// Strategy:
-	//  GLSL --> [glslang] --> SPIR-V --> [spirv-cross] --> HLSL
+	auto spirvData = convertToSpirv(src, stage, inputFormat);
+	if (outputFormat == ShaderFormat::SPIRV) {
+		//return spirvSrc;
+		Logger::logError("Outputting SPIRV is not implemented");
+		return {};
+	}
 
-	Logger::logDev("Converting...");
+	if (outputFormat == ShaderFormat::HLSL) {
+		return convertSpirvToHLSL(spirvData, stage);
+	}
+
+	return {};
+}
+
+Bytes ShaderConverter::convertToSpirv(const String& src, ShaderStage stage, ShaderFormat inputFormat)
+{
 	glslang_input_t input;
-	input.language = GLSLANG_SOURCE_GLSL;
+	input.language = inputFormat == ShaderFormat::GLSL ? GLSLANG_SOURCE_GLSL : GLSLANG_SOURCE_HLSL;
 	input.stage = stage == ShaderStage::Pixel ? GLSLANG_STAGE_FRAGMENT : GLSLANG_STAGE_VERTEX;
 	input.client = GLSLANG_CLIENT_VULKAN;
 	input.client_version = GLSLANG_TARGET_VULKAN_1_3;
@@ -178,10 +190,21 @@ String ShaderConverter::convertShader(const String& src, ShaderStage stage, Shad
 		Logger::logDev("SPIRV messages: " + String(glslang_program_SPIRV_get_messages(program)));
 	}
 
+	const size_t size = glslang_program_SPIRV_get_size(program);
+	Bytes output;
+	output.resize(size * 4);
+	memcpy(output.data(), glslang_program_SPIRV_get_ptr(program), size * 4);
+
 	glslang_program_delete(program);
 	glslang_shader_delete(shader);
 
+	return output;
+}
+
+String ShaderConverter::convertSpirvToHLSL(const Bytes& spirvData, ShaderStage stage)
+{
 	// TODO
+	Logger::logError("SPIRV -> HLSL implementation missing");
 	return {};
 }
 
