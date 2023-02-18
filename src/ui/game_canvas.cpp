@@ -1,6 +1,7 @@
 #include "game_canvas.h"
 
 #include "in_game_menu.h"
+#include "src/filter_chain/filter_chain.h"
 #include "src/game/retrograde_environment.h"
 #include "src/game/retrograde_game.h"
 #include "src/libretro/libretro_core.h"
@@ -24,6 +25,7 @@ GameCanvas::GameCanvas(UIFactory& factory, RetrogradeEnvironment& environment, S
 
 GameCanvas::~GameCanvas()
 {
+	screen = {};
 	core.reset();
 	environment.getGame().setTargetFPSOverride(std::nullopt);
 }
@@ -49,6 +51,25 @@ void GameCanvas::update(Time t, bool moved)
 	}
 }
 
+void GameCanvas::render(RenderContext& rc) const
+{
+	if (pendingCloseState == 1) {
+		pendingCloseState = 2;
+	}
+
+	rc.bind([&] (Painter& painter)
+	{
+		painter.resetState();
+	});
+
+	if (core) {
+		screen = core->getVideoOut();
+		if (filterChain) {
+			screen = filterChain->run(screen, rc);
+		}
+	}
+}
+
 void GameCanvas::draw(UIPainter& uiPainter) const
 {
 	uiPainter.draw([=] (Painter& painter)
@@ -57,29 +78,10 @@ void GameCanvas::draw(UIPainter& uiPainter) const
 	});
 }
 
-void GameCanvas::close()
-{
-	// All this pending close state madness is to ensure that a painter.resetState() is called after the last stepGame()
-	pendingCloseState = 1;
-	core.reset();
-}
-
-void GameCanvas::doClose()
-{
-	parentMenu.setActive(true);
-	parentMenu.layout();
-	destroy();
-}
-
 void GameCanvas::paint(Painter& painter) const
 {
-	if (pendingCloseState == 1) {
-		pendingCloseState = 2;
-	}
-
-	painter.resetState();
 	if (pendingCloseState == 0 && core && core->hasGameLoaded()) {
-		drawScreen(painter, core->getVideoOut());
+		drawScreen(painter, screen);
 	}
 }
 
@@ -155,6 +157,21 @@ void GameCanvas::stepGame()
 	}
 
 	environment.getGame().setTargetFPSOverride(core->getSystemAVInfo().fps);
+}
+
+void GameCanvas::close()
+{
+	// All this pending close state madness is to ensure that a painter.resetState() is called after the last stepGame()
+	pendingCloseState = 1;
+	screen = {};
+	core.reset();
+}
+
+void GameCanvas::doClose()
+{
+	parentMenu.setActive(true);
+	parentMenu.layout();
+	destroy();
 }
 
 void GameCanvas::onGamepadInput(const UIInputResults& input, Time time)

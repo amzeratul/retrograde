@@ -20,6 +20,8 @@ set (SOURCES
 	"src/config/core_config.cpp"
 	"src/config/system_config.cpp"
 
+	"src/filter_chain/retroarch_filter_chain.cpp"
+
 	"src/game/game_stage.cpp"
 	"src/game/retrograde_environment.cpp"
 	"src/game/retrograde_game.cpp"
@@ -47,6 +49,9 @@ set (HEADERS
 	
 	"src/config/core_config.h"
 	"src/config/system_config.h"
+
+	"src/filter_chain/filter_chain.h"
+	"src/filter_chain/retroarch_filter_chain.h"
 
 	"src/game/game_stage.h"
 	"src/game/retrograde_environment.h"

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <halley.hpp>
+class FilterChain;
 class RewindData;
 class RetrogradeEnvironment;
 using namespace Halley;
@@ -13,6 +14,7 @@ public:
     ~GameCanvas() override;
 
     void update(Time t, bool moved) override;
+    void render(RenderContext& rc) const override;
     void draw(UIPainter& painter) const override;
 
     void close();
@@ -26,6 +28,9 @@ private:
 
 	std::unique_ptr<LibretroCore> core;
 	std::unique_ptr<RewindData> rewindData;
+
+    mutable Sprite screen;
+    std::unique_ptr<FilterChain> filterChain;
 
     int pauseFrames = 0;
     mutable int pendingCloseState = 0;
