@@ -161,12 +161,11 @@ String ShaderConverter::convertShader(const String& src, ShaderStage stage, Shad
 		Logger::logWarning("Link error: " + String(glslang_program_get_info_log(program)));
 	}
 
-	/*
 	glslang_program_SPIRV_generate(program, input.stage);
 	if (glslang_program_SPIRV_get_messages(program)) {
 		Logger::logDev("SPIRV messages: " + String(glslang_program_SPIRV_get_messages(program)));
 	}
-	*/
+
 	glslang_program_delete(program);
 	glslang_shader_delete(shader);
 

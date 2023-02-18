@@ -91,6 +91,8 @@ set (GEN_DEFINITIONS
 halleyProject(retrograde "${SOURCES}" "${HEADERS}" "" "${GEN_DEFINITIONS}" ${CMAKE_CURRENT_SOURCE_DIR}/${HALLEY_GAME_BIN_DIR})
 
 target_link_libraries(retrograde-game
+	optimized "${CMAKE_CURRENT_SOURCE_DIR}/lib/SPIRV-Tools-opt.lib"
+	optimized "${CMAKE_CURRENT_SOURCE_DIR}/lib/SPIRV-Tools.lib"
 	optimized "${CMAKE_CURRENT_SOURCE_DIR}/lib/SPIRV.lib"
 	optimized "${CMAKE_CURRENT_SOURCE_DIR}/lib/SPVRemapper.lib"
 	optimized "${CMAKE_CURRENT_SOURCE_DIR}/lib/OSDependent.lib"
@@ -98,6 +100,8 @@ target_link_libraries(retrograde-game
 	optimized "${CMAKE_CURRENT_SOURCE_DIR}/lib/GenericCodeGen.lib"
 	optimized "${CMAKE_CURRENT_SOURCE_DIR}/lib/MachineIndependent.lib"
 	optimized "${CMAKE_CURRENT_SOURCE_DIR}/lib/glslang.lib"
+	debug "${CMAKE_CURRENT_SOURCE_DIR}/lib/SPIRV-Tools-optd.lib"
+	debug "${CMAKE_CURRENT_SOURCE_DIR}/lib/SPIRV-Toolsd.lib"
 	debug "${CMAKE_CURRENT_SOURCE_DIR}/lib/SPIRVd.lib"
 	debug "${CMAKE_CURRENT_SOURCE_DIR}/lib/SPVRemapperd.lib"
 	debug "${CMAKE_CURRENT_SOURCE_DIR}/lib/OSDependentd.lib"
