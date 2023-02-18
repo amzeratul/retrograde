@@ -50,18 +50,40 @@ systems:
       - name: Game Boy Advance
         region: [world]
     cores: [mgba, mednafen_gba]
+    manufacturer: Nintendo
   - id: gb
     regions:
       - name: Game Boy
         region: [world]
     cores: [gambatte]
+    manufacturer: Nintendo
   - id: gbc
     regions:
       - name: Game Boy Color
         region: [world]
     cores: [gambatte]
+    manufacturer: Nintendo
   - id: nds
     regions:
       - name: Nintendo DS
         region: [world]
     cores: [desmume]
+    manufacturer: Nintendo
+  - id: gamecube
+    regions:
+      - name: GameCube
+        region: [world]
+    cores: [dolphin]
+    manufacturer: Nintendo
+  - id: saturn
+    regions:
+      - name: Saturn
+        region: [world]
+    cores: [kronos, mednafen_saturn]
+    manufacturer: Sega
+  - id: ps2
+    regions:
+      - name: PlayStation 2
+        region: [world]
+    cores: [pcsx2]
+    manufacturer: Sony

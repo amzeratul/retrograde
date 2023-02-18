@@ -1,5 +1,6 @@
 General
 * Per-system available game enumeration
+* User config
 - Input device properties
 
 Profile selector:
@@ -11,11 +12,11 @@ Console selector:
 
 Game list UI:
 - Input chooser UI
-- Scrape online data
+- Scrape online data (!)
 - Show screenshots
-- Show videos
+- Show videos (!)
 - Show metadata
-- Render PDF manual
+- Render PDF manual (!!) (Try PDFium?)
 
 In-game UI:
 - Swap disc
@@ -24,8 +25,22 @@ In-game UI:
 - Configure core
 
 Game running features
-* Retroarch shader support
+* Retroarch shader support (!)
 * Better pixel resample shader
 - Light gun support
 - Mouse support
 - Keyboard support
+- Retro Achievements (!)
+
+Cores:
+- PCSX2 Crashes
+- Kronos needs OpenGL
+- Dolphin crashes
+
+
+
+[Key]
+* High priority
+- Normal priority
+(!) Potentially difficult
+(!!) Difficult

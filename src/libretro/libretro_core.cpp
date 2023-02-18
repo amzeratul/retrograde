@@ -169,6 +169,10 @@ void LibretroCore::init()
 	DLL_FUNC(dll, retro_set_audio_sample_batch)(&retroAudioSampleBatchCallback);
 	DLL_FUNC(dll, retro_set_input_poll)(&retroInputPollCallback);
 	DLL_FUNC(dll, retro_set_input_state)(&retroInputStateCallback);
+
+	for (auto& option: options) {
+		Logger::logDev("  " + option.first + " = " + option.second.defaultValue);
+	}
 }
 
 void LibretroCore::initVideoOut()
@@ -1038,7 +1042,7 @@ void LibretroCore::onEnvSetControllerInfo(const retro_controller_info* data)
 			const auto& type = info->types[i];
 			if (type.desc) {
 				// TODO: apparently this is relevant for SNES light guns?
-				Logger::logDev("Can plug " + toString(type.id) + " (" + type.desc + ") on port " + toString(port));
+				//Logger::logDev("Can plug " + toString(type.id) + " (" + type.desc + ") on port " + toString(port));
 			}
 		}
 		++port;

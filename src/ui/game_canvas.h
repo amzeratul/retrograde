@@ -9,7 +9,7 @@ class LibretroCore;
 
 class GameCanvas : public UIWidget {
 public:
-    GameCanvas(UIFactory& factory, RetrogradeEnvironment& environment, std::unique_ptr<LibretroCore> core, UIWidget& parentMenu);
+    GameCanvas(UIFactory& factory, RetrogradeEnvironment& environment, String systemId, String gameId, UIWidget& parentMenu);
     ~GameCanvas() override;
 
     void update(Time t, bool moved) override;
@@ -20,11 +20,16 @@ public:
 private:
     UIFactory& factory;
     RetrogradeEnvironment& environment;
-    std::unique_ptr<LibretroCore> core;
-	std::unique_ptr<RewindData> rewindData;
+    String systemId;
+    String gameId;
     UIWidget& parentMenu;
+
+	std::unique_ptr<LibretroCore> core;
+	std::unique_ptr<RewindData> rewindData;
+
     int pauseFrames = 0;
     mutable int pendingCloseState = 0;
+    bool loaded = false;
 
     void doClose();
 

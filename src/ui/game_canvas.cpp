@@ -6,11 +6,12 @@
 #include "src/libretro/libretro_core.h"
 #include "src/savestate/rewind_data.h"
 
-GameCanvas::GameCanvas(UIFactory& factory, RetrogradeEnvironment& environment, std::unique_ptr<LibretroCore> core, UIWidget& parentMenu)
+GameCanvas::GameCanvas(UIFactory& factory, RetrogradeEnvironment& environment, String systemId, String gameId, UIWidget& parentMenu)
 	: UIWidget("game_canvas")
 	, factory(factory)
 	, environment(environment)
-	, core(std::move(core))
+	, systemId(std::move(systemId))
+	, gameId(std::move(gameId))
 	, parentMenu(parentMenu)
 {
 	rewindData = std::make_unique<RewindData>(16 * 1024 * 1024);
@@ -29,6 +30,11 @@ GameCanvas::~GameCanvas()
 
 void GameCanvas::update(Time t, bool moved)
 {
+	if (!loaded) {
+		core = environment.loadCore(systemId, gameId);
+		loaded = true;
+	}
+
 	if (pendingCloseState == 2) {
 		doClose();
 	}

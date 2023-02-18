@@ -73,5 +73,5 @@ void ChooseGameWindow::onGamepadInput(const UIInputResults& input, Time time)
 void ChooseGameWindow::loadGame(const String& gameId)
 {
 	setActive(false);
-	getRoot()->addChild(std::make_shared<GameCanvas>(factory, retrogradeEnvironment, retrogradeEnvironment.loadCore(systemId, gameId), *this));
+	getRoot()->addChild(std::make_shared<GameCanvas>(factory, retrogradeEnvironment, systemId, gameId, *this));
 }

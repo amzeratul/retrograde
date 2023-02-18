@@ -12,3 +12,7 @@ cores:
   - id: gambatte
   - id: mednafen_gba
   - id: desmume
+  - id: kronos
+  - id: mednafen_saturn
+  - id: pcsx2
+  - id: dolphin
