@@ -101,7 +101,7 @@ std::unique_ptr<LibretroCore> RetrogradeEnvironment::loadCore(const String& syst
 
 std::unique_ptr<FilterChain> RetrogradeEnvironment::makeFilterChain(const String& path)
 {
-	return std::make_unique<RetroarchFilterChain>(shadersDir / path);
+	return std::make_unique<RetroarchFilterChain>(shadersDir / path, *halleyAPI.video);
 }
 
 std::shared_ptr<InputVirtual> RetrogradeEnvironment::getUIInput()

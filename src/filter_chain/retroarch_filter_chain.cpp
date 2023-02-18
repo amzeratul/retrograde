@@ -1,18 +1,41 @@
 #include "retroarch_filter_chain.h"
 
 
-RetroarchFilterChain::Stage::Stage(int idx, const ConfigNode& params, const Path& basePath)
+RetroarchFilterChain::Stage::Stage(int idx, const ConfigNode& params, const Path& basePath, VideoAPI& video)
 {
-	const auto shaderPath = basePath / params["shader" + toString(idx)].asString();
-	Logger::logDev("Stage " + toString(idx) + ": " + shaderPath.getNativeString());
+	const auto idxStr = toString(idx);
+	shaderPath = basePath / params["shader" + idxStr].asString();
+	alias = params["alias" + idxStr].asString("");
+	filterLinear = params["filter_linear" + idxStr].asBool(false);
+	mipMapInput = params["mipmap_input" + idxStr].asBool(false);
+	wrapMode = params["wrap_mode" + idxStr].asEnum(RetroarchWrapMode::ClampToEdge);
+	floatFramebuffer = params["float_framebuffer" + idxStr].asBool(false);
+	srgbFramebuffer = params["srgb_framebuffer" + idxStr].asBool(false);
+	scaleTypeX = params["scale_type_x" + idxStr].asEnum(RetroarchScaleType::Source);
+	scaleTypeY = params["scale_type_y" + idxStr].asEnum(RetroarchScaleType::Source);
+	scale.x = params["scale_x" + idxStr].asFloat(1.0f);
+	scale.y = params["scale_y" + idxStr].asFloat(1.0f);
+
+	loadShader(video, params);
 }
 
 
-RetroarchFilterChain::RetroarchFilterChain(Path _path)
+void RetroarchFilterChain::Stage::loadShader(VideoAPI& video, const ConfigNode& params)
+{
+	const auto shaderBytes = Path::readFile(shaderPath);
+	if (shaderBytes.empty()) {
+		Logger::logError("Shader not found: " + shaderPath.getString());
+		return;
+	}
+
+	// TODO
+}
+
+RetroarchFilterChain::RetroarchFilterChain(Path _path, VideoAPI& video)
 	: path(std::move(_path))
 {
 	const auto params = parsePreset(path);
-	loadStages(params);
+	loadStages(params, video);
 }
 
 Sprite RetroarchFilterChain::run(const Sprite& src, RenderContext& rc)
@@ -58,10 +81,10 @@ void RetroarchFilterChain::parsePresetLine(std::string_view str, ConfigNode::Map
 	}
 }
 
-void RetroarchFilterChain::loadStages(const ConfigNode& params)
+void RetroarchFilterChain::loadStages(const ConfigNode& params, VideoAPI& video)
 {
 	const int nShaders = params["shaders"].asInt(0);
 	for (int i = 0; i < nShaders; ++i) {
-		stages.push_back(Stage(i, params, path.parentPath()));
+		stages.push_back(Stage(i, params, path.parentPath(), video));
 	}
 }
