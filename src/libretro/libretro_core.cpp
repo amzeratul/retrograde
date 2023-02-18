@@ -1030,7 +1030,7 @@ void LibretroCore::onEnvSetInputDescriptors(const retro_input_descriptor* data)
 		const char* devNames[] = { "RETRO_DEVICE_NONE", "RETRO_DEVICE_JOYPAD", "RETRO_DEVICE_MOUSE", "RETRO_DEVICE_KEYBOARD", "RETRO_DEVICE_LIGHTGUN", "RETRO_DEVICE_ANALOG", "RETRO_DEVICE_POINTER" };
 		const char* idxNames[] = { "RETRO_DEVICE_INDEX_ANALOG_LEFT", "RETRO_DEVICE_INDEX_ANALOG_RIGHT", "RETRO_DEVICE_INDEX_ANALOG_BUTTON" };
 		const bool hasIdx = descriptor->device == RETRO_DEVICE_ANALOG;
-		Logger::logDev("[" + toString(descriptor->port) + "] " + (hasIdx ? idxNames[descriptor->index] : devNames[descriptor->device]) + " id" + toString(descriptor->id) + " = " + descriptor->description);
+		//Logger::logDev("[" + toString(descriptor->port) + "] " + (hasIdx ? idxNames[descriptor->index] : devNames[descriptor->device]) + " id" + toString(descriptor->id) + " = " + descriptor->description);
 	}
 }
 

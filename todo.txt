@@ -1,4 +1,5 @@
 General
+* Fix mouse support on UI
 * Per-system available game enumeration
 * User config
 - Input device properties
@@ -23,6 +24,9 @@ In-game UI:
 - Manual Save/load state
 - Change input
 - Configure core
+
+General settings UI:
+- Basic UI
 
 Game running features
 * Retroarch shader support (!)
