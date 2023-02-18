@@ -30,8 +30,8 @@ void RetroarchFilterChain::Stage::loadShader(VideoAPI& video, const ConfigNode& 
 	const auto parsed = RetroarchShaderParser::parse(shaderPath);
 
 	const auto outputFormat = fromString<ShaderFormat>(video.getShaderLanguage());
-	const auto vertexShader = ShaderConverter::convertShader(parsed.vertexShader, ShaderFormat::GLSL, outputFormat);
-	const auto pixelShader = ShaderConverter::convertShader(parsed.pixelShader, ShaderFormat::GLSL, outputFormat);
+	const auto vertexShader = ShaderConverter::convertShader(parsed.vertexShader, ShaderStage::Vertex, ShaderFormat::GLSL, outputFormat);
+	const auto pixelShader = ShaderConverter::convertShader(parsed.pixelShader, ShaderStage::Pixel, ShaderFormat::GLSL, outputFormat);
 
 	shader = ShaderConverter::loadShader(vertexShader, pixelShader, video);
 }

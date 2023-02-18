@@ -48,6 +48,9 @@ set (SOURCES
 set (HEADERS
 	"prec.h"
 	"todo.txt"
+
+	"src/contrib/glslang/include/glslang_c_interface.h"
+	"src/contrib/glslang/include/glslang_c_shader_types.h"
 	
 	"src/config/core_config.h"
 	"src/config/system_config.h"
@@ -86,3 +89,20 @@ set (GEN_DEFINITIONS
 	)
 
 halleyProject(retrograde "${SOURCES}" "${HEADERS}" "" "${GEN_DEFINITIONS}" ${CMAKE_CURRENT_SOURCE_DIR}/${HALLEY_GAME_BIN_DIR})
+
+target_link_libraries(retrograde-game
+	optimized "${CMAKE_CURRENT_SOURCE_DIR}/lib/SPIRV.lib"
+	optimized "${CMAKE_CURRENT_SOURCE_DIR}/lib/SPVRemapper.lib"
+	optimized "${CMAKE_CURRENT_SOURCE_DIR}/lib/OSDependent.lib"
+	optimized "${CMAKE_CURRENT_SOURCE_DIR}/lib/OGLCompiler.lib"
+	optimized "${CMAKE_CURRENT_SOURCE_DIR}/lib/GenericCodeGen.lib"
+	optimized "${CMAKE_CURRENT_SOURCE_DIR}/lib/MachineIndependent.lib"
+	optimized "${CMAKE_CURRENT_SOURCE_DIR}/lib/glslang.lib"
+	debug "${CMAKE_CURRENT_SOURCE_DIR}/lib/SPIRVd.lib"
+	debug "${CMAKE_CURRENT_SOURCE_DIR}/lib/SPVRemapperd.lib"
+	debug "${CMAKE_CURRENT_SOURCE_DIR}/lib/OSDependentd.lib"
+	debug "${CMAKE_CURRENT_SOURCE_DIR}/lib/OGLCompilerd.lib"
+	debug "${CMAKE_CURRENT_SOURCE_DIR}/lib/GenericCodeGend.lib"
+	debug "${CMAKE_CURRENT_SOURCE_DIR}/lib/MachineIndependentd.lib"
+	debug "${CMAKE_CURRENT_SOURCE_DIR}/lib/glslangd.lib"
+)
