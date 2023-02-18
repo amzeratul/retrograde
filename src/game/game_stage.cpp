@@ -17,6 +17,15 @@ void GameStage::init()
 
 	auto& game = dynamic_cast<RetrogradeGame&>(getGame());
 
+	std::optional<String> systemId;
+	std::optional<String> gamePath;
+	if (!game.getArgs().empty()) {
+		systemId = game.getArgs()[0];
+	}
+	if (game.getArgs().size() >= 2) {
+		gamePath = String::concatList(gsl::span<const String>(game.getArgs()).subspan(1), " ");
+ 	}
+
 	uiFactory = game.createUIFactory(getAPI(), getResources(), game.getI18N());
 	UIInputButtons buttons;
 	buttons.accept = 0;
@@ -33,7 +42,7 @@ void GameStage::init()
 	uiRoot = std::make_unique<UIRoot>(getAPI(), Rect4f(getVideoAPI().getWindow().getWindowRect()));
 	env = std::make_unique<RetrogradeEnvironment>(game, "..", getResources(), getAPI());
 
-	uiRoot->addChild(std::make_shared<ChooseSystemWindow>(*uiFactory, *env));
+	uiRoot->addChild(std::make_shared<ChooseSystemWindow>(*uiFactory, *env, systemId, gamePath));
 }
 
 void GameStage::onVariableUpdate(Time t)

@@ -7,11 +7,12 @@
 #include "src/game/retrograde_environment.h"
 #include "src/libretro/libretro_core.h"
 
-ChooseGameWindow::ChooseGameWindow(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, String systemId, UIWidget& parentMenu)
+ChooseGameWindow::ChooseGameWindow(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, String systemId, std::optional<String> gameId, UIWidget& parentMenu)
 	: UIWidget("choose_game", Vector2f(), UISizer())
 	, factory(factory)
 	, retrogradeEnvironment(retrogradeEnvironment)
 	, systemId(std::move(systemId))
+	, pendingGameId(std::move(gameId))
 	, parentMenu(parentMenu)
 {
 	factory.loadUI(*this, "choose_game");
@@ -50,6 +51,14 @@ void ChooseGameWindow::onMakeUI()
 	{
 		close();
 	});
+}
+
+void ChooseGameWindow::onAddedToRoot(UIRoot& root)
+{
+	if (pendingGameId) {
+		loadGame(*pendingGameId);
+		pendingGameId = {};
+	}
 }
 
 void ChooseGameWindow::close()

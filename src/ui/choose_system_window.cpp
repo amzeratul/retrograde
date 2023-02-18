@@ -4,14 +4,24 @@
 #include "src/config/system_config.h"
 #include "src/game/retrograde_environment.h"
 
-ChooseSystemWindow::ChooseSystemWindow(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment)
+ChooseSystemWindow::ChooseSystemWindow(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, std::optional<String> systemId, std::optional<String> gameId)
 	: UIWidget("choose_system", Vector2f(), UISizer())
 	, factory(factory)
 	, retrogradeEnvironment(retrogradeEnvironment)
+	, pendingSystemId(std::move(systemId))
+	, pendingGameId(std::move(gameId))
 {
 	factory.loadUI(*this, "choose_system");
 
 	setAnchor(UIAnchor());
+}
+
+void ChooseSystemWindow::onAddedToRoot(UIRoot& root)
+{
+	if (pendingSystemId) {
+		loadSystem(*pendingSystemId);
+		pendingSystemId = {};
+	}
 }
 
 void ChooseSystemWindow::onMakeUI()
@@ -42,5 +52,5 @@ void ChooseSystemWindow::onMakeUI()
 void ChooseSystemWindow::loadSystem(const String& systemId)
 {
 	setActive(false);
-	getRoot()->addChild(std::make_shared<ChooseGameWindow>(factory, retrogradeEnvironment, systemId, *this));
+	getRoot()->addChild(std::make_shared<ChooseGameWindow>(factory, retrogradeEnvironment, systemId, pendingGameId, *this));
 }
