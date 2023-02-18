@@ -6,7 +6,7 @@
 // Details: https://github.com/libretro/slang-shaders
 
 
-RetroarchFilterChain::Stage::Stage(int idx, const ConfigNode& params, const Path& basePath, VideoAPI& video)
+RetroarchFilterChain::Stage::Stage(int idx, const ConfigNode& params, const Path& basePath)
 {
 	const auto idxStr = toString(idx);
 	shaderPath = basePath / params["shader" + idxStr].asString();
@@ -20,18 +20,16 @@ RetroarchFilterChain::Stage::Stage(int idx, const ConfigNode& params, const Path
 	scaleTypeY = params["scale_type_y" + idxStr].asEnum(RetroarchScaleType::Source);
 	scale.x = params["scale_x" + idxStr].asFloat(1.0f);
 	scale.y = params["scale_y" + idxStr].asFloat(1.0f);
-
-	loadShader(video, params);
 }
 
 
-void RetroarchFilterChain::Stage::loadShader(VideoAPI& video, const ConfigNode& params)
+void RetroarchFilterChain::Stage::loadShader(ShaderConverter& converter, VideoAPI& video, const ConfigNode& params)
 {
 	const auto parsed = RetroarchShaderParser::parse(shaderPath);
 
 	const auto outputFormat = fromString<ShaderFormat>(video.getShaderLanguage());
-	const auto vertexShader = ShaderConverter::convertShader(parsed.vertexShader, ShaderStage::Vertex, ShaderFormat::GLSL, outputFormat);
-	const auto pixelShader = ShaderConverter::convertShader(parsed.pixelShader, ShaderStage::Pixel, ShaderFormat::GLSL, outputFormat);
+	const auto vertexShader = converter.convertShader(parsed.vertexShader, ShaderStage::Vertex, ShaderFormat::GLSL, outputFormat);
+	const auto pixelShader = converter.convertShader(parsed.pixelShader, ShaderStage::Pixel, ShaderFormat::GLSL, outputFormat);
 
 	shader = ShaderConverter::loadShader(vertexShader, pixelShader, video);
 }
@@ -84,6 +82,11 @@ void RetroarchFilterChain::loadStages(const ConfigNode& params, VideoAPI& video)
 {
 	const int nShaders = params["shaders"].asInt(0);
 	for (int i = 0; i < nShaders; ++i) {
-		stages.push_back(Stage(i, params, path.parentPath(), video));
+		stages.push_back(Stage(i, params, path.parentPath()));
+	}
+
+	ShaderConverter converter;
+	for (auto& stage: stages) {
+		stage.loadShader(converter, video, params);
 	}
 }

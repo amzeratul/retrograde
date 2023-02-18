@@ -118,6 +118,20 @@ namespace {
 	}
 }
 
+ShaderConverter::ShaderConverter()
+{
+	if (nInstances++ == 0) {
+		glslang_initialize_process();
+	}
+}
+
+ShaderConverter::~ShaderConverter()
+{
+	if (--nInstances == 0) {
+		glslang_finalize_process();
+	}
+}
+
 String ShaderConverter::convertShader(const String& src, ShaderStage stage, ShaderFormat inputFormat, ShaderFormat outputFormat)
 {
 	if (inputFormat == outputFormat) {
@@ -143,8 +157,6 @@ String ShaderConverter::convertShader(const String& src, ShaderStage stage, Shad
 	input.messages = GLSLANG_MSG_DEFAULT_BIT;
 	input.resource = &getDefaultResources();
 
-	glslang_initialize_process();
-
 	glslang_shader_t* shader = glslang_shader_create(&input);
 	if (!glslang_shader_preprocess(shader, &input)) {
 		Logger::logWarning("Preprocessor error: " + String(glslang_shader_get_info_log(shader)));
@@ -169,8 +181,6 @@ String ShaderConverter::convertShader(const String& src, ShaderStage stage, Shad
 	glslang_program_delete(program);
 	glslang_shader_delete(shader);
 
-	glslang_finalize_process();
-
 	// TODO
 	return {};
 }
@@ -181,3 +191,5 @@ std::unique_ptr<Shader> ShaderConverter::loadShader(const String& vertexSrc, con
 	// TODO
 	return {};
 }
+
+size_t ShaderConverter::nInstances = 0;

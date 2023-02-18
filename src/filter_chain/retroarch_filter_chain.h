@@ -1,6 +1,7 @@
 #pragma once
 
 #include <halley.hpp>
+class ShaderConverter;
 using namespace Halley;
 
 #include "filter_chain.h"
@@ -46,7 +47,7 @@ public:
 	class Stage {
 	public:
 		Stage() = default;
-		Stage(int idx, const ConfigNode& params, const Path& basePath, VideoAPI& video);
+		Stage(int idx, const ConfigNode& params, const Path& basePath);
 
 		Path shaderPath;
 		String alias;
@@ -61,8 +62,7 @@ public:
 
 		std::shared_ptr<Shader> shader;
 
-	private:
-		void loadShader(VideoAPI& video, const ConfigNode& params);
+		void loadShader(ShaderConverter& converter, VideoAPI& video, const ConfigNode& params);
 	};
 
 	RetroarchFilterChain() = default;
