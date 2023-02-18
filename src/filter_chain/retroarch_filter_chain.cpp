@@ -31,6 +31,12 @@ void RetroarchFilterChain::Stage::loadShader(ShaderConverter& converter, VideoAP
 	const auto vertexShader = converter.convertShader(parsed.vertexShader, ShaderStage::Vertex, ShaderFormat::GLSL, outputFormat);
 	const auto pixelShader = converter.convertShader(parsed.pixelShader, ShaderStage::Pixel, ShaderFormat::GLSL, outputFormat);
 
+	const bool debugOutput = true;
+	if (debugOutput) {
+		Path::writeFile("../tmp/" + shaderPath.getFilename().replaceExtension(".vertex.hlsl"), vertexShader.shaderCode);
+		Path::writeFile("../tmp/" + shaderPath.getFilename().replaceExtension(".pixel.hlsl"), pixelShader.shaderCode);
+	}
+
 	shader = ShaderConverter::loadShader(vertexShader.shaderCode.byte_span(), pixelShader.shaderCode.byte_span(), video);
 }
 

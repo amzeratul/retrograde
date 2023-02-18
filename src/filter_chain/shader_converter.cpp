@@ -1,5 +1,7 @@
 #include "shader_converter.h"
-#include "../contrib/glslang/include/glslang_c_interface.h"
+#include "src/contrib/glslang/include/glslang_c_interface.h"
+#include "src/contrib/spirv_cross/spirv.hpp"
+#include "src/contrib/spirv_cross/spirv_hlsl.hpp"
 
 namespace {
 	const glslang_resource_t& getDefaultResources()
@@ -206,9 +208,13 @@ Bytes ShaderConverter::convertToSpirv(const String& src, ShaderStage stage, Shad
 
 String ShaderConverter::convertSpirvToHLSL(const Bytes& spirvData, ShaderStage stage)
 {
-	// TODO
-	Logger::logError("SPIRV -> HLSL implementation missing");
-	return {};
+	auto hlsl = spirv_cross::CompilerHLSL(reinterpret_cast<const uint32_t*>(spirvData.data()), spirvData.size() / 4);
+	auto resources = hlsl.get_shader_resources();
+
+	spirv_cross::CompilerHLSL::Options options;
+	hlsl.set_hlsl_options(options);
+
+	return hlsl.compile();
 }
 
 std::unique_ptr<Shader> ShaderConverter::loadShader(gsl::span<const gsl::byte> vertexSrc, gsl::span<const gsl::byte> pixelSrc, VideoAPI& video)
