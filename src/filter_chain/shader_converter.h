@@ -29,11 +29,15 @@ namespace Halley {
 
 class ShaderConverter {
 public:
+	struct Result {
+		Bytes shaderCode;
+	};
+
 	ShaderConverter();
 	~ShaderConverter();
 
-    String convertShader(const String& src, ShaderStage stage, ShaderFormat inputFormat, ShaderFormat outputFormat);
-    static std::unique_ptr<Shader> loadShader(const String& vertexSrc, const String& pixelSrc, VideoAPI& video);
+    Result convertShader(const String& src, ShaderStage stage, ShaderFormat inputFormat, ShaderFormat outputFormat);
+    static std::unique_ptr<Shader> loadShader(gsl::span<const gsl::byte> vertexSrc, gsl::span<const gsl::byte> pixelSrc, VideoAPI& video);
 
 private:
 	static size_t nInstances;

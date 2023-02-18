@@ -132,21 +132,24 @@ ShaderConverter::~ShaderConverter()
 	}
 }
 
-String ShaderConverter::convertShader(const String& src, ShaderStage stage, ShaderFormat inputFormat, ShaderFormat outputFormat)
+ShaderConverter::Result ShaderConverter::convertShader(const String& src, ShaderStage stage, ShaderFormat inputFormat, ShaderFormat outputFormat)
 {
+	Result result;
+
 	if (inputFormat == outputFormat) {
-		return src;
+		result.shaderCode = src.toBytes();
+		return result;
 	}
 
 	auto spirvData = convertToSpirv(src, stage, inputFormat);
 	if (outputFormat == ShaderFormat::SPIRV) {
-		//return spirvSrc;
-		Logger::logError("Outputting SPIRV is not implemented");
-		return {};
+		result.shaderCode = spirvData;
+		return result;
 	}
 
 	if (outputFormat == ShaderFormat::HLSL) {
-		return convertSpirvToHLSL(spirvData, stage);
+		result.shaderCode = convertSpirvToHLSL(spirvData, stage).toBytes();
+		return result;
 	}
 
 	return {};
@@ -171,23 +174,23 @@ Bytes ShaderConverter::convertToSpirv(const String& src, ShaderStage stage, Shad
 
 	glslang_shader_t* shader = glslang_shader_create(&input);
 	if (!glslang_shader_preprocess(shader, &input)) {
-		Logger::logWarning("Preprocessor error: " + String(glslang_shader_get_info_log(shader)));
+		Logger::logError("Shader preprocessor error: " + String(glslang_shader_get_info_log(shader)));
 	}
 
 	if (!glslang_shader_parse(shader, &input)) {
-		Logger::logWarning("Parse error: " + String(glslang_shader_get_info_log(shader)));
+		Logger::logError("Shader parse error: " + String(glslang_shader_get_info_log(shader)));
 	}
 
 	glslang_program_t* program = glslang_program_create();
 	glslang_program_add_shader(program, shader);
 
 	if (!glslang_program_link(program, GLSLANG_MSG_SPV_RULES_BIT | GLSLANG_MSG_VULKAN_RULES_BIT)) {
-		Logger::logWarning("Link error: " + String(glslang_program_get_info_log(program)));
+		Logger::logError("Shader link error: " + String(glslang_program_get_info_log(program)));
 	}
 
 	glslang_program_SPIRV_generate(program, input.stage);
 	if (glslang_program_SPIRV_get_messages(program)) {
-		Logger::logDev("SPIRV messages: " + String(glslang_program_SPIRV_get_messages(program)));
+		Logger::logInfo("SPIRV messages: " + String(glslang_program_SPIRV_get_messages(program)));
 	}
 
 	const size_t size = glslang_program_SPIRV_get_size(program);
@@ -208,7 +211,7 @@ String ShaderConverter::convertSpirvToHLSL(const Bytes& spirvData, ShaderStage s
 	return {};
 }
 
-std::unique_ptr<Shader> ShaderConverter::loadShader(const String& vertexSrc, const String& pixelSrc, VideoAPI& video)
+std::unique_ptr<Shader> ShaderConverter::loadShader(gsl::span<const gsl::byte> vertexSrc, gsl::span<const gsl::byte> pixelSrc, VideoAPI& video)
 {
 	// Maybe move this to video api directly?
 	// TODO

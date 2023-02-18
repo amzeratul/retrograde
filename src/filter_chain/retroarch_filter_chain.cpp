@@ -31,7 +31,7 @@ void RetroarchFilterChain::Stage::loadShader(ShaderConverter& converter, VideoAP
 	const auto vertexShader = converter.convertShader(parsed.vertexShader, ShaderStage::Vertex, ShaderFormat::GLSL, outputFormat);
 	const auto pixelShader = converter.convertShader(parsed.pixelShader, ShaderStage::Pixel, ShaderFormat::GLSL, outputFormat);
 
-	shader = ShaderConverter::loadShader(vertexShader, pixelShader, video);
+	shader = ShaderConverter::loadShader(vertexShader.shaderCode.byte_span(), pixelShader.shaderCode.byte_span(), video);
 }
 
 RetroarchFilterChain::RetroarchFilterChain(Path _path, VideoAPI& video)
