@@ -1,5 +1,8 @@
 #include "retroarch_filter_chain.h"
 
+#include "retroarch_shader_parser.h"
+#include "shader_converter.h"
+
 
 RetroarchFilterChain::Stage::Stage(int idx, const ConfigNode& params, const Path& basePath, VideoAPI& video)
 {
@@ -22,13 +25,13 @@ RetroarchFilterChain::Stage::Stage(int idx, const ConfigNode& params, const Path
 
 void RetroarchFilterChain::Stage::loadShader(VideoAPI& video, const ConfigNode& params)
 {
-	const auto shaderBytes = Path::readFile(shaderPath);
-	if (shaderBytes.empty()) {
-		Logger::logError("Shader not found: " + shaderPath.getString());
-		return;
-	}
+	const auto parsed = RetroarchShaderParser::parse(shaderPath);
 
-	// TODO
+	const auto outputFormat = fromString<ShaderFormat>(video.getShaderLanguage());
+	const auto vertexShader = ShaderConverter::convertShader(parsed.vertexShader, ShaderFormat::GLSL, outputFormat);
+	const auto pixelShader = ShaderConverter::convertShader(parsed.pixelShader, ShaderFormat::GLSL, outputFormat);
+
+	shader = ShaderConverter::loadShader(vertexShader, pixelShader, video);
 }
 
 RetroarchFilterChain::RetroarchFilterChain(Path _path, VideoAPI& video)
@@ -47,15 +50,9 @@ Sprite RetroarchFilterChain::run(const Sprite& src, RenderContext& rc)
 ConfigNode RetroarchFilterChain::parsePreset(const Path& path)
 {
 	ConfigNode::MapType result;
-	const auto bytes = Path::readFile(path);
 
-	std::string_view remaining(reinterpret_cast<const char*>(bytes.data()), bytes.size());
-	while (!remaining.empty()) {
-		auto end = remaining.find('\n');
-		std::string_view current = remaining.substr(0, end);
-		remaining = remaining.substr(end + 1);
-
-		parsePresetLine(current, result);
+	for (auto& line: Path::readFileLines(path)) {
+		parsePresetLine(line, result);
 	}
 
 	return result;

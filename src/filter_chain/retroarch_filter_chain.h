@@ -59,6 +59,8 @@ public:
 		RetroarchScaleType scaleTypeY = RetroarchScaleType::Source;
 		Vector2f scale;
 
+		std::shared_ptr<Shader> shader;
+
 	private:
 		void loadShader(VideoAPI& video, const ConfigNode& params);
 	};
