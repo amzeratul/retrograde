@@ -24,6 +24,9 @@ private:
 	std::unique_ptr<RewindData> rewindData;
     UIWidget& parentMenu;
     int pauseFrames = 0;
+    mutable int pendingCloseState = 0;
+
+    void doClose();
 
 	void paint(Painter& painter) const;
     void drawScreen(Painter& painter, Sprite screen) const;

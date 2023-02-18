@@ -29,12 +29,16 @@ GameCanvas::~GameCanvas()
 
 void GameCanvas::update(Time t, bool moved)
 {
+	if (pendingCloseState == 2) {
+		doClose();
+	}
+
 	auto rect = getRoot()->getRect();
 	setPosition(rect.getP1());
 	setMinSize(rect.getSize());
 	layout();
-
-	if (t > 0.00001) {
+	
+	if (t > 0.00001 && pendingCloseState == 0) {
 		stepGame();
 	}
 }
@@ -49,6 +53,13 @@ void GameCanvas::draw(UIPainter& uiPainter) const
 
 void GameCanvas::close()
 {
+	// All this pending close state madness is to ensure that a painter.resetState() is called after the last stepGame()
+	pendingCloseState = 1;
+	core.reset();
+}
+
+void GameCanvas::doClose()
+{
 	parentMenu.setActive(true);
 	parentMenu.layout();
 	destroy();
@@ -56,7 +67,12 @@ void GameCanvas::close()
 
 void GameCanvas::paint(Painter& painter) const
 {
-	if (core && core->hasGameLoaded()) {
+	if (pendingCloseState == 1) {
+		pendingCloseState = 2;
+	}
+
+	painter.resetState();
+	if (pendingCloseState == 0 && core && core->hasGameLoaded()) {
 		drawScreen(painter, core->getVideoOut());
 	}
 }

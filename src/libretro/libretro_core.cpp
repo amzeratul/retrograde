@@ -205,7 +205,7 @@ void LibretroCore::addAudioSamples(gsl::span<const float> samples)
 
 	Concurrent::execute(audioThread->getQueue(), [this, buffer = std::move(buffer)]()
 	{
-		constexpr float maxPitchShift = 0.05f;
+		constexpr float maxPitchShift = 0.01f;
 		const auto span = gsl::span<const float>(buffer.data(), buffer.size());
 		audioOut->addInterleavedSamplesWithResampleSync(span, static_cast<float>(systemAVInfo.sampleRate), maxPitchShift);
 	});

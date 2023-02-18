@@ -16,9 +16,16 @@ ChooseSystemWindow::ChooseSystemWindow(UIFactory& factory, RetrogradeEnvironment
 
 void ChooseSystemWindow::onMakeUI()
 {
+	const String region = "world";
+	auto systems = retrogradeEnvironment.getConfigDatabase().getValues<SystemConfig>();
+	std::sort(systems.begin(), systems.end(), [&](const SystemConfig* a, const SystemConfig* b)
+	{
+		return a->getRegion(region).getName() < b->getRegion(region).getName();
+	});
+
 	auto systemList = getWidgetAs<UIList>("systemList");
-	for (const auto& [k, v] : retrogradeEnvironment.getConfigDatabase().getEntries<SystemConfig>()) {
-		systemList->addTextItem(k, LocalisedString::fromUserString(v.getRegion("world").getName()));
+	for (const auto& system : systems) {
+		systemList->addTextItem(system->getId(), LocalisedString::fromUserString(system->getRegion(region).getName()));
 	}
 
 	setHandle(UIEventType::ListAccept, "systemList", [=] (const UIEvent& event)
