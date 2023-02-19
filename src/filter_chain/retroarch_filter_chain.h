@@ -64,6 +64,9 @@ public:
 		RetroarchScaleType scaleTypeY = RetroarchScaleType::Source;
 		Vector2f scale;
 
+		String shaderName;
+		String shaderRenderFormat;
+
 		std::shared_ptr<Material> material;
 		std::shared_ptr<MaterialDefinition> materialDefinition;
 		std::unique_ptr<RenderSurface> renderSurface;
@@ -85,6 +88,7 @@ private:
 		Vector4f sourceSize;
 		Vector4f originalSize;
 		Vector4f outputSize;
+		Vector4f finalViewportSize;
 		uint32_t frameCount;
 	};
 
@@ -110,4 +114,5 @@ private:
 	void drawStage(const Stage& stage, int stageIdx, Painter& painter);
 
 	static TextureAddressMode getAddressMode(RetroarchWrapMode mode);
+	static Vector4f texSizeToVec4(Vector2i texSize);
 };

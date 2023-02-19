@@ -33,6 +33,8 @@ void RetroarchFilterChain::Stage::loadMaterial(ShaderConverter& converter, Video
 	for (const auto& param: parsed.parameters) {
 		params[param.name] = param.initial;
 	}
+	shaderRenderFormat = parsed.format;
+	shaderName = parsed.name;
 
 	const auto outputFormat = fromString<ShaderFormat>(video.getShaderLanguage());
 	const auto vertexShader = converter.convertShader(parsed.vertexShader, ShaderStage::Vertex, ShaderFormat::GLSL, outputFormat);
@@ -198,16 +200,16 @@ Sprite RetroarchFilterChain::run(const Sprite& src, RenderContext& rc, Vector2i 
 
 	FrameParams frameParams;
 	frameParams.frameCount = frameNumber;
-	frameParams.mvp = Matrix4f(); // TODO
-	frameParams.originalSize = Vector4f(Vector4i(originalSize.x, originalSize.y, originalSize.x, originalSize.y));
-	frameParams.outputSize = Vector4f(Vector4i(outputSize.x, outputSize.y, outputSize.x, outputSize.y));
+	frameParams.mvp = Matrix4f::makeIdentity(); // TODO
+	frameParams.originalSize = texSizeToVec4(originalSize);
+	frameParams.finalViewportSize = texSizeToVec4(outputSize);
 
 	// Draw stages
 	for (size_t i = 0; i < stages.size(); ++i) {
 		auto& stage = stages[i];
-
-		const auto sourceSize = i == 0 ? originalSize : stages[i - 1].size;
-		frameParams.sourceSize = Vector4f(Vector4i(sourceSize.x, sourceSize.y, sourceSize.x, sourceSize.y));
+		
+		frameParams.sourceSize = texSizeToVec4(i == 0 ? originalSize : stages[i - 1].size);
+		frameParams.outputSize = texSizeToVec4(stage.size);
 		updateStageMaterial(stage, frameParams);
 
 		rc.with(stage.renderSurface->getRenderTarget()).bind([&] (Painter& painter)
@@ -256,7 +258,7 @@ void RetroarchFilterChain::updateUserParameters(Stage& stage, const String& name
 		return;
 	}
 
-	if (name == "MVP" || name == "SourceSize" || name == "OriginalSize" || name == "OutputSize" || name == "FrameCount") {
+	if (name == "MVP" || name == "SourceSize" || name == "OriginalSize" || name == "OutputSize" || name == "FinalViewportSize" || name == "FrameCount") {
 		// Built in, updated later
 		return;
 	}
@@ -274,6 +276,8 @@ void RetroarchFilterChain::updateFrameParameters(const String& name, Material& m
 		material.set(name, frameParams.originalSize);
 	} else if (name == "OutputSize") {
 		material.set(name, frameParams.outputSize);
+	} else if (name == "FinalViewportSize") {
+		material.set(name, frameParams.finalViewportSize);
 	} else if (name == "FrameCount") {
 		material.set(name, frameParams.frameCount);
 	}
@@ -310,4 +314,10 @@ TextureAddressMode RetroarchFilterChain::getAddressMode(RetroarchWrapMode mode)
 		return TextureAddressMode::Mirror;
 	}
 	return TextureAddressMode::Clamp;
+}
+
+Vector4f RetroarchFilterChain::texSizeToVec4(Vector2i texSize)
+{
+	const auto sz = Vector2f(texSize);
+	return Vector4f(sz.x, sz.y, 1.0f / sz.x, 1.0f / sz.y);
 }
