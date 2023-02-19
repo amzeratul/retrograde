@@ -213,6 +213,15 @@ ShaderCodeWithReflection ShaderConverter::convertSpirvToHLSL(ShaderStage stage, 
 	ShaderCodeWithReflection result;
 
 	auto compiler = spirv_cross::CompilerHLSL(reinterpret_cast<const uint32_t*>(spirvData.data()), spirvData.size() / 4);
+
+	spirv_cross::HLSLResourceBinding pushBinding;
+	pushBinding.stage = compiler.get_execution_model();
+	pushBinding.binding = spirv_cross::ResourceBindingPushConstantBinding;
+	pushBinding.desc_set = spirv_cross::ResourceBindingPushConstantDescriptorSet;
+	pushBinding.cbv.register_binding = 1;
+	pushBinding.cbv.register_space = 0;
+	compiler.add_hlsl_resource_binding(pushBinding);
+
 	result.reflection = getReflectionInfo(compiler);
 
 	spirv_cross::CompilerHLSL::Options options;
@@ -231,13 +240,19 @@ ShaderReflection ShaderConverter::getReflectionInfo(spirv_cross::Compiler& compi
 
 	auto resources = compiler.get_shader_resources();
 
-	auto readParams = [&](const spirv_cross::Resource& resource)
+	int binding = 2;
+
+	auto readParams = [&](const spirv_cross::Resource& resource, bool pushBuffer)
 	{
 		auto& block = output.uniforms.emplace_back();
 
 		block.name = compiler.get_remapped_declared_block_name(resource.id);
-		if (compiler.has_decoration(resource.id, spv::DecorationBinding)) {
-			block.binding = compiler.get_decoration(resource.id, spv::DecorationBinding);
+
+		if (pushBuffer) {
+			block.binding = 1;
+		} else {
+			block.binding = binding;
+			compiler.set_decoration(resource.id, spv::DecorationBinding, binding++);
 		}
 
 		const auto& type = compiler.get_type(resource.base_type_id);
@@ -261,12 +276,12 @@ ShaderReflection ShaderConverter::getReflectionInfo(spirv_cross::Compiler& compi
 		output.textures.emplace_back(ShaderReflection::Texture{ resource.name, binding, getSamplerType(type) });
 	};
 
-	for (const auto& resource: resources.uniform_buffers) {
-		readParams(resource);
+	for (const auto& resource: resources.push_constant_buffers) {
+		readParams(resource, true);
 	}
 
-	for (const auto& resource: resources.push_constant_buffers) {
-		readParams(resource);
+	for (const auto& resource: resources.uniform_buffers) {
+		readParams(resource, false);
 	}
 
 	for (const auto& resource: resources.sampled_images) {

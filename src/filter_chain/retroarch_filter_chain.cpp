@@ -362,7 +362,6 @@ std::shared_ptr<const Texture> RetroarchFilterChain::lookupTexture(Stage& stage,
 
 void RetroarchFilterChain::drawStage(const Stage& stage, Painter& painter)
 {
-	const auto vertexSize = stage.materialDefinition->getVertexSize();
 	const auto stride = stage.materialDefinition->getVertexStride();
 	Vector<char> vertexData;
 	vertexData.resize(stride * 4);
@@ -372,15 +371,14 @@ void RetroarchFilterChain::drawStage(const Stage& stage, Painter& painter)
 		Vector2f tex;
 	};
 
-	const auto verts = std::array<Vector2f, 4>{ Vector2f(0, 0), Vector2f(1, 0), Vector2f(1, 1), Vector2f(0, 1) };
+	const auto verts = std::array<Vector2f, 4>{ Vector2f(-1, -1), Vector2f(1, -1), Vector2f(1, 1), Vector2f(-1, 1) };
+	const auto tex = std::array<Vector2f, 4>{ Vector2f(0, 1), Vector2f(1, 1), Vector2f(1, 0), Vector2f(0, 0) };
 
 	char* dst = vertexData.data();
 	for (int i = 0; i < 4; ++i) {
-		const auto pos = verts[i];
-
 		Vertex v;
-		v.pos = Vector4f(pos.x, pos.y, pos.x, pos.y);
-		v.tex = pos;
+		v.pos = Vector4f(verts[i], 0, 1);
+		v.tex = tex[i];
 
 		memcpy(dst, &v, sizeof(v));
 		dst += stage.materialDefinition->getVertexStride();
