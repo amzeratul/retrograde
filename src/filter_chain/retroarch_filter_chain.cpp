@@ -24,7 +24,7 @@ RetroarchFilterChain::Stage::Stage(int idx, const ConfigNode& params, const Path
 }
 
 
-void RetroarchFilterChain::Stage::loadShader(ShaderConverter& converter, VideoAPI& video)
+void RetroarchFilterChain::Stage::loadMaterial(ShaderConverter& converter, VideoAPI& video)
 {
 	const String name = shaderPath.getFilename().replaceExtension("").getString();
 	const auto parsed = RetroarchShaderParser::parse(shaderPath);
@@ -40,6 +40,13 @@ void RetroarchFilterChain::Stage::loadShader(ShaderConverter& converter, VideoAP
 		Path::writeFile("../tmp/" + shaderPath.getFilename().replaceExtension(".vertex." + toString(outputFormat)), vertexShader.shaderCode);
 		Path::writeFile("../tmp/" + shaderPath.getFilename().replaceExtension(".pixel." + toString(outputFormat)), pixelShader.shaderCode);
 	}
+
+	// TODO: render filtering, mipmapping, float framebuffer, srgb framebuffer, wrap mode
+	RenderSurfaceOptions options;
+	options.name = name;
+	options.createDepthStencil = false;
+	options.useFiltering = false;
+	renderSurface = std::make_unique<RenderSurface>(video, options);
 }
 
 void RetroarchFilterChain::Stage::applyParams(const ConfigNode& params)
@@ -53,18 +60,37 @@ void RetroarchFilterChain::Stage::applyParams(const ConfigNode& params)
 	}
 }
 
+Vector2i RetroarchFilterChain::Stage::updateSize(Vector2i sourceSize, Vector2i viewPortSize)
+{
+	Vector2f sizeFloat;
+
+	if (scaleTypeX == RetroarchScaleType::Absolute) {
+		sizeFloat.x = scale.x;
+	} else if (scaleTypeX == RetroarchScaleType::Source) {
+		sizeFloat.x = scale.x * sourceSize.x;
+	} else if (scaleTypeX == RetroarchScaleType::Viewport) {
+		sizeFloat.x = scale.x * viewPortSize.x;
+	}
+
+	if (scaleTypeY == RetroarchScaleType::Absolute) {
+		sizeFloat.y = scale.y;
+	} else if (scaleTypeY == RetroarchScaleType::Source) {
+		sizeFloat.y = scale.y * sourceSize.y;
+	} else if (scaleTypeY == RetroarchScaleType::Viewport) {
+		sizeFloat.y = scale.y * viewPortSize.y;
+	}
+
+	size = Vector2i(sizeFloat.round());
+	renderSurface->setSize(size);
+	return size;
+}
+
 
 RetroarchFilterChain::RetroarchFilterChain(Path _path, VideoAPI& video)
 	: path(std::move(_path))
 {
 	const auto params = parsePreset(path);
 	loadStages(params, video);
-}
-
-Sprite RetroarchFilterChain::run(const Sprite& src, RenderContext& rc)
-{
-	// TODO
-	return src;
 }
 
 ConfigNode RetroarchFilterChain::parsePreset(const Path& path)
@@ -107,7 +133,67 @@ void RetroarchFilterChain::loadStages(const ConfigNode& params, VideoAPI& video)
 
 	ShaderConverter converter;
 	for (auto& stage: stages) {
-		stage.loadShader(converter, video);
+		stage.loadMaterial(converter, video);
 		stage.applyParams(params);
 	}
+}
+
+Sprite RetroarchFilterChain::run(const Sprite& src, RenderContext& rc, Vector2i viewPortSize)
+{
+	if (stages.empty()) {
+		return src;
+	}
+
+	// Set stage sizes
+	Vector2i sourceSize = src.getMaterial().getTexture(0)->getSize();
+	for (auto& stage: stages) {
+		sourceSize = stage.updateSize(sourceSize, viewPortSize);
+	}
+
+	// Draw stages
+	for (size_t i = 0; i < stages.size(); ++i) {
+		auto& stage = stages[i];
+
+		setupStageMaterial(i, sourceSize);
+
+		rc.with(stage.renderSurface->getRenderTarget()).bind([&] (Painter& painter)
+		{
+			drawStage(stage, static_cast<int>(i), painter);
+		});
+	}
+
+	++frameNumber;
+
+	return stages.back().renderSurface->getSurfaceSprite(src.getMaterialPtr()->clone());
+}
+
+
+void RetroarchFilterChain::setupStageMaterial(size_t stageIdx, Vector2i viewPortSize)
+{
+	auto& stage = stages[stageIdx];
+	for (const auto& ub: stage.materialDefinition->getUniformBlocks()) {
+		for (const auto& u: ub.uniforms) {
+			updateParameter(u.name, *stage.material);
+		}
+	}
+	
+	for (const auto& tex: stage.materialDefinition->getTextures()) {
+		updateTexture(tex.name, *stage.material);
+	}
+}
+
+void RetroarchFilterChain::updateParameter(const String& name, Material& material)
+{
+	// TODO
+}
+
+void RetroarchFilterChain::updateTexture(const String& name, Material& material)
+{
+	// TODO
+}
+
+void RetroarchFilterChain::drawStage(const Stage& stage, int stageIdx, Painter& painter)
+{
+	// TODO
+	painter.clear(Colour4f(1, 0, (stageIdx + 1) / 10.0f));
 }

@@ -8,5 +8,5 @@ using namespace Halley;
 class FilterChain {
 public:
 	virtual ~FilterChain() = default;
-	virtual Sprite run(const Sprite& src, RenderContext& rc) = 0;
+	virtual Sprite run(const Sprite& src, RenderContext& rc, Vector2i viewPortSize) = 0;
 };

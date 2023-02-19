@@ -65,10 +65,30 @@ void GameCanvas::render(RenderContext& rc) const
 	});
 
 	if (core) {
-		screen = core->getVideoOut();
-		if (filterChain) {
-			screen = filterChain->run(screen, rc);
+		auto coreOutScreen = core->getVideoOut();
+		if (coreOutScreen.hasMaterial()) {
+			const auto origRotatedSpriteSize = coreOutScreen.getScaledSize().rotate(coreOutScreen.getRotation()).abs();
+			const auto windowSize = getSize();
+			const auto scales = windowSize / origRotatedSpriteSize;
+			const auto scale = std::min(scales.x, scales.y) * coreOutScreen.getScale(); // The scale the original sprite would need to fit the view port
+			const auto spriteSize = coreOutScreen.getSize() * scale; // Absolute sprite size
+
+			if (filterChain) {
+				screen = filterChain->run(coreOutScreen, rc, Vector2i(spriteSize.round()));
+			} else {
+				screen = coreOutScreen;
+			}
+
+			screen
+				.scaleTo(spriteSize)
+				.setRotation(coreOutScreen.getRotation())
+				.setPivot(Vector2f(0.5f, 0.5f))
+				.setPosition(windowSize * 0.5f);
+		} else {
+			screen = {};
 		}
+	} else {
+		screen = {};
 	}
 }
 
@@ -82,24 +102,8 @@ void GameCanvas::draw(UIPainter& uiPainter) const
 
 void GameCanvas::paint(Painter& painter) const
 {
-	if (pendingCloseState == 0 && core && core->hasGameLoaded()) {
-		drawScreen(painter, screen);
-	}
-}
-
-void GameCanvas::drawScreen(Painter& painter, Sprite screen) const
-{
-	if (screen.hasMaterial()) {
-		const auto spriteSize = screen.getScaledSize().rotate(screen.getRotation()).abs();
-		const auto windowSize = getSize();
-		const auto scales = windowSize / spriteSize;
-		const auto scale = std::min(scales.x, scales.y) * screen.getScale();
-
-		screen
-			.setScale(scale)
-			.setPivot(Vector2f(0.5f, 0.5f))
-			.setPosition(windowSize * 0.5f)
-			.draw(painter);
+	if (pendingCloseState == 0 && screen.hasMaterial()) {
+		screen.draw(painter);
 	}
 }
 

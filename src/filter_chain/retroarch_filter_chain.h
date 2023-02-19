@@ -64,22 +64,31 @@ public:
 
 		std::shared_ptr<Material> material;
 		std::shared_ptr<MaterialDefinition> materialDefinition;
+		std::unique_ptr<RenderSurface> renderSurface;
+		Vector2i size;
 
-		void loadShader(ShaderConverter& converter, VideoAPI& video);
+		void loadMaterial(ShaderConverter& converter, VideoAPI& video);
 		void applyParams(const ConfigNode& params);
+		Vector2i updateSize(Vector2i sourceSize, Vector2i viewPortSize);
 	};
 
 	RetroarchFilterChain() = default;
 	RetroarchFilterChain(Path path, VideoAPI& video);
 
-	Sprite run(const Sprite& src, RenderContext& rc) override;
+	Sprite run(const Sprite& src, RenderContext& rc, Vector2i viewPortSize) override;
 
 private:
 	Path path;
 	Vector<Stage> stages;
+	uint32_t frameNumber = 0;
 
 	static ConfigNode parsePreset(const Path& path);
 	static void parsePresetLine(std::string_view str, ConfigNode::MapType& dst);
 
 	void loadStages(const ConfigNode& params, VideoAPI& video);
+
+	void setupStageMaterial(size_t stageIdx, Vector2i viewPortSize);
+	void updateParameter(const String& name, Material& material);
+	void updateTexture(const String& name, Material& material);
+	void drawStage(const Stage& stage, int stageIdx, Painter& painter);
 };
