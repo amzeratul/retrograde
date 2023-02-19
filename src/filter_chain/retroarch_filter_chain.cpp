@@ -262,13 +262,13 @@ void RetroarchFilterChain::updateStageMaterial(Stage& stage, const FrameParams& 
 
 void RetroarchFilterChain::updateParameter(Stage& stage, const String& name, Material& material, const FrameParams& frameParams)
 {
-	if (stage.params.hasKey(name)) {
-		material.set(name, stage.params[name].asFloat());
+	if (params.hasKey(name)) {
+		material.set(name, params[name].asFloat());
 		return;
 	}
 
-	if (params.hasKey(name)) {
-		material.set(name, params[name].asFloat());
+	if (stage.params.hasKey(name)) {
+		material.set(name, stage.params[name].asFloat());
 		return;
 	}
 
