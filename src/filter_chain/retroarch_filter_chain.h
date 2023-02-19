@@ -1,6 +1,8 @@
 #pragma once
 
 #include <halley.hpp>
+
+#include "shader_converter.h"
 class ShaderConverter;
 using namespace Halley;
 
@@ -61,8 +63,13 @@ public:
 		Vector2f scale;
 
 		std::shared_ptr<Shader> shader;
+		std::shared_ptr<Material> material;
+		std::shared_ptr<MaterialDefinition> materialDefinition;
 
 		void loadShader(ShaderConverter& converter, VideoAPI& video, const ConfigNode& params);
+
+	private:
+		void loadMaterial(VideoAPI& video, const String& name, const ConfigNode& params, const ShaderReflection& vertexReflection, const ShaderReflection& pixelReflection);
 	};
 
 	RetroarchFilterChain() = default;

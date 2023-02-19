@@ -7,7 +7,8 @@ using namespace Halley;
 enum class ShaderFormat {
     GLSL,
     HLSL,
-	SPIRV
+	SPIRV,
+	MSL
 };
 
 enum class ShaderStage {
@@ -18,30 +19,52 @@ enum class ShaderStage {
 namespace Halley {
 	template <>
 	struct EnumNames<ShaderFormat> {
-		constexpr std::array<const char*, 2> operator()() const {
+		constexpr std::array<const char*, 4> operator()() const {
 			return{ {
 				"glsl",
-				"hlsl"
+				"hlsl",
+				"spirv",
+				"msl"
 			} };
 		}
 	};
 }
 
 namespace spirv_cross {
+	struct SPIRType;
 	class Compiler;
 }
 
-class ShaderConverter {
+class ShaderReflection {
 public:
 	struct Param {
 		String name;
-		String bufferName;
 		size_t offset = 0;
 		size_t size = 0;
+		ShaderParameterType type = ShaderParameterType::Invalid;
 	};
+
+	struct Block {
+		String name;
+		std::optional<size_t> binding;
+		Vector<Param> params;
+	};
+
+	struct Texture {
+		String name;
+		std::optional<size_t> binding;
+		TextureSamplerType samplerType = TextureSamplerType::Texture2D;
+	};
+
+	Vector<Block> uniforms;
+	Vector<Texture> textures;
+};
+
+class ShaderConverter {
+public:
 	struct Result {
 		Bytes shaderCode;
-		Vector<Param> params;
+		ShaderReflection reflection;
 
 		Result(Bytes shaderCode = {}) : shaderCode(std::move(shaderCode)) {}
 	};
@@ -56,5 +79,7 @@ private:
 
 	Bytes convertToSpirv(const String& src, ShaderStage stage, ShaderFormat inputFormat);
 	Result convertSpirvToHLSL(const Bytes& spirv);
-	void getReflectionInfo(spirv_cross::Compiler& compiler, Result& output);
+	ShaderReflection getReflectionInfo(spirv_cross::Compiler& compiler);
+	ShaderParameterType getParameterType(const spirv_cross::SPIRType& type);
+	TextureSamplerType getSamplerType(const spirv_cross::SPIRType& type);
 };

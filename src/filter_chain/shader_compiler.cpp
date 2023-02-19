@@ -1,6 +1,8 @@
 #include "shader_compiler.h"
 
+#ifdef _WIN32
 #include <D3Dcompiler.h>
+#endif
 
 using namespace Halley;
 
@@ -17,8 +19,7 @@ std::unique_ptr<Shader> ShaderCompiler::loadHLSLShader(VideoAPI& video, const St
 
 Bytes ShaderCompiler::compileHLSL(const String& name, const Bytes& bytes, ShaderType type)
 {
-#ifdef _MSC_VER
-
+#ifdef _WIN32
 	String target;
 
 	switch (type) {

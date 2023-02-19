@@ -136,20 +136,23 @@ ShaderConverter::~ShaderConverter()
 
 ShaderConverter::Result ShaderConverter::convertShader(const String& src, ShaderStage stage, ShaderFormat inputFormat, ShaderFormat outputFormat)
 {
-	if (inputFormat == outputFormat) {
-		return {src.toBytes()};
-	}
-
 	auto spirvData = convertToSpirv(src, stage, inputFormat);
-	if (outputFormat == ShaderFormat::SPIRV) {
-		return {spirvData};
-	}
 
 	if (outputFormat == ShaderFormat::HLSL) {
 		return convertSpirvToHLSL(spirvData);
 	}
 
-	return {};
+	Result result;
+	auto compiler = spirv_cross::Compiler(reinterpret_cast<const uint32_t*>(spirvData.data()), spirvData.size() / 4);
+	result.reflection = getReflectionInfo(compiler);
+
+	if (inputFormat == outputFormat) {
+		result.shaderCode = src.toBytes();
+	} else if (outputFormat == ShaderFormat::SPIRV) {
+		result.shaderCode = spirvData;
+	}
+
+	return result;
 }
 
 Bytes ShaderConverter::convertToSpirv(const String& src, ShaderStage stage, ShaderFormat inputFormat)
@@ -206,7 +209,7 @@ ShaderConverter::Result ShaderConverter::convertSpirvToHLSL(const Bytes& spirvDa
 	Result result;
 
 	auto compiler = spirv_cross::CompilerHLSL(reinterpret_cast<const uint32_t*>(spirvData.data()), spirvData.size() / 4);
-	getReflectionInfo(compiler, result);
+	result.reflection = getReflectionInfo(compiler);
 
 	spirv_cross::CompilerHLSL::Options options;
 	options.shader_model = 40;
@@ -216,23 +219,120 @@ ShaderConverter::Result ShaderConverter::convertSpirvToHLSL(const Bytes& spirvDa
 	return result;
 }
 
-void ShaderConverter::getReflectionInfo(spirv_cross::Compiler& compiler, Result& output)
+ShaderReflection ShaderConverter::getReflectionInfo(spirv_cross::Compiler& compiler)
 {
+	ShaderReflection output;
+
 	auto resources = compiler.get_shader_resources();
 
-	for (const auto& resource: resources.push_constant_buffers) {
-	    const auto& type = compiler.get_type(resource.base_type_id);
-	    const auto nMembers = type.member_types.size();
-		const auto blockName = compiler.get_remapped_declared_block_name(resource.id);
+	auto readParams = [&](const spirv_cross::Resource& resource)
+	{
+		auto& block = output.uniforms.emplace_back();
 
+		block.name = compiler.get_remapped_declared_block_name(resource.id);
+		if (compiler.has_decoration(resource.id, spv::DecorationBinding)) {
+			block.binding = compiler.get_decoration(resource.id, spv::DecorationBinding);
+		}
+
+		const auto& type = compiler.get_type(resource.base_type_id);
+	    const auto nMembers = type.member_types.size();
 	    for (uint32_t i = 0; i < nMembers; i++) {
 	        const size_t size = compiler.get_declared_struct_member_size(type, i);
 	    	const size_t offset = compiler.type_struct_member_offset(type, i);
 	        const String& name = compiler.get_member_name(type.self, i);
+			const auto memberType = compiler.get_type(type.member_types[i]);
 
-			output.params.push_back(Param { name, blockName, offset, size });
+			block.params.push_back(ShaderReflection::Param{ name, offset, size, getParameterType(memberType) });
 	    }
+	};
+
+	auto readTextures = [&](const spirv_cross::Resource& resource)
+	{
+		std::optional<size_t> binding;
+		if (compiler.has_decoration(resource.id, spv::DecorationBinding)) {
+			binding = compiler.get_decoration(resource.id, spv::DecorationBinding);
+		}
+		auto type = compiler.get_type(resource.type_id);
+		output.textures.emplace_back(ShaderReflection::Texture{ resource.name, binding, getSamplerType(type) });
+	};
+
+	for (const auto& resource: resources.uniform_buffers) {
+		readParams(resource);
 	}
+
+	for (const auto& resource: resources.push_constant_buffers) {
+		readParams(resource);
+	}
+
+	for (const auto& resource: resources.sampled_images) {
+		readTextures(resource);
+	}
+
+	for (const auto& resource: resources.separate_images) {
+		readTextures(resource);
+	}
+
+	return output;
+}
+
+ShaderParameterType ShaderConverter::getParameterType(const spirv_cross::SPIRType& type)
+{
+	const uint32_t columns = type.columns;
+	const uint32_t len = type.vecsize;
+
+	if (type.basetype == spirv_cross::SPIRType::Float) {
+		if (columns == 1) {
+			if (len == 1) {
+				return ShaderParameterType::Float;
+			} else if (len == 2) {
+				return ShaderParameterType::Float2;
+			} else if (len == 3) {
+				return ShaderParameterType::Float3;
+			} else if (len == 4) {
+				return ShaderParameterType::Float4;
+			}
+		} else {
+			if (columns == 2 && len == 2) {
+				return ShaderParameterType::Matrix2;
+			} else if (columns == 3 && len == 3) {
+				return ShaderParameterType::Matrix3;
+			} else if (columns == 4 && len == 4) {
+				return ShaderParameterType::Matrix4;
+			}
+		}
+	} else if (type.basetype == spirv_cross::SPIRType::UInt) {
+		if (columns == 1 && len == 1) {
+			return ShaderParameterType::UInt;
+		}
+	} else if (type.basetype == spirv_cross::SPIRType::Int) {
+		if (columns == 1) {
+			if (len == 1) {
+				return ShaderParameterType::Int;
+			} else if (len == 2) {
+				return ShaderParameterType::Int2;
+			} else if (len == 3) {
+				return ShaderParameterType::Int3;
+			} else if (len == 4) {
+				return ShaderParameterType::Int4;
+			}
+		}
+	}
+	Logger::logError("Unknown shader parameter type");
+	return ShaderParameterType::Invalid;
+}
+
+TextureSamplerType ShaderConverter::getSamplerType(const spirv_cross::SPIRType& type)
+{
+	if (type.basetype == spirv_cross::SPIRType::Image || type.basetype == spirv_cross::SPIRType::SampledImage) {
+		if (type.image.dim == spv::Dim1D) {
+			return TextureSamplerType::Texture1D;
+		} else if (type.image.dim == spv::Dim2D) {
+			return TextureSamplerType::Texture2D;
+		} else if (type.image.dim == spv::Dim3D) {
+			return TextureSamplerType::Texture3D;
+		}
+	}
+	return TextureSamplerType::Invalid;
 }
 
 size_t ShaderConverter::nInstances = 0;
