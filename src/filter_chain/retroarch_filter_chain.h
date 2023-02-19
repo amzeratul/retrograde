@@ -116,7 +116,7 @@ private:
 	void updateTexture(Stage& stage, const String& name, Material& material);
 	std::shared_ptr<const Texture> lookupTexture(Stage& stage, const String& name);
 
-	void drawStage(const Stage& stage, int stageIdx, Painter& painter);
+	void drawStage(const Stage& stage, Painter& painter);
 
 	static TextureAddressMode getAddressMode(RetroarchWrapMode mode);
 	static Vector4f texSizeToVec4(Vector2i texSize);

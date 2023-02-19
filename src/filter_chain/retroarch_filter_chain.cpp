@@ -213,8 +213,6 @@ Sprite RetroarchFilterChain::run(const Sprite& src, RenderContext& rc, Vector2i 
 		return src;
 	}
 
-	Logger::logDev("Start frame");
-
 	// Frame data
 	originalTexture = src.getMaterial().getTexture(0);
 	const Vector2i originalSize = originalTexture->getSize();
@@ -233,14 +231,12 @@ Sprite RetroarchFilterChain::run(const Sprite& src, RenderContext& rc, Vector2i 
 	}
 
 	// Draw stages
-	for (size_t i = 0; i < stages.size(); ++i) {
-		auto& stage = stages[i];
-		
+	for (auto& stage: stages) {
 		updateStageMaterial(stage, frameParams);
 
 		rc.with(stage.renderSurface->getRenderTarget()).bind([&] (Painter& painter)
 		{
-			drawStage(stage, static_cast<int>(i), painter);
+			drawStage(stage, painter);
 		});
 	}
 
@@ -300,7 +296,7 @@ void RetroarchFilterChain::updateParameter(Stage& stage, const String& name, Mat
 		}
 	}
 	
-	Logger::logWarning("Missing parameter: " + name);
+	//Logger::logWarning("Missing parameter: " + name);
 }
 
 void RetroarchFilterChain::updateTexture(Stage& stage, const String& name, Material& material)
@@ -326,8 +322,12 @@ std::shared_ptr<const Texture> RetroarchFilterChain::lookupTexture(Stage& stage,
 	}
 	if (name.startsWith("OriginalHistory")) {
 		const int n = name.substr(15).toInteger();
-		// TODO
-		return originalTexture;
+		if (n == 0) {
+			return originalTexture;
+		} else {
+			// TODO
+			return {};
+		}
 	}
 	if (name == "Source") {
 		if (stage.index == 0) {
@@ -360,10 +360,33 @@ std::shared_ptr<const Texture> RetroarchFilterChain::lookupTexture(Stage& stage,
 	return {};
 }
 
-void RetroarchFilterChain::drawStage(const Stage& stage, int stageIdx, Painter& painter)
+void RetroarchFilterChain::drawStage(const Stage& stage, Painter& painter)
 {
-	// TODO
-	painter.clear(Colour4f(1, 0, (stageIdx + 1) / 10.0f));
+	const auto vertexSize = stage.materialDefinition->getVertexSize();
+	const auto stride = stage.materialDefinition->getVertexStride();
+	Vector<char> vertexData;
+	vertexData.resize(stride * 4);
+
+	struct Vertex {
+		Vector4f pos;
+		Vector2f tex;
+	};
+
+	const auto verts = std::array<Vector2f, 4>{ Vector2f(0, 0), Vector2f(1, 0), Vector2f(1, 1), Vector2f(0, 1) };
+
+	char* dst = vertexData.data();
+	for (int i = 0; i < 4; ++i) {
+		const auto pos = verts[i];
+
+		Vertex v;
+		v.pos = Vector4f(pos.x, pos.y, pos.x, pos.y);
+		v.tex = pos;
+
+		memcpy(dst, &v, sizeof(v));
+		dst += stage.materialDefinition->getVertexStride();
+	}
+
+	painter.drawQuads(stage.material, 4, vertexData.data());
 }
 
 TextureAddressMode RetroarchFilterChain::getAddressMode(RetroarchWrapMode mode)
