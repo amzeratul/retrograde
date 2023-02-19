@@ -66,7 +66,7 @@ void GameCanvas::render(RenderContext& rc) const
 
 	if (core) {
 		auto coreOutScreen = core->getVideoOut();
-		if (coreOutScreen.hasMaterial()) {
+		if (coreOutScreen.hasMaterial() && coreOutScreen.getSize().x >= 32 && coreOutScreen.getSize().y >= 32) {
 			const auto origRotatedSpriteSize = coreOutScreen.getScaledSize().rotate(coreOutScreen.getRotation()).abs();
 			const auto windowSize = getSize();
 			const auto scales = windowSize / origRotatedSpriteSize;

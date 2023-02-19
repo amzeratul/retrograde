@@ -54,7 +54,7 @@ void RetroarchFilterChain::Stage::loadMaterial(ShaderConverter& converter, Video
 	RenderSurfaceOptions options;
 	options.name = name;
 	options.createDepthStencil = false;
-	options.useFiltering = false;
+	options.useFiltering = true;
 	options.powerOfTwo = false;
 	renderSurface = std::make_unique<RenderSurface>(video, options);
 }
@@ -99,6 +99,9 @@ std::shared_ptr<Texture> RetroarchFilterChain::Stage::getTexture(int framesBack)
 void RetroarchFilterChain::Stage::swapTextures()
 {
 	if (needsHistory) {
+		if (!renderSurface->isReady()) {
+			renderSurface->createNewColourTarget();
+		}
 		auto cur = renderSurface->getRenderTarget().getTexture(0);
 		std::swap(cur, prevTexture);
 		if (cur) {
@@ -295,7 +298,8 @@ void RetroarchFilterChain::updateParameter(Stage& stage, const String& name, Mat
 			return;
 		}
 	}
-	
+
+	material.set(name, 0.0f);
 	//Logger::logWarning("Missing parameter: " + name);
 }
 
