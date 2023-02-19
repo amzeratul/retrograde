@@ -63,6 +63,7 @@ public:
 		RetroarchScaleType scaleTypeX = RetroarchScaleType::Source;
 		RetroarchScaleType scaleTypeY = RetroarchScaleType::Source;
 		Vector2f scale;
+		int index = 0;
 
 		String shaderName;
 		String shaderRenderFormat;
@@ -73,8 +74,13 @@ public:
 		Vector2i size;
 		ConfigNode params;
 
+		std::shared_ptr<Texture> prevTexture;
+		bool needsHistory = true;
+
 		void loadMaterial(ShaderConverter& converter, VideoAPI& video);
 		Vector2i updateSize(Vector2i sourceSize, Vector2i viewPortSize);
+		std::shared_ptr<Texture> getTexture(int framesBack);
+		void swapTextures();
 	};
 
 	RetroarchFilterChain() = default;
@@ -85,18 +91,17 @@ public:
 private:
 	struct FrameParams {
 		Matrix4f mvp;
-		Vector4f sourceSize;
-		Vector4f originalSize;
-		Vector4f outputSize;
 		Vector4f finalViewportSize;
 		uint32_t frameCount;
 	};
 
 	Path path;
 	Vector<Stage> stages;
+	ConfigNode params;
+
 	HashMap<String, std::shared_ptr<Texture>> textures;
 	uint32_t frameNumber = 0;
-	ConfigNode params;
+	std::shared_ptr<const Texture> originalTexture;
 
 	static ConfigNode parsePreset(const Path& path);
 	static void parsePresetLine(std::string_view str, ConfigNode::MapType& dst);
@@ -106,11 +111,11 @@ private:
 
 	std::unique_ptr<Texture> loadTexture(VideoAPI& video, const Path& path, bool linear, bool mipMap, RetroarchWrapMode wrapMode);
 
-	void setupStageMaterial(Stage& stage);
 	void updateStageMaterial(Stage& stage, const FrameParams& frameParams);
-	void updateUserParameters(Stage& stage, const String& name, Material& material);
-	void updateFrameParameters(const String& name, Material& material, const FrameParams& frameParams);
-	void updateTexture(const String& name, Material& material);
+	void updateParameter(Stage& stage, const String& name, Material& material, const FrameParams& frameParams);
+	void updateTexture(Stage& stage, const String& name, Material& material);
+	std::shared_ptr<const Texture> lookupTexture(Stage& stage, const String& name);
+
 	void drawStage(const Stage& stage, int stageIdx, Painter& painter);
 
 	static TextureAddressMode getAddressMode(RetroarchWrapMode mode);

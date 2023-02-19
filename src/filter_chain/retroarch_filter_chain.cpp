@@ -21,6 +21,8 @@ RetroarchFilterChain::Stage::Stage(int idx, const ConfigNode& params, const Path
 	scaleTypeY = params["scale_type_y" + idxStr].asEnum(RetroarchScaleType::Source);
 	scale.x = params["scale_x" + idxStr].asFloat(1.0f);
 	scale.y = params["scale_y" + idxStr].asFloat(1.0f);
+
+	index = idx;
 }
 
 
@@ -82,6 +84,31 @@ Vector2i RetroarchFilterChain::Stage::updateSize(Vector2i sourceSize, Vector2i v
 	return size;
 }
 
+std::shared_ptr<Texture> RetroarchFilterChain::Stage::getTexture(int framesBack)
+{
+	if (framesBack == 0) {
+		return renderSurface->getRenderTarget().getTexture(0);
+	} else if (framesBack == 1) {
+		assert(needsHistory);
+		return prevTexture;
+	} else {
+		throw Exception("Further texture history not available", 0);
+	}
+}
+
+void RetroarchFilterChain::Stage::swapTextures()
+{
+	if (needsHistory) {
+		auto cur = renderSurface->getRenderTarget().getTexture(0);
+		std::swap(cur, prevTexture);
+		if (cur) {
+			renderSurface->setColourTarget(cur);
+		} else {
+			renderSurface->createNewColourTarget();
+		}
+	}
+}
+
 
 RetroarchFilterChain::RetroarchFilterChain(Path _path, VideoAPI& video)
 	: path(std::move(_path))
@@ -133,7 +160,6 @@ void RetroarchFilterChain::loadStages(const ConfigNode& params, VideoAPI& video)
 	ShaderConverter converter;
 	for (auto& stage: stages) {
 		stage.loadMaterial(converter, video);
-		setupStageMaterial(stage);
 	}
 }
 
@@ -181,7 +207,7 @@ std::unique_ptr<Texture> RetroarchFilterChain::loadTexture(VideoAPI& video, cons
 	return texture;
 }
 
-Sprite RetroarchFilterChain::run(const Sprite& src, RenderContext& rc, Vector2i outputSize)
+Sprite RetroarchFilterChain::run(const Sprite& src, RenderContext& rc, Vector2i viewportSize)
 {
 	if (stages.empty()) {
 		return src;
@@ -189,27 +215,27 @@ Sprite RetroarchFilterChain::run(const Sprite& src, RenderContext& rc, Vector2i 
 
 	Logger::logDev("Start frame");
 
+	// Frame data
+	originalTexture = src.getMaterial().getTexture(0);
+	const Vector2i originalSize = originalTexture->getSize();
+	FrameParams frameParams;
+	frameParams.frameCount = frameNumber++;
+	frameParams.mvp = Matrix4f::makeIdentity(); // TODO
+	frameParams.finalViewportSize = texSizeToVec4(viewportSize);
+
 	// Set stage sizes
-	const Vector2i originalSize = src.getMaterial().getTexture(0)->getSize();
 	{
 		Vector2i sourceSize = originalSize;
 		for (auto& stage: stages) {
-			sourceSize = stage.updateSize(sourceSize, outputSize);
+			sourceSize = stage.updateSize(sourceSize, viewportSize);
+			stage.swapTextures();
 		}
 	}
-
-	FrameParams frameParams;
-	frameParams.frameCount = frameNumber;
-	frameParams.mvp = Matrix4f::makeIdentity(); // TODO
-	frameParams.originalSize = texSizeToVec4(originalSize);
-	frameParams.finalViewportSize = texSizeToVec4(outputSize);
 
 	// Draw stages
 	for (size_t i = 0; i < stages.size(); ++i) {
 		auto& stage = stages[i];
 		
-		frameParams.sourceSize = texSizeToVec4(i == 0 ? originalSize : stages[i - 1].size);
-		frameParams.outputSize = texSizeToVec4(stage.size);
 		updateStageMaterial(stage, frameParams);
 
 		rc.with(stage.renderSurface->getRenderTarget()).bind([&] (Painter& painter)
@@ -218,35 +244,24 @@ Sprite RetroarchFilterChain::run(const Sprite& src, RenderContext& rc, Vector2i 
 		});
 	}
 
-	++frameNumber;
-
 	return stages.back().renderSurface->getSurfaceSprite(src.getMaterialPtr()->clone());
 }
 
-
-void RetroarchFilterChain::setupStageMaterial(Stage& stage)
-{
-	for (const auto& ub: stage.materialDefinition->getUniformBlocks()) {
-		for (const auto& u: ub.uniforms) {
-			updateUserParameters(stage, u.name, *stage.material);
-		}
-	}
-}
 
 void RetroarchFilterChain::updateStageMaterial(Stage& stage, const FrameParams& frameParams)
 {
 	for (const auto& ub: stage.materialDefinition->getUniformBlocks()) {
 		for (const auto& u: ub.uniforms) {
-			updateFrameParameters(u.name, *stage.material, frameParams);
+			updateParameter(stage, u.name, *stage.material, frameParams);
 		}
 	}
 	
 	for (const auto& tex: stage.materialDefinition->getTextures()) {
-		updateTexture(tex.name, *stage.material);
+		updateTexture(stage, tex.name, *stage.material);
 	}
 }
 
-void RetroarchFilterChain::updateUserParameters(Stage& stage, const String& name, Material& material)
+void RetroarchFilterChain::updateParameter(Stage& stage, const String& name, Material& material, const FrameParams& frameParams)
 {
 	if (stage.params.hasKey(name)) {
 		material.set(name, stage.params[name].asFloat());
@@ -258,41 +273,91 @@ void RetroarchFilterChain::updateUserParameters(Stage& stage, const String& name
 		return;
 	}
 
-	if (name == "MVP" || name == "SourceSize" || name == "OriginalSize" || name == "OutputSize" || name == "FinalViewportSize" || name == "FrameCount") {
-		// Built in, updated later
+	if (name == "MVP") {
+		material.set(name, frameParams.mvp);
 		return;
 	}
-
+	if (name == "OutputSize") {
+		material.set(name, texSizeToVec4(stage.size));
+		return;
+	}
+	if (name == "FinalViewportSize") {
+		material.set(name, frameParams.finalViewportSize);
+		return;
+	}
+	if (name == "FrameCount") {
+		material.set(name, frameParams.frameCount);
+		return;
+	}
+	
+	if (name.contains("Size")) {
+		// Assume it's referencing a texture, remove "Size" from variable name to get its name
+		const auto texName = name.replaceOne("Size", "");
+		const auto tex = lookupTexture(stage, texName);
+		if (tex) {
+			material.set(name, texSizeToVec4(tex->getSize()));
+			return;
+		}
+	}
+	
 	Logger::logWarning("Missing parameter: " + name);
 }
 
-void RetroarchFilterChain::updateFrameParameters(const String& name, Material& material, const FrameParams& frameParams)
+void RetroarchFilterChain::updateTexture(Stage& stage, const String& name, Material& material)
 {
-	if (name == "MVP") {
-		material.set(name, frameParams.mvp);
-	} else if (name == "SourceSize") {
-		material.set(name, frameParams.sourceSize);
-	} else if (name == "OriginalSize") {
-		material.set(name, frameParams.originalSize);
-	} else if (name == "OutputSize") {
-		material.set(name, frameParams.outputSize);
-	} else if (name == "FinalViewportSize") {
-		material.set(name, frameParams.finalViewportSize);
-	} else if (name == "FrameCount") {
-		material.set(name, frameParams.frameCount);
-	}
-}
-
-void RetroarchFilterChain::updateTexture(const String& name, Material& material)
-{
-	const auto texIter = textures.find(name);
-	if (texIter != textures.end()) {
-		material.set(name, texIter->second);
+	auto tex = lookupTexture(stage, name);
+	if (tex) {
+		material.set(name, tex);
 		return;
 	}
 
-	// TODO: reference other stages
 	Logger::logWarning("Missing texture: " + name);
+}
+
+std::shared_ptr<const Texture> RetroarchFilterChain::lookupTexture(Stage& stage, const String& name)
+{
+	const auto texIter = textures.find(name);
+	if (texIter != textures.end()) {
+		return texIter->second;
+	}
+
+	if (name == "Original") {
+		return originalTexture;
+	}
+	if (name.startsWith("OriginalHistory")) {
+		const int n = name.substr(15).toInteger();
+		// TODO
+		return originalTexture;
+	}
+	if (name == "Source") {
+		if (stage.index == 0) {
+			return originalTexture;
+		} else {
+			return stages[stage.index - 1].getTexture(0);
+		}
+	}
+	if (name.startsWith("PassOutput")) {
+		const int n = name.substr(10).toInteger();
+		return stages[n].getTexture(0);
+	}
+	if (name.startsWith("PassFeedback")) {
+		const int n = name.substr(12).toInteger();
+		return stages[n].getTexture(1);
+	}
+	if (name.startsWith("User")) {
+		// TODO
+		return {};
+	}
+
+	const bool isFeedback = name.endsWith("Feedback");
+	const auto& aliasName = isFeedback ? name.substr(0, name.size() - 8) : name;
+	for (auto& otherStage: stages) {
+		if (otherStage.alias == aliasName || otherStage.shaderName == aliasName) {
+			return otherStage.getTexture(isFeedback ? 1 : 0);
+		}
+	}
+
+	return {};
 }
 
 void RetroarchFilterChain::drawStage(const Stage& stage, int stageIdx, Painter& painter)
