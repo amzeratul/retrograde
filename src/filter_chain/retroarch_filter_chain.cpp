@@ -29,6 +29,11 @@ void RetroarchFilterChain::Stage::loadMaterial(ShaderConverter& converter, Video
 	const String name = shaderPath.getFilename().replaceExtension("").getString();
 	const auto parsed = RetroarchShaderParser::parse(shaderPath);
 
+	params = ConfigNode::MapType();
+	for (const auto& param: parsed.parameters) {
+		params[param.name] = param.initial;
+	}
+
 	const auto outputFormat = fromString<ShaderFormat>(video.getShaderLanguage());
 	const auto vertexShader = converter.convertShader(parsed.vertexShader, ShaderStage::Vertex, ShaderFormat::GLSL, outputFormat);
 	const auto pixelShader = converter.convertShader(parsed.pixelShader, ShaderStage::Pixel, ShaderFormat::GLSL, outputFormat);
@@ -46,18 +51,8 @@ void RetroarchFilterChain::Stage::loadMaterial(ShaderConverter& converter, Video
 	options.name = name;
 	options.createDepthStencil = false;
 	options.useFiltering = false;
+	options.powerOfTwo = false;
 	renderSurface = std::make_unique<RenderSurface>(video, options);
-}
-
-void RetroarchFilterChain::Stage::applyParams(const ConfigNode& params)
-{
-	for (const auto& ub: materialDefinition->getUniformBlocks()) {
-		for (const auto& u: ub.uniforms) {
-			if (params.hasKey(u.name)) {
-				material->set(u.name, params[u.name].asFloat());
-			}
-		}
-	}
 }
 
 Vector2i RetroarchFilterChain::Stage::updateSize(Vector2i sourceSize, Vector2i viewPortSize)
@@ -89,8 +84,9 @@ Vector2i RetroarchFilterChain::Stage::updateSize(Vector2i sourceSize, Vector2i v
 RetroarchFilterChain::RetroarchFilterChain(Path _path, VideoAPI& video)
 	: path(std::move(_path))
 {
-	const auto params = parsePreset(path);
+	params = parsePreset(path);
 	loadStages(params, video);
+	loadTextures(params, video);
 }
 
 ConfigNode RetroarchFilterChain::parsePreset(const Path& path)
@@ -126,6 +122,7 @@ void RetroarchFilterChain::parsePresetLine(std::string_view str, ConfigNode::Map
 
 void RetroarchFilterChain::loadStages(const ConfigNode& params, VideoAPI& video)
 {
+	stages.clear();
 	const int nShaders = params["shaders"].asInt(0);
 	for (int i = 0; i < nShaders; ++i) {
 		stages.push_back(Stage(i, params, path.parentPath()));
@@ -134,27 +131,84 @@ void RetroarchFilterChain::loadStages(const ConfigNode& params, VideoAPI& video)
 	ShaderConverter converter;
 	for (auto& stage: stages) {
 		stage.loadMaterial(converter, video);
-		stage.applyParams(params);
+		setupStageMaterial(stage);
 	}
 }
 
-Sprite RetroarchFilterChain::run(const Sprite& src, RenderContext& rc, Vector2i viewPortSize)
+void RetroarchFilterChain::loadTextures(const ConfigNode& params, VideoAPI& video)
+{
+	textures.clear();
+	const auto textureNames = params["textures"].asString("").split(';');
+	for (const auto& name: textureNames) {
+		const auto relPath = params[name].asString("");
+		if (relPath.isEmpty()) {
+			Logger::logWarning("Texture details not found for " + name);
+			continue;
+		}
+		const auto texPath = path.parentPath() / relPath;
+		const bool linear = params[name + "_linear"].asBool(false);
+		const bool mipMap = params[name + "_mip_map"].asBool(false);
+		const auto wrapMode = params[name + "_wrap_mode"].asEnum<RetroarchWrapMode>(RetroarchWrapMode::ClampToEdge);
+
+		textures[name] = loadTexture(video, texPath, linear, mipMap, wrapMode);
+	}
+}
+
+std::unique_ptr<Texture> RetroarchFilterChain::loadTexture(VideoAPI& video, const Path& path, bool linear, bool mipMap, RetroarchWrapMode wrapMode)
+{
+	const auto bytes = Path::readFile(path);
+	if (bytes.empty()) {
+		return {};
+	}
+
+	auto image = std::make_unique<Image>(bytes.byte_span());
+	if (image->getSize().x == 0) {
+		return {};
+	}
+	const auto size = image->getSize();
+
+	TextureDescriptor descriptor(size);
+	descriptor.useFiltering = linear;
+	descriptor.useMipMap = mipMap;
+	descriptor.addressMode = getAddressMode(wrapMode);
+	descriptor.pixelData = std::move(image);
+
+	auto texture = video.createTexture(size);
+	texture->startLoading();
+	texture->load(std::move(descriptor));
+	return texture;
+}
+
+Sprite RetroarchFilterChain::run(const Sprite& src, RenderContext& rc, Vector2i outputSize)
 {
 	if (stages.empty()) {
 		return src;
 	}
 
+	Logger::logDev("Start frame");
+
 	// Set stage sizes
-	Vector2i sourceSize = src.getMaterial().getTexture(0)->getSize();
-	for (auto& stage: stages) {
-		sourceSize = stage.updateSize(sourceSize, viewPortSize);
+	const Vector2i originalSize = src.getMaterial().getTexture(0)->getSize();
+	{
+		Vector2i sourceSize = originalSize;
+		for (auto& stage: stages) {
+			sourceSize = stage.updateSize(sourceSize, outputSize);
+		}
 	}
+
+	FrameParams frameParams;
+	frameParams.frameCount = frameNumber;
+	frameParams.mvp = Matrix4f(); // TODO
+	frameParams.originalSize = Vector4f(Vector4i(originalSize.x, originalSize.y, originalSize.x, originalSize.y));
+	frameParams.outputSize = Vector4f(Vector4i(outputSize.x, outputSize.y, outputSize.x, outputSize.y));
 
 	// Draw stages
 	for (size_t i = 0; i < stages.size(); ++i) {
 		auto& stage = stages[i];
 
-		setupStageMaterial(i, sourceSize);
+		const auto sourceSize = i == 0 ? originalSize : stages[i - 1].size;
+		frameParams.sourceSize = Vector4f(Vector4i(sourceSize.x, sourceSize.y, sourceSize.x, sourceSize.y));
+		updateStageMaterial(stage, frameParams);
 
 		rc.with(stage.renderSurface->getRenderTarget()).bind([&] (Painter& painter)
 		{
@@ -168,12 +222,20 @@ Sprite RetroarchFilterChain::run(const Sprite& src, RenderContext& rc, Vector2i 
 }
 
 
-void RetroarchFilterChain::setupStageMaterial(size_t stageIdx, Vector2i viewPortSize)
+void RetroarchFilterChain::setupStageMaterial(Stage& stage)
 {
-	auto& stage = stages[stageIdx];
 	for (const auto& ub: stage.materialDefinition->getUniformBlocks()) {
 		for (const auto& u: ub.uniforms) {
-			updateParameter(u.name, *stage.material);
+			updateUserParameters(stage, u.name, *stage.material);
+		}
+	}
+}
+
+void RetroarchFilterChain::updateStageMaterial(Stage& stage, const FrameParams& frameParams)
+{
+	for (const auto& ub: stage.materialDefinition->getUniformBlocks()) {
+		for (const auto& u: ub.uniforms) {
+			updateFrameParameters(u.name, *stage.material, frameParams);
 		}
 	}
 	
@@ -182,18 +244,70 @@ void RetroarchFilterChain::setupStageMaterial(size_t stageIdx, Vector2i viewPort
 	}
 }
 
-void RetroarchFilterChain::updateParameter(const String& name, Material& material)
+void RetroarchFilterChain::updateUserParameters(Stage& stage, const String& name, Material& material)
 {
-	// TODO
+	if (stage.params.hasKey(name)) {
+		material.set(name, stage.params[name].asFloat());
+		return;
+	}
+
+	if (params.hasKey(name)) {
+		material.set(name, params[name].asFloat());
+		return;
+	}
+
+	if (name == "MVP" || name == "SourceSize" || name == "OriginalSize" || name == "OutputSize" || name == "FrameCount") {
+		// Built in, updated later
+		return;
+	}
+
+	Logger::logWarning("Missing parameter: " + name);
+}
+
+void RetroarchFilterChain::updateFrameParameters(const String& name, Material& material, const FrameParams& frameParams)
+{
+	if (name == "MVP") {
+		material.set(name, frameParams.mvp);
+	} else if (name == "SourceSize") {
+		material.set(name, frameParams.sourceSize);
+	} else if (name == "OriginalSize") {
+		material.set(name, frameParams.originalSize);
+	} else if (name == "OutputSize") {
+		material.set(name, frameParams.outputSize);
+	} else if (name == "FrameCount") {
+		material.set(name, frameParams.frameCount);
+	}
 }
 
 void RetroarchFilterChain::updateTexture(const String& name, Material& material)
 {
-	// TODO
+	const auto texIter = textures.find(name);
+	if (texIter != textures.end()) {
+		material.set(name, texIter->second);
+		return;
+	}
+
+	// TODO: reference other stages
+	Logger::logWarning("Missing texture: " + name);
 }
 
 void RetroarchFilterChain::drawStage(const Stage& stage, int stageIdx, Painter& painter)
 {
 	// TODO
 	painter.clear(Colour4f(1, 0, (stageIdx + 1) / 10.0f));
+}
+
+TextureAddressMode RetroarchFilterChain::getAddressMode(RetroarchWrapMode mode)
+{
+	switch (mode) {
+	case RetroarchWrapMode::ClampToBorder:
+		return TextureAddressMode::Border;
+	case RetroarchWrapMode::ClampToEdge:
+		return TextureAddressMode::Clamp;
+	case RetroarchWrapMode::Repeat:
+		return TextureAddressMode::Repeat;
+	case RetroarchWrapMode::Mirror:
+		return TextureAddressMode::Mirror;
+	}
+	return TextureAddressMode::Clamp;
 }

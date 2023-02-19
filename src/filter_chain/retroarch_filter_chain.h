@@ -17,7 +17,8 @@ enum class RetroarchScaleType {
 enum class RetroarchWrapMode {
 	ClampToEdge,
 	ClampToBorder,
-	Repeat
+	Repeat,
+	Mirror
 };
 
 namespace Halley {
@@ -34,11 +35,12 @@ namespace Halley {
 
 	template <>
 	struct EnumNames<RetroarchWrapMode> {
-		constexpr std::array<const char*, 3> operator()() const {
+		constexpr std::array<const char*, 4> operator()() const {
 			return{{
 				"clamp_to_edge",
 				"clamp_to_border",
-				"repeat"
+				"repeat",
+				"mirror"
 			}};
 		}
 	};
@@ -66,9 +68,9 @@ public:
 		std::shared_ptr<MaterialDefinition> materialDefinition;
 		std::unique_ptr<RenderSurface> renderSurface;
 		Vector2i size;
+		ConfigNode params;
 
 		void loadMaterial(ShaderConverter& converter, VideoAPI& video);
-		void applyParams(const ConfigNode& params);
 		Vector2i updateSize(Vector2i sourceSize, Vector2i viewPortSize);
 	};
 
@@ -78,17 +80,34 @@ public:
 	Sprite run(const Sprite& src, RenderContext& rc, Vector2i viewPortSize) override;
 
 private:
+	struct FrameParams {
+		Matrix4f mvp;
+		Vector4f sourceSize;
+		Vector4f originalSize;
+		Vector4f outputSize;
+		uint32_t frameCount;
+	};
+
 	Path path;
 	Vector<Stage> stages;
+	HashMap<String, std::shared_ptr<Texture>> textures;
 	uint32_t frameNumber = 0;
+	ConfigNode params;
 
 	static ConfigNode parsePreset(const Path& path);
 	static void parsePresetLine(std::string_view str, ConfigNode::MapType& dst);
 
 	void loadStages(const ConfigNode& params, VideoAPI& video);
+	void loadTextures(const ConfigNode& params, VideoAPI& video);
 
-	void setupStageMaterial(size_t stageIdx, Vector2i viewPortSize);
-	void updateParameter(const String& name, Material& material);
+	std::unique_ptr<Texture> loadTexture(VideoAPI& video, const Path& path, bool linear, bool mipMap, RetroarchWrapMode wrapMode);
+
+	void setupStageMaterial(Stage& stage);
+	void updateStageMaterial(Stage& stage, const FrameParams& frameParams);
+	void updateUserParameters(Stage& stage, const String& name, Material& material);
+	void updateFrameParameters(const String& name, Material& material, const FrameParams& frameParams);
 	void updateTexture(const String& name, Material& material);
 	void drawStage(const Stage& stage, int stageIdx, Painter& painter);
+
+	static TextureAddressMode getAddressMode(RetroarchWrapMode mode);
 };
