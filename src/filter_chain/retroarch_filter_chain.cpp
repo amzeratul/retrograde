@@ -1,6 +1,6 @@
 #include "retroarch_filter_chain.h"
-
 #include "retroarch_shader_parser.h"
+#include "shader_compiler.h"
 #include "shader_converter.h"
 
 // Details: https://github.com/libretro/slang-shaders
@@ -37,7 +37,10 @@ void RetroarchFilterChain::Stage::loadShader(ShaderConverter& converter, VideoAP
 		Path::writeFile("../tmp/" + shaderPath.getFilename().replaceExtension(".pixel.hlsl"), pixelShader.shaderCode);
 	}
 
-	shader = ShaderConverter::loadShader(vertexShader.shaderCode.byte_span(), pixelShader.shaderCode.byte_span(), video);
+	const String name = shaderPath.getFilename().replaceExtension("").getString();
+	if (outputFormat == ShaderFormat::HLSL) {
+		shader = ShaderCompiler::loadHLSLShader(video, name, vertexShader.shaderCode, pixelShader.shaderCode);
+	}
 }
 
 RetroarchFilterChain::RetroarchFilterChain(Path _path, VideoAPI& video)

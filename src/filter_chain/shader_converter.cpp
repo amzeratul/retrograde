@@ -136,22 +136,17 @@ ShaderConverter::~ShaderConverter()
 
 ShaderConverter::Result ShaderConverter::convertShader(const String& src, ShaderStage stage, ShaderFormat inputFormat, ShaderFormat outputFormat)
 {
-	Result result;
-
 	if (inputFormat == outputFormat) {
-		result.shaderCode = src.toBytes();
-		return result;
+		return {src.toBytes()};
 	}
 
 	auto spirvData = convertToSpirv(src, stage, inputFormat);
 	if (outputFormat == ShaderFormat::SPIRV) {
-		result.shaderCode = spirvData;
-		return result;
+		return {spirvData};
 	}
 
 	if (outputFormat == ShaderFormat::HLSL) {
-		result.shaderCode = convertSpirvToHLSL(spirvData, stage).toBytes();
-		return result;
+		return convertSpirvToHLSL(spirvData);
 	}
 
 	return {};
@@ -206,22 +201,38 @@ Bytes ShaderConverter::convertToSpirv(const String& src, ShaderStage stage, Shad
 	return output;
 }
 
-String ShaderConverter::convertSpirvToHLSL(const Bytes& spirvData, ShaderStage stage)
+ShaderConverter::Result ShaderConverter::convertSpirvToHLSL(const Bytes& spirvData)
 {
-	auto hlsl = spirv_cross::CompilerHLSL(reinterpret_cast<const uint32_t*>(spirvData.data()), spirvData.size() / 4);
-	auto resources = hlsl.get_shader_resources();
+	Result result;
+
+	auto compiler = spirv_cross::CompilerHLSL(reinterpret_cast<const uint32_t*>(spirvData.data()), spirvData.size() / 4);
+	getReflectionInfo(compiler, result);
 
 	spirv_cross::CompilerHLSL::Options options;
-	hlsl.set_hlsl_options(options);
+	options.shader_model = 40;
+	compiler.set_hlsl_options(options);
+	result.shaderCode = String(compiler.compile()).toBytes();
 
-	return hlsl.compile();
+	return result;
 }
 
-std::unique_ptr<Shader> ShaderConverter::loadShader(gsl::span<const gsl::byte> vertexSrc, gsl::span<const gsl::byte> pixelSrc, VideoAPI& video)
+void ShaderConverter::getReflectionInfo(spirv_cross::Compiler& compiler, Result& output)
 {
-	// Maybe move this to video api directly?
-	// TODO
-	return {};
+	auto resources = compiler.get_shader_resources();
+
+	for (const auto& resource: resources.push_constant_buffers) {
+	    const auto& type = compiler.get_type(resource.base_type_id);
+	    const auto nMembers = type.member_types.size();
+		const auto blockName = compiler.get_remapped_declared_block_name(resource.id);
+
+	    for (uint32_t i = 0; i < nMembers; i++) {
+	        const size_t size = compiler.get_declared_struct_member_size(type, i);
+	    	const size_t offset = compiler.type_struct_member_offset(type, i);
+	        const String& name = compiler.get_member_name(type.self, i);
+
+			output.params.push_back(Param { name, blockName, offset, size });
+	    }
+	}
 }
 
 size_t ShaderConverter::nInstances = 0;

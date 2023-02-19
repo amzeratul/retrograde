@@ -22,6 +22,7 @@ set (SOURCES
 
 	"src/filter_chain/retroarch_filter_chain.cpp"
 	"src/filter_chain/retroarch_shader_parser.cpp"
+	"src/filter_chain/shader_compiler.cpp"
 	"src/filter_chain/shader_converter.cpp"
 
 	"src/game/game_stage.cpp"
@@ -76,6 +77,7 @@ set (HEADERS
 	"src/filter_chain/filter_chain.h"
 	"src/filter_chain/retroarch_filter_chain.h"
 	"src/filter_chain/retroarch_shader_parser.h"
+	"src/filter_chain/shader_compiler.h"
 	"src/filter_chain/shader_converter.h"
 
 	"src/game/game_stage.h"
