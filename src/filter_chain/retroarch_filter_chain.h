@@ -62,14 +62,11 @@ public:
 		RetroarchScaleType scaleTypeY = RetroarchScaleType::Source;
 		Vector2f scale;
 
-		std::shared_ptr<Shader> shader;
 		std::shared_ptr<Material> material;
 		std::shared_ptr<MaterialDefinition> materialDefinition;
 
-		void loadShader(ShaderConverter& converter, VideoAPI& video, const ConfigNode& params);
-
-	private:
-		void loadMaterial(VideoAPI& video, const String& name, const ConfigNode& params, const ShaderReflection& vertexReflection, const ShaderReflection& pixelReflection);
+		void loadShader(ShaderConverter& converter, VideoAPI& video);
+		void applyParams(const ConfigNode& params);
 	};
 
 	RetroarchFilterChain() = default;

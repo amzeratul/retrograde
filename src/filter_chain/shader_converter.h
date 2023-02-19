@@ -44,6 +44,13 @@ public:
 		ShaderParameterType type = ShaderParameterType::Invalid;
 	};
 
+	struct Attribute {
+		String name;
+		ShaderParameterType type = ShaderParameterType::Invalid;
+		String semantic;
+		int semanticIndex;
+	};
+
 	struct Block {
 		String name;
 		std::optional<size_t> binding;
@@ -52,33 +59,35 @@ public:
 
 	struct Texture {
 		String name;
-		std::optional<size_t> binding;
+		size_t binding;
 		TextureSamplerType samplerType = TextureSamplerType::Texture2D;
 	};
 
+	Vector<Attribute> attributes;
 	Vector<Block> uniforms;
 	Vector<Texture> textures;
 };
 
+class ShaderCodeWithReflection {
+public:
+	Bytes shaderCode;
+	ShaderReflection reflection;
+	ShaderFormat format;
+	ShaderStage stage;
+};
+
 class ShaderConverter {
 public:
-	struct Result {
-		Bytes shaderCode;
-		ShaderReflection reflection;
-
-		Result(Bytes shaderCode = {}) : shaderCode(std::move(shaderCode)) {}
-	};
-
 	ShaderConverter();
 	~ShaderConverter();
 
-    Result convertShader(const String& src, ShaderStage stage, ShaderFormat inputFormat, ShaderFormat outputFormat);
+    ShaderCodeWithReflection convertShader(const String& src, ShaderStage stage, ShaderFormat inputFormat, ShaderFormat outputFormat);
 
 private:
 	static size_t nInstances;
 
 	Bytes convertToSpirv(const String& src, ShaderStage stage, ShaderFormat inputFormat);
-	Result convertSpirvToHLSL(const Bytes& spirv);
+	ShaderCodeWithReflection convertSpirvToHLSL(ShaderStage stage, const Bytes& spirv);
 	ShaderReflection getReflectionInfo(spirv_cross::Compiler& compiler);
 	ShaderParameterType getParameterType(const spirv_cross::SPIRType& type);
 	TextureSamplerType getSamplerType(const spirv_cross::SPIRType& type);

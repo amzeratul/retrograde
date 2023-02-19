@@ -1,6 +1,7 @@
 #include "retroarch_filter_chain.h"
+
+#include "material_generator.h"
 #include "retroarch_shader_parser.h"
-#include "shader_compiler.h"
 #include "shader_converter.h"
 
 // Details: https://github.com/libretro/slang-shaders
@@ -23,72 +24,30 @@ RetroarchFilterChain::Stage::Stage(int idx, const ConfigNode& params, const Path
 }
 
 
-void RetroarchFilterChain::Stage::loadShader(ShaderConverter& converter, VideoAPI& video, const ConfigNode& params)
+void RetroarchFilterChain::Stage::loadShader(ShaderConverter& converter, VideoAPI& video)
 {
+	const String name = shaderPath.getFilename().replaceExtension("").getString();
 	const auto parsed = RetroarchShaderParser::parse(shaderPath);
 
 	const auto outputFormat = fromString<ShaderFormat>(video.getShaderLanguage());
 	const auto vertexShader = converter.convertShader(parsed.vertexShader, ShaderStage::Vertex, ShaderFormat::GLSL, outputFormat);
 	const auto pixelShader = converter.convertShader(parsed.pixelShader, ShaderStage::Pixel, ShaderFormat::GLSL, outputFormat);
 
-	const bool debugOutput = false;
-	if (debugOutput) {
-		Path::writeFile("../tmp/" + shaderPath.getFilename().replaceExtension(".vertex.hlsl"), vertexShader.shaderCode);
-		Path::writeFile("../tmp/" + shaderPath.getFilename().replaceExtension(".pixel.hlsl"), pixelShader.shaderCode);
-	}
-
-	const String name = shaderPath.getFilename().replaceExtension("").getString();
-	if (outputFormat == ShaderFormat::HLSL) {
-		shader = ShaderCompiler::loadHLSLShader(video, name, vertexShader.shaderCode, pixelShader.shaderCode);
-	} else {
-		Logger::logError("Loading shader format not implemented: " + toString(outputFormat));
-	}
-
-	loadMaterial(video, name, params, vertexShader.reflection, pixelShader.reflection);
-}
-
-void RetroarchFilterChain::Stage::loadMaterial(VideoAPI& video, const String& name, const ConfigNode& params, const ShaderReflection& vertexReflection, const ShaderReflection& pixelReflection)
-{
-	// Generate vertex attribute definitions
-	// TODO: attributes
-	Vector<MaterialAttribute> attributes;
-
-	// Generate uniform definitions
-	Vector<MaterialUniformBlock> uniformBlocks;
-	for (const auto& ub: pixelReflection.uniforms) {
-		auto& block = uniformBlocks.emplace_back();
-		block.name = ub.name;
-		for (const auto& u: ub.params) {
-			auto& uniform = block.uniforms.emplace_back();
-			uniform.name = u.name;
-			uniform.offset = static_cast<uint32_t>(u.offset);
-			uniform.predefinedOffset = true;
-		}
-	}
-
-	// Generate texture definitions
-	Vector<MaterialTexture> textures;
-	for (const auto& tex: pixelReflection.textures) {
-		textures.push_back(MaterialTexture(tex.name, "", tex.samplerType));
-	}
-
-	// Create material definition
-	materialDefinition = std::make_shared<MaterialDefinition>();
-	materialDefinition->setName(name);
-	materialDefinition->setAttributes(std::move(attributes));
-	materialDefinition->setUniformBlocks(std::move(uniformBlocks));
-	materialDefinition->setTextures(std::move(textures));
-	materialDefinition->addPass(MaterialPass(shader));
-	materialDefinition->initialize(video);
-
-	// Create material instance
+	materialDefinition = MaterialGenerator::makeMaterial(video, name, vertexShader, pixelShader);
 	material = std::make_shared<Material>(materialDefinition);
 
-	// Set initial parameters
-	for (const auto& ub: pixelReflection.uniforms) {
-		for (const auto& param: ub.params) {
-			if (params.hasKey(param.name)) {
-				material->set(param.name, params[param.name].asFloat());
+	if (false) {
+		Path::writeFile("../tmp/" + shaderPath.getFilename().replaceExtension(".vertex." + toString(outputFormat)), vertexShader.shaderCode);
+		Path::writeFile("../tmp/" + shaderPath.getFilename().replaceExtension(".pixel." + toString(outputFormat)), pixelShader.shaderCode);
+	}
+}
+
+void RetroarchFilterChain::Stage::applyParams(const ConfigNode& params)
+{
+	for (const auto& ub: materialDefinition->getUniformBlocks()) {
+		for (const auto& u: ub.uniforms) {
+			if (params.hasKey(u.name)) {
+				material->set(u.name, params[u.name].asFloat());
 			}
 		}
 	}
@@ -148,6 +107,7 @@ void RetroarchFilterChain::loadStages(const ConfigNode& params, VideoAPI& video)
 
 	ShaderConverter converter;
 	for (auto& stage: stages) {
-		stage.loadShader(converter, video, params);
+		stage.loadShader(converter, video);
+		stage.applyParams(params);
 	}
 }

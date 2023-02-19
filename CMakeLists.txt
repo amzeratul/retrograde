@@ -20,6 +20,7 @@ set (SOURCES
 	"src/config/core_config.cpp"
 	"src/config/system_config.cpp"
 
+	"src/filter_chain/material_generator.cpp"
 	"src/filter_chain/retroarch_filter_chain.cpp"
 	"src/filter_chain/retroarch_shader_parser.cpp"
 	"src/filter_chain/shader_compiler.cpp"
@@ -75,6 +76,7 @@ set (HEADERS
 	"src/config/system_config.h"
 
 	"src/filter_chain/filter_chain.h"
+	"src/filter_chain/material_generator.h"
 	"src/filter_chain/retroarch_filter_chain.h"
 	"src/filter_chain/retroarch_shader_parser.h"
 	"src/filter_chain/shader_compiler.h"
