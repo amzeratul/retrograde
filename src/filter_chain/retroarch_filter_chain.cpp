@@ -50,12 +50,13 @@ void RetroarchFilterChain::Stage::loadMaterial(ShaderConverter& converter, Video
 		Path::writeFile("../tmp/" + shaderPath.getFilename().replaceExtension(".pixel." + toString(outputFormat)), pixelShader.shaderCode);
 	}
 
-	// TODO: render filtering, mipmapping, float framebuffer, srgb framebuffer, wrap mode
+	// TODO: render filtering, mipmapping, wrap mode
 	RenderSurfaceOptions options;
 	options.name = name;
 	options.createDepthStencil = false;
 	options.useFiltering = true;
 	options.powerOfTwo = false;
+	options.colourBufferFormat = floatFramebuffer ? TextureFormat::RGBAFloat16 : (srgbFramebuffer ? TextureFormat::SRGBA : TextureFormat::RGBA);
 	renderSurface = std::make_unique<RenderSurface>(video, options);
 }
 

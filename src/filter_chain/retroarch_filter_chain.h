@@ -58,7 +58,7 @@ public:
 		bool filterLinear = false;
 		bool mipMapInput = false;
 		bool floatFramebuffer = false;
-		float srgbFramebuffer = false;
+		bool srgbFramebuffer = false;
 		RetroarchWrapMode wrapMode = RetroarchWrapMode::ClampToEdge;
 		RetroarchScaleType scaleTypeX = RetroarchScaleType::Source;
 		RetroarchScaleType scaleTypeY = RetroarchScaleType::Source;
