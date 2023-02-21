@@ -13,8 +13,11 @@ RetroarchFilterChain::Stage::Stage(int idx, const ConfigNode& params, const Path
 	shaderPath = basePath / params["shader" + idxStr].asString();
 	alias = params["alias" + idxStr].asString("");
 	filterLinear = params["filter_linear" + idxStr].asBool(false);
+	filterLinearOutput = params["filter_linear" + toString(idx + 1)].asBool(false);
 	mipMapInput = params["mipmap_input" + idxStr].asBool(false);
+	mipMapOutput = params["mipmap_input" + toString(idx + 1)].asBool(false);
 	wrapMode = params["wrap_mode" + idxStr].asEnum(RetroarchWrapMode::ClampToEdge);
+	wrapModeOutput = params["wrap_mode" + toString(idx + 1)].asEnum(RetroarchWrapMode::ClampToEdge);
 	floatFramebuffer = params["float_framebuffer" + idxStr].asBool(false);
 	srgbFramebuffer = params["srgb_framebuffer" + idxStr].asBool(false);
 	scaleTypeX = params["scale_type_x" + idxStr].asEnum(RetroarchScaleType::Source);
@@ -50,12 +53,13 @@ void RetroarchFilterChain::Stage::loadMaterial(ShaderConverter& converter, Video
 		Path::writeFile("../tmp/" + shaderPath.getFilename().replaceExtension(".pixel." + toString(outputFormat)), pixelShader.shaderCode);
 	}
 
-	// TODO: render filtering, mipmapping, wrap mode
 	RenderSurfaceOptions options;
 	options.name = name;
 	options.createDepthStencil = false;
-	options.useFiltering = true;
+	options.useFiltering = filterLinearOutput;
 	options.powerOfTwo = false;
+	options.mipMap = mipMapOutput;
+	options.addressMode = getAddressMode(wrapModeOutput);
 	options.colourBufferFormat = floatFramebuffer ? TextureFormat::RGBAFloat16 : (srgbFramebuffer ? TextureFormat::SRGBA : TextureFormat::RGBA);
 	renderSurface = std::make_unique<RenderSurface>(video, options);
 }
@@ -250,6 +254,10 @@ Sprite RetroarchFilterChain::run(const Sprite& src, RenderContext& rc, Vector2i 
 
 void RetroarchFilterChain::updateStageMaterial(Stage& stage, const FrameParams& frameParams)
 {
+	if (stage.mipMapInput && stage.index > 0) {
+		stages[stage.index - 1].getTexture(0)->generateMipMaps();
+	}
+
 	for (const auto& ub: stage.materialDefinition->getUniformBlocks()) {
 		for (const auto& u: ub.uniforms) {
 			updateParameter(stage, u.name, *stage.material, frameParams);

@@ -56,10 +56,13 @@ public:
 		Path shaderPath;
 		String alias;
 		bool filterLinear = false;
+		bool filterLinearOutput = false;
 		bool mipMapInput = false;
+		bool mipMapOutput = false;
 		bool floatFramebuffer = false;
 		bool srgbFramebuffer = false;
 		RetroarchWrapMode wrapMode = RetroarchWrapMode::ClampToEdge;
+		RetroarchWrapMode wrapModeOutput = RetroarchWrapMode::ClampToEdge;
 		RetroarchScaleType scaleTypeX = RetroarchScaleType::Source;
 		RetroarchScaleType scaleTypeY = RetroarchScaleType::Source;
 		Vector2f scale;

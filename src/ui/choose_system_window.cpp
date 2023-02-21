@@ -53,4 +53,5 @@ void ChooseSystemWindow::loadSystem(const String& systemId)
 {
 	setActive(false);
 	getRoot()->addChild(std::make_shared<ChooseGameWindow>(factory, retrogradeEnvironment, systemId, pendingGameId, *this));
+	pendingGameId = {};
 }
