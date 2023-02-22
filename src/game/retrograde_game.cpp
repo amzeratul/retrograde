@@ -64,7 +64,10 @@ std::unique_ptr<Stage> RetrogradeGame::startGame()
 {
 	bool vsync = true;
 
-	getAPI().video->setWindow(WindowDefinition(WindowType::ResizableWindow, Vector2i(1280, 960), getName()));
+	auto screenSize = getAPI().system->getScreenSize(0);
+	windowDefinition = WindowDefinition(WindowType::ResizableWindow, Vector2i(1280, 960), getName());
+	fullscreenDefinition = WindowDefinition(WindowType::BorderlessWindow, screenSize, getName());
+	getAPI().video->setWindow(WindowDefinition(windowDefinition));
 	getAPI().video->setVsync(vsync);
 	getAPI().audio->startPlayback();
 	getAPI().audio->setListener(AudioListenerData(Vector3f()));
@@ -102,6 +105,13 @@ std::optional<double> RetrogradeGame::getTargetFPSOverride() const
 I18N& RetrogradeGame::getI18N()
 {
 	return *i18n;
+}
+
+void RetrogradeGame::toggleFullscreen()
+{
+	auto& window = getAPI().video->getWindow();
+	const bool isCurrentlyFullscreen = window.getDefinition().getWindowType() != WindowType::ResizableWindow;
+	window.update(WindowDefinition(isCurrentlyFullscreen ? windowDefinition : fullscreenDefinition));
 }
 
 HalleyGame(RetrogradeGame);

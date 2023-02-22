@@ -70,10 +70,15 @@ void GameStage::onUpdate(Time t)
 {
 	env->getConfigDatabase().update();
 
-	if (getInputAPI().getKeyboard()->isButtonPressed(KeyCode::Esc)) {
+	auto kb = getInputAPI().getKeyboard();
+	if (kb->isButtonPressed(KeyCode::Esc)) {
 		uiRoot.reset();
 		getCoreAPI().quit();
 		return;
+	}
+
+	if ((kb->isButtonDown(KeyCode::LCtrl) || kb->isButtonDown(KeyCode::RCtrl)) && kb->isButtonPressed(KeyCode::Enter)) {
+		dynamic_cast<RetrogradeGame&>(getGame()).toggleFullscreen();
 	}
 
 	auto uiInput = env->getUIInput();
@@ -81,7 +86,7 @@ void GameStage::onUpdate(Time t)
 	uiRoot->setRect(Rect4f(Vector2f(), Vector2f(getVideoAPI().getWindow().getWindowRect().getSize())));
 	uiRoot->update(t, UIInputType::Gamepad, getInputAPI().getMouse(), uiInput);
 
-	if (getInputAPI().getKeyboard()->isButtonPressed(KeyCode::F11)) {
+	if (kb->isButtonPressed(KeyCode::F11)) {
 		perfStats->setActive(!perfStats->isActive());
 	}
 	perfStats->update(t);

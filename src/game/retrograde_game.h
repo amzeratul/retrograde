@@ -25,10 +25,14 @@ public:
 	std::optional<double> getTargetFPSOverride() const;
 
 	I18N& getI18N();
+	void toggleFullscreen();
 
 private:
 	const HalleyAPI* api;
 	Vector<String> args;
 	std::optional<double> targetFps;
 	std::unique_ptr<I18N> i18n;
+
+	WindowDefinition windowDefinition;
+	WindowDefinition fullscreenDefinition;
 };
