@@ -93,6 +93,9 @@ Vector<String> RetroarchShaderParser::processIncludes(Vector<String> orig, const
 		if (line.startsWith("#include \"")) {
 			const auto includePath = line.mid(10, line.size() - 11);
 			auto toIncludeLines = readFileWithIncludes(origDir / includePath);
+			if (toIncludeLines.empty()) {
+				Logger::logError("Unable to find include file: " + (origDir / includePath));
+			}
 			for (auto& incLine: toIncludeLines) {
 				result.push_back(std::move(incLine));
 			}

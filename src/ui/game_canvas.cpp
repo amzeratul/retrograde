@@ -22,7 +22,7 @@ GameCanvas::GameCanvas(UIFactory& factory, RetrogradeEnvironment& environment, S
 	buttons.cancel = 12;
 	setInputButtons(buttons);
 
-	filterChain = environment.makeFilterChain("sonkun/1080p/01-crt-guest-advanced-hd-slotmask-neutral-composite-ntsc-2-phase.slangp");
+	filterChain = environment.makeFilterChain("sonkun/original presets/1080p/03-crt-guest-advanced-slotmask-neutral-composite-ntsc-2-phase.slangp");
 }
 
 GameCanvas::~GameCanvas()
