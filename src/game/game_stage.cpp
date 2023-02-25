@@ -40,7 +40,7 @@ void GameStage::init()
 	uiFactory->setInputButtons("list", buttons);
 
 	uiRoot = std::make_unique<UIRoot>(getAPI(), Rect4f(getVideoAPI().getWindow().getWindowRect()));
-	env = std::make_unique<RetrogradeEnvironment>(game, "..", getResources(), getAPI());
+	env = std::make_unique<RetrogradeEnvironment>(game, getCoreAPI().getEnvironment().getProgramPath() / "..", getResources(), getAPI());
 
 	uiRoot->addChild(std::make_shared<ChooseSystemWindow>(*uiFactory, *env, systemId, gamePath));
 }
