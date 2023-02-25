@@ -8,6 +8,10 @@
 #include "halley/src/plugins/opengl/src/halley_gl.h"
 
 
+// See
+// https://registry.khronos.org/OpenGL/extensions/NV/WGL_NV_DX_interop.txt
+// https://registry.khronos.org/OpenGL/extensions/NV/WGL_NV_DX_interop2.txt
+
 HANDLE wglDXOpenDeviceNV(void *dxDevice);
 BOOL wglDXCloseDeviceNV(HANDLE hDevice);
 HANDLE wglDXRegisterObjectNV(HANDLE hDevice, void *dxObject, GLuint name, GLenum type, GLenum access);
@@ -15,7 +19,6 @@ BOOL wglDXUnregisterObjectNV(HANDLE hDevice, HANDLE hObject);
 BOOL wglDXObjectAccessNV(HANDLE hObject, GLenum access);
 BOOL wglDXLockObjectsNV(HANDLE hDevice, GLint count, HANDLE *hObjects);
 BOOL wglDXUnlockObjectsNV(HANDLE hDevice, GLint count, HANDLE *hObjects);
-extern void _glGenRenderbuffers(GLsizei n, GLuint * renderbuffers);
 
 namespace {
 	constexpr int WGL_ACCESS_READ_ONLY_NV = 0x0000;
@@ -24,7 +27,8 @@ namespace {
 }
 
 #define GL_FUNC(FUNC_NAME) static_cast<decltype(&(FUNC_NAME))>(getGLProcAddress(#FUNC_NAME))
-#define GL_FUNC_ALT(FUNC_NAME, FUNC_SIGNATURE) static_cast<decltype(&(FUNC_SIGNATURE))>(getGLProcAddress(#FUNC_NAME))
+#define GL_FUNC_PTR(FUNC_NAME) static_cast<decltype(&*(FUNC_NAME))>(getGLProcAddress(#FUNC_NAME))
+
 
 
 OpenGLInterop::OpenGLInterop(std::shared_ptr<GLContext> context, void* dx11Device)
@@ -63,11 +67,17 @@ OpenGLInteropObject::OpenGLInteropObject(OpenGLInterop& parent, std::shared_ptr<
 	: parent(parent)
 	, texture(texture)
 {
-	parent.context->bind();
 	const auto dx11Texture = dynamic_cast<DX11Texture&>(*texture).getTexture();
-	GL_FUNC_ALT(glGenRenderbuffers, _glGenRenderbuffers)(1, &glName);
-	handle = GL_FUNC(wglDXRegisterObjectNV)(parent.deviceHandle, dx11Texture, glName, GL_RENDERBUFFER, WGL_ACCESS_READ_WRITE_NV);
+
+	//parent.context->bind();
+
+	GL_FUNC_PTR(glGenRenderbuffers)(1, &glRenderbuffer0);
+	handle = GL_FUNC(wglDXRegisterObjectNV)(parent.deviceHandle, dx11Texture, glRenderbuffer0, GL_RENDERBUFFER, WGL_ACCESS_READ_WRITE_NV);
 	assert(handle);
+
+	GL_FUNC_PTR(glGenFramebuffers)(1, &glFramebuffer);
+	GL_FUNC_PTR(glBindFramebuffer)(GL_FRAMEBUFFER, glFramebuffer);
+	GL_FUNC_PTR(glFramebufferRenderbuffer)(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, glRenderbuffer0);
 }
 
 void* OpenGLInteropObject::getGLProcAddress(const char* name)
@@ -82,8 +92,9 @@ OpenGLInteropObject::~OpenGLInteropObject()
 		GL_FUNC(wglDXUnregisterObjectNV)(parent.deviceHandle, handle);
 	}
 	handle = nullptr;
-	glDeleteRenderbuffers(1, &glName);
-	glName = 0;
+	GL_FUNC_PTR(glDeleteRenderbuffers)(1, &glRenderbuffer0);
+	GL_FUNC_PTR(glDeleteFramebuffers)(1, &glFramebuffer);
+	glRenderbuffer0 = 0;
 }
 
 uint32_t OpenGLInteropObject::lock()
@@ -92,11 +103,13 @@ uint32_t OpenGLInteropObject::lock()
 		const bool result = GL_FUNC(wglDXLockObjectsNV)(parent.deviceHandle, 1, &handle);
 		assert(result);
 	}
-	return glName;
+	GL_FUNC_PTR(glBindFramebuffer)(GL_FRAMEBUFFER, glFramebuffer);
+	return glFramebuffer;
 }
 
 void OpenGLInteropObject::unlock()
 {
+	GL_FUNC_PTR(glBindFramebuffer)(GL_FRAMEBUFFER, 0);
 	if (--lockCount == 0) {
 		const bool result = GL_FUNC(wglDXUnlockObjectsNV)(parent.deviceHandle, 1, &handle);
 		assert(result);
@@ -105,6 +118,7 @@ void OpenGLInteropObject::unlock()
 
 void OpenGLInteropObject::unlockAll()
 {
+	GL_FUNC_PTR(glBindFramebuffer)(GL_FRAMEBUFFER, 0);
 	if (lockCount > 0) {
 		const bool result = GL_FUNC(wglDXUnlockObjectsNV)(parent.deviceHandle, 1, &handle);
 		assert(result);

@@ -179,9 +179,6 @@ void LibretroCore::init()
 	for (auto& option: options) {
 		Logger::logDev("  " + option.first + " = " + option.second.defaultValue);
 	}
-
-	glFramebuffer.reset();
-	glInterop.reset();
 }
 
 void LibretroCore::initVideoOut()
@@ -231,15 +228,20 @@ void LibretroCore::deInit()
 	auto guard = ScopedGuard([=]() { popInstance(); });
 	pushInstance();
 
+	glFramebuffer.reset();
+	glInterop.reset();
+
 	DLL_FUNC(dll, retro_deinit)();
 
 	audioBufferStatusCallback = nullptr;
-	diskControlCallbacks.reset();
-	hwRenderCallback.reset();
-	hwRenderInterface.reset();
-	vfs.reset();
 	audioThread.reset();
 	audioOut.reset();
+
+	hwRenderCallback.reset();
+	hwRenderInterface.reset();
+
+	diskControlCallbacks.reset();
+	vfs.reset();
 
 	environment.getGame().setTargetFPSOverride(std::nullopt);
 }
@@ -825,6 +827,11 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		onEnvSetSerializationQuirks(*static_cast<uint64_t*>(data));
 		return true;
 
+	case RETRO_ENVIRONMENT_SET_HW_SHARED_CONTEXT:
+		// TODO
+		Logger::logWarning("TODO: RETRO_ENVIRONMENT_SET_HW_SHARED_CONTEXT");
+		return false;
+
 	case RETRO_ENVIRONMENT_GET_VFS_INTERFACE:
 		return onEnvGetVFSInterface(*static_cast<retro_vfs_interface_info*>(data));
 
@@ -987,7 +994,7 @@ void LibretroCore::onVideoRefresh(const void* data, uint32_t width, uint32_t hei
 	if (data == RETRO_HW_FRAME_BUFFER_VALID) {
 		if (hwRenderCallback->context_type == RETRO_HW_CONTEXT_DIRECT3D) {
 			dx11UpdateTextureToCurrentBound();
-		} else if (hwRenderCallback->context_type == RETRO_HW_CONTEXT_OPENGL_CORE) {
+		} else if (hwRenderCallback->context_type == RETRO_HW_CONTEXT_OPENGL || hwRenderCallback->context_type == RETRO_HW_CONTEXT_OPENGL_CORE) {
 			openGLUpdateTextureToFramebuffer();
 		}
 	}
@@ -1193,13 +1200,12 @@ uintptr_t LibretroCore::onHWGetCurrentFrameBuffer()
 		glFramebuffer = glInterop->makeInterop(cpuUpdateTexture->getTexture());
 	}
 
-	glFramebuffer->lock();
-	return glFramebuffer->getGLName();
+	return glFramebuffer->lock();
 }
 
 retro_proc_address_t LibretroCore::onHWGetProcAddress(const char* sym)
 {
-	if (hwRenderCallback->context_type == RETRO_HW_CONTEXT_OPENGL_CORE) {
+	if (hwRenderCallback->context_type == RETRO_HW_CONTEXT_OPENGL || hwRenderCallback->context_type == RETRO_HW_CONTEXT_OPENGL_CORE) {
 		return static_cast<retro_proc_address_t>(glInterop->getGLProcAddress(sym));
 	}
 
@@ -1251,17 +1257,17 @@ void LibretroCore::onEnvSetRotation(uint32_t data)
 
 bool LibretroCore::onEnvSetHWRender(retro_hw_render_callback& data)
 {
-	if (data.context_type == RETRO_HW_CONTEXT_DIRECT3D || data.context_type == RETRO_HW_CONTEXT_OPENGL_CORE) {
+	if (data.context_type == RETRO_HW_CONTEXT_DIRECT3D || data.context_type == RETRO_HW_CONTEXT_OPENGL || data.context_type == RETRO_HW_CONTEXT_OPENGL_CORE) {
 		hwRenderCallback = data;
 		renderCallbackNeedsReset = true;
 
-		if (data.context_type == RETRO_HW_CONTEXT_OPENGL_CORE) {
+		if ( data.context_type == RETRO_HW_CONTEXT_OPENGL || data.context_type == RETRO_HW_CONTEXT_OPENGL_CORE) {
 			data.get_proc_address = &retroHWGetProcAddress;
 			data.get_current_framebuffer = &retroHWGetCurrentFramebuffer;
 
 			auto& dx11Video = static_cast<DX11Video&>(*environment.getHalleyAPI().video);
 			glInterop = std::make_unique<OpenGLInterop>(environment.getHalleyAPI().system->createGLContext(), &dx11Video.getDevice());
-			glInterop->bindGLContext();
+			//glInterop->bindGLContext();
 		}
 		return true;
 	}

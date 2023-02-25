@@ -16,3 +16,4 @@ cores:
   - id: mednafen_saturn
   - id: pcsx2
   - id: dolphin
+  - id: mupen64plus_next

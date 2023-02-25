@@ -42,7 +42,8 @@ private:
 
     OpenGLInterop& parent;
     void* handle = nullptr;
-    uint32_t glName = 0;
+    uint32_t glRenderbuffer0 = 0;
+    uint32_t glFramebuffer = 0;
     int lockCount = 0;
     std::shared_ptr<Texture> texture;
 };
