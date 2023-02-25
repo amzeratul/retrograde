@@ -31,6 +31,8 @@ void CPUUpdateTexture::updateTexture(gsl::span<const gsl::byte> data, std::optio
 	texDesc.canBeUpdated = true;
 	texDesc.format = textureFormat;
 	texDesc.pixelFormat = PixelDataFormat::Image;
-	texDesc.pixelData = TextureDescriptorImageData(data, stride);
+	if (!data.empty()) {
+		texDesc.pixelData = TextureDescriptorImageData(data, stride);
+	}
 	texture->load(std::move(texDesc));
 }

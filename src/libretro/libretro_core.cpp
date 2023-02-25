@@ -10,6 +10,7 @@
 #include "src/game/retrograde_game.h"
 #include "src/util/cpu_update_texture.h"
 #include "src/util/c_string_cache.h"
+#include "src/util/opengl_interop.h"
 #include "src/zip/zip_file.h"
 
 #ifdef _WIN32
@@ -178,6 +179,9 @@ void LibretroCore::init()
 	for (auto& option: options) {
 		Logger::logDev("  " + option.first + " = " + option.second.defaultValue);
 	}
+
+	glFramebuffer.reset();
+	glInterop.reset();
 }
 
 void LibretroCore::initVideoOut()
@@ -1184,15 +1188,19 @@ void LibretroCore::onLog(retro_log_level level, const char* str)
 
 uintptr_t LibretroCore::onHWGetCurrentFrameBuffer()
 {
-	// TODO? (Deprecated)
-	Logger::logError("LibretroCore::onHWGetCurrentFrameBuffer not implemented");
-	return 0;
+	if (!glFramebuffer) {
+		cpuUpdateTexture->update(systemAVInfo.maxSize, std::nullopt, {}, TextureFormat::RGBA);
+		glFramebuffer = glInterop->makeInterop(cpuUpdateTexture->getTexture());
+	}
+
+	glFramebuffer->lock();
+	return glFramebuffer->getGLName();
 }
 
 retro_proc_address_t LibretroCore::onHWGetProcAddress(const char* sym)
 {
 	if (hwRenderCallback->context_type == RETRO_HW_CONTEXT_OPENGL_CORE) {
-		return static_cast<retro_proc_address_t>(getGLProcAddress(sym));
+		return static_cast<retro_proc_address_t>(glInterop->getGLProcAddress(sym));
 	}
 
 	Logger::logError("LibretroCore::getHWGetProcAddress not implemented for this context type (requested \"" + toString(sym) + "\")");
@@ -1251,8 +1259,9 @@ bool LibretroCore::onEnvSetHWRender(retro_hw_render_callback& data)
 			data.get_proc_address = &retroHWGetProcAddress;
 			data.get_current_framebuffer = &retroHWGetCurrentFramebuffer;
 
-			glContext = environment.getHalleyAPI().system->createGLContext();
-			glContext->bind();
+			auto& dx11Video = static_cast<DX11Video&>(*environment.getHalleyAPI().video);
+			glInterop = std::make_unique<OpenGLInterop>(environment.getHalleyAPI().system->createGLContext(), &dx11Video.getDevice());
+			glInterop->bindGLContext();
 		}
 		return true;
 	}
@@ -1536,7 +1545,7 @@ void LibretroCore::dx11UpdateTextureToCurrentBound()
 
 void LibretroCore::openGLUpdateTextureToFramebuffer()
 {
-	// TODO
+	glFramebuffer->unlockAll();
 }
 
 TextureFormat LibretroCore::getTextureFormat(retro_pixel_format retroFormat) const
@@ -1572,17 +1581,4 @@ void LibretroCore::popInstance() const
 	if (curInstanceDepth == 0) {
 		//curInstance = nullptr;
 	}
-}
-
-void* LibretroCore::getGLProcAddress(const char* name)
-{
-	void* p = static_cast<void*>(wglGetProcAddress(name));
-	if (p == 0 || p == reinterpret_cast<void*>(0x1) || p == reinterpret_cast<void*>(0x2) || p == reinterpret_cast<void*>(0x3) || p == reinterpret_cast<void*>(-1)) {
-		if (!openGLDll.isLoaded()) {
-			openGLDll.load("opengl32.dll");
-		}
-		p = openGLDll.getFunction(name);
-	}
-
-	return p;
 }

@@ -5,10 +5,12 @@
 #include "libretro.h"
 #include "src/util/c_string_cache.h"
 #include "src/util/dll.h"
+class OpenGLInteropObject;
 class ZipFile;
 class LibretroVFS;
 class CPUUpdateTexture;
 class RetrogradeEnvironment;
+class OpenGLInterop;
 using namespace Halley;
 
 class ILibretroCoreCallbacks {
@@ -192,8 +194,8 @@ private:
 	std::shared_ptr<void> hwRenderInterface;
 	std::optional<retro_hw_render_callback> hwRenderCallback;
 
-	std::unique_ptr<GLContext> glContext;
-	DLL openGLDll;
+	std::unique_ptr<OpenGLInterop> glInterop;
+	std::shared_ptr<OpenGLInteropObject> glFramebuffer;
 
 	CStringCache stringCache;
 	
@@ -267,6 +269,4 @@ private:
 
 	void pushInstance() const;
 	void popInstance() const;
-
-	void* getGLProcAddress(const char* name);
 };
