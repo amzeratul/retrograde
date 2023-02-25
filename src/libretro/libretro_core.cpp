@@ -82,6 +82,11 @@ namespace {
 		return ILibretroCoreCallbacks::curInstance->onHWGetCurrentFrameBuffer();
 	}
 
+	retro_proc_address_t RETRO_CALLCONV retroHWGetProcAddress(const char* sym)
+	{
+		return ILibretroCoreCallbacks::curInstance->onHWGetProcAddress(sym);
+	}
+
 	bool RETRO_CALLCONV retroSetRumbleState(uint32_t port, retro_rumble_effect effect, uint16_t strength)
 	{
 		return ILibretroCoreCallbacks::curInstance->onSetRumbleState(port, effect, strength);
@@ -1175,9 +1180,16 @@ void LibretroCore::onLog(retro_log_level level, const char* str)
 
 uintptr_t LibretroCore::onHWGetCurrentFrameBuffer()
 {
-	// TODO
+	// TODO? (Deprecated)
 	Logger::logError("LibretroCore::onHWGetCurrentFrameBuffer not implemented");
 	return 0;
+}
+
+retro_proc_address_t LibretroCore::onHWGetProcAddress(const char* sym)
+{
+	// TODO
+	Logger::logError("LibretroCore::getHWGetProcAddress not implemented (requested \"" + toString(sym) + "\")");
+	return nullptr;
 }
 
 bool LibretroCore::onSetRumbleState(uint32_t port, retro_rumble_effect effect, uint16_t strength)
@@ -1224,9 +1236,14 @@ void LibretroCore::onEnvSetRotation(uint32_t data)
 
 bool LibretroCore::onEnvSetHWRender(retro_hw_render_callback& data)
 {
-	if (data.context_type == RETRO_HW_CONTEXT_DIRECT3D) {
+	if (data.context_type == RETRO_HW_CONTEXT_DIRECT3D || data.context_type == RETRO_HW_CONTEXT_OPENGL_CORE) {
 		hwRenderCallback = data;
 		renderCallbackNeedsReset = true;
+
+		if (data.context_type == RETRO_HW_CONTEXT_OPENGL_CORE) {
+			data.get_proc_address = &retroHWGetProcAddress;
+			data.get_current_framebuffer = &retroHWGetCurrentFramebuffer;
+		}
 		return true;
 	}
 	return false;

@@ -24,6 +24,7 @@ public:
 	virtual void onLog(retro_log_level level, const char* str) = 0;
 	virtual void onSetLEDState(int led, int state) = 0;
 	virtual uintptr_t onHWGetCurrentFrameBuffer() = 0;
+	virtual retro_proc_address_t onHWGetProcAddress(const char* sym) = 0;
 	virtual bool onSetRumbleState(uint32_t port, retro_rumble_effect effect, uint16_t strength) = 0;
 
 	virtual LibretroVFS& getVFS() = 0;
@@ -135,6 +136,7 @@ protected:
 	void onSetLEDState(int led, int state) override;
 	void onLog(retro_log_level level, const char* str) override;
 	uintptr_t onHWGetCurrentFrameBuffer() override;
+	retro_proc_address_t onHWGetProcAddress(const char* sym) override;
 	bool onSetRumbleState(uint32_t port, retro_rumble_effect effect, uint16_t strength) override;
 
 private:
