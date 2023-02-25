@@ -25,8 +25,8 @@
 #include "libretro_vulkan.h"
 #endif
 
-thread_local ILibretroCoreCallbacks* ILibretroCoreCallbacks::curInstance = nullptr;
-thread_local size_t ILibretroCoreCallbacks::curInstanceDepth = 0;
+ILibretroCoreCallbacks* ILibretroCoreCallbacks::curInstance = nullptr;
+size_t ILibretroCoreCallbacks::curInstanceDepth = 0;
 
 namespace {
 	bool RETRO_CALLCONV retroEnvironmentCallback(uint32_t cmd, void *data)
@@ -1538,6 +1538,6 @@ void LibretroCore::popInstance() const
 	assert(curInstanceDepth > 0);
 	--curInstanceDepth;
 	if (curInstanceDepth == 0) {
-		curInstance = nullptr;
+		//curInstance = nullptr;
 	}
 }

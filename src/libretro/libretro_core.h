@@ -28,8 +28,8 @@ public:
 
 	virtual LibretroVFS& getVFS() = 0;
 
-	static thread_local ILibretroCoreCallbacks* curInstance;
-	static thread_local size_t curInstanceDepth;
+	static ILibretroCoreCallbacks* curInstance;
+	static size_t curInstanceDepth;
 };
 
 class LibretroCore : protected ILibretroCoreCallbacks {
