@@ -62,11 +62,12 @@ bool RetrogradeGame::isDevMode() const
 
 std::unique_ptr<Stage> RetrogradeGame::startGame()
 {
-	bool vsync = true;
+	const bool vsync = true;
 
-	auto screenSize = getAPI().system->getScreenSize(0);
-	windowDefinition = WindowDefinition(WindowType::ResizableWindow, Vector2i(1280, 960), getName());
-	fullscreenDefinition = WindowDefinition(WindowType::BorderlessWindow, screenSize, getName());
+	const auto screenSize = getAPI().system->getScreenSize(0);
+	WindowGLVersion glVersion = { 4, 2 };
+	windowDefinition = WindowDefinition(WindowType::ResizableWindow, Vector2i(1280, 960), getName(), true, 0, glVersion);
+	fullscreenDefinition = WindowDefinition(WindowType::BorderlessWindow, screenSize, getName(), true, 0, glVersion);
 	getAPI().video->setWindow(WindowDefinition(windowDefinition));
 	getAPI().video->setVsync(vsync);
 	getAPI().audio->startPlayback();

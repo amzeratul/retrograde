@@ -192,6 +192,9 @@ private:
 	std::shared_ptr<void> hwRenderInterface;
 	std::optional<retro_hw_render_callback> hwRenderCallback;
 
+	std::unique_ptr<GLContext> glContext;
+	DLL openGLDll;
+
 	CStringCache stringCache;
 	
 	LibretroCore(DLL dll, String systemId, const RetrogradeEnvironment& environment);
@@ -259,8 +262,11 @@ private:
 	void onEnvSetMinimumAudioLatency(uint32_t data);
 
 	void dx11UpdateTextureToCurrentBound();
+	void openGLUpdateTextureToFramebuffer();
 	TextureFormat getTextureFormat(retro_pixel_format retroFormat) const;
 
 	void pushInstance() const;
 	void popInstance() const;
+
+	void* getGLProcAddress(const char* name);
 };
