@@ -6,6 +6,7 @@
 #include "halley/src/plugins/dx11/src/dx11_texture.h"
 #endif
 #include "halley/src/plugins/opengl/src/halley_gl.h"
+#include "halley/src/plugins/opengl/src/video_opengl.h"
 
 
 // See
@@ -34,13 +35,15 @@ namespace {
 OpenGLInterop::OpenGLInterop(std::shared_ptr<GLContext> context, void* dx11Device)
 	: context(std::move(context))
 {
+	this->context->bind();
+	VideoOpenGL::initGLBindings();
 	deviceHandle = GL_FUNC(wglDXOpenDeviceNV)(dx11Device);
 }
 
 OpenGLInterop::~OpenGLInterop()
 {
 	if (deviceHandle) {
-		GL_FUNC(wglDXOpenDeviceNV)(deviceHandle);
+		GL_FUNC(wglDXCloseDeviceNV)(deviceHandle);
 	}
 	deviceHandle = nullptr;
 	context.reset();
@@ -57,27 +60,39 @@ void* OpenGLInterop::getGLProcAddress(const char* name)
 	return context->getGLProcAddress(name);
 }
 
-std::shared_ptr<OpenGLInteropObject> OpenGLInterop::makeInterop(std::shared_ptr<Texture> texture)
+std::shared_ptr<OpenGLInteropObject> OpenGLInterop::makeInterop(std::shared_ptr<TextureRenderTarget> renderTarget)
 {
-	return std::shared_ptr<OpenGLInteropObject>(new OpenGLInteropObject(*this, std::move(texture)));
+	return std::shared_ptr<OpenGLInteropObject>(new OpenGLInteropObject(*this, std::move(renderTarget)));
 }
 
 
-OpenGLInteropObject::OpenGLInteropObject(OpenGLInterop& parent, std::shared_ptr<Texture> texture)
+OpenGLInteropObject::OpenGLInteropObject(OpenGLInterop& parent, std::shared_ptr<TextureRenderTarget> renderTarget)
 	: parent(parent)
-	, texture(texture)
+	, renderTarget(renderTarget)
 {
-	const auto dx11Texture = dynamic_cast<DX11Texture&>(*texture).getTexture();
+	init();
+}
+
+void OpenGLInteropObject::init()
+{
+	const auto dx11TextureCol = dynamic_cast<DX11Texture&>(*renderTarget->getTexture(0)).getTexture();
+	const auto dx11TextureDepth = dynamic_cast<DX11Texture&>(*renderTarget->getDepthTexture()).getTexture();
 
 	//parent.context->bind();
 
-	GL_FUNC_PTR(glGenRenderbuffers)(1, &glRenderbuffer0);
-	handle = GL_FUNC(wglDXRegisterObjectNV)(parent.deviceHandle, dx11Texture, glRenderbuffer0, GL_RENDERBUFFER, WGL_ACCESS_READ_WRITE_NV);
-	assert(handle);
+	glGenRenderbuffers(2, glRenderbuffer.data());
+	handle[0] = GL_FUNC(wglDXRegisterObjectNV)(parent.deviceHandle, dx11TextureCol, glRenderbuffer[0], GL_RENDERBUFFER, WGL_ACCESS_READ_WRITE_NV);
+	handle[1] = GL_FUNC(wglDXRegisterObjectNV)(parent.deviceHandle, dx11TextureDepth, glRenderbuffer[1], GL_RENDERBUFFER, WGL_ACCESS_READ_WRITE_NV);
+	assert(handle[0]);
+	assert(handle[1]);
 
-	GL_FUNC_PTR(glGenFramebuffers)(1, &glFramebuffer);
-	GL_FUNC_PTR(glBindFramebuffer)(GL_FRAMEBUFFER, glFramebuffer);
-	GL_FUNC_PTR(glFramebufferRenderbuffer)(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, glRenderbuffer0);
+	glGenFramebuffers(1, &glFramebuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, glFramebuffer);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, glRenderbuffer[0]);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, glRenderbuffer[1]);
+	glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_CLEAR_VALUE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void* OpenGLInteropObject::getGLProcAddress(const char* name)
@@ -87,40 +102,42 @@ void* OpenGLInteropObject::getGLProcAddress(const char* name)
 
 OpenGLInteropObject::~OpenGLInteropObject()
 {
-	if (handle) {
+	if (handle[0]) {
 		unlockAll();
-		GL_FUNC(wglDXUnregisterObjectNV)(parent.deviceHandle, handle);
+		GL_FUNC(wglDXUnregisterObjectNV)(parent.deviceHandle, handle[0]);
 	}
-	handle = nullptr;
-	GL_FUNC_PTR(glDeleteRenderbuffers)(1, &glRenderbuffer0);
-	GL_FUNC_PTR(glDeleteFramebuffers)(1, &glFramebuffer);
-	glRenderbuffer0 = 0;
+	if (handle[1]) {
+		GL_FUNC(wglDXUnregisterObjectNV)(parent.deviceHandle, handle[1]);
+	}
+	glDeleteRenderbuffers(2, glRenderbuffer.data());
+	glDeleteFramebuffers(1, &glFramebuffer);
+	handle.fill(nullptr);
+	glRenderbuffer.fill(0);
 }
 
 uint32_t OpenGLInteropObject::lock()
 {
 	if (lockCount++ == 0) {
-		const bool result = GL_FUNC(wglDXLockObjectsNV)(parent.deviceHandle, 1, &handle);
+		const bool result = GL_FUNC(wglDXLockObjectsNV)(parent.deviceHandle, 2, handle.data());
 		assert(result);
 	}
-	GL_FUNC_PTR(glBindFramebuffer)(GL_FRAMEBUFFER, glFramebuffer);
 	return glFramebuffer;
+	//return 0;
 }
 
 void OpenGLInteropObject::unlock()
 {
-	GL_FUNC_PTR(glBindFramebuffer)(GL_FRAMEBUFFER, 0);
 	if (--lockCount == 0) {
-		const bool result = GL_FUNC(wglDXUnlockObjectsNV)(parent.deviceHandle, 1, &handle);
+		const bool result = GL_FUNC(wglDXUnlockObjectsNV)(parent.deviceHandle, 2, handle.data());
 		assert(result);
 	}
 }
 
 void OpenGLInteropObject::unlockAll()
 {
-	GL_FUNC_PTR(glBindFramebuffer)(GL_FRAMEBUFFER, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	if (lockCount > 0) {
-		const bool result = GL_FUNC(wglDXUnlockObjectsNV)(parent.deviceHandle, 1, &handle);
+		const bool result = GL_FUNC(wglDXUnlockObjectsNV)(parent.deviceHandle, 2, handle.data());
 		assert(result);
 		lockCount = 0;
 	}

@@ -991,15 +991,17 @@ void LibretroCore::onVideoRefresh(const void* data, uint32_t width, uint32_t hei
 	if (!dataSpan.empty()) {
 		cpuUpdateTexture->update(size, static_cast<int>(pitch), gsl::as_bytes(dataSpan), getTextureFormat(systemAVInfo.pixelFormat));
 	}
+
+	std::shared_ptr<Texture> tex = cpuUpdateTexture->getTexture();
 	if (data == RETRO_HW_FRAME_BUFFER_VALID) {
 		if (hwRenderCallback->context_type == RETRO_HW_CONTEXT_DIRECT3D) {
 			dx11UpdateTextureToCurrentBound();
 		} else if (hwRenderCallback->context_type == RETRO_HW_CONTEXT_OPENGL || hwRenderCallback->context_type == RETRO_HW_CONTEXT_OPENGL_CORE) {
 			openGLUpdateTextureToFramebuffer();
+			tex = renderSurface->getRenderTarget().getTexture(0);
 		}
 	}
-
-	const auto tex = cpuUpdateTexture->getTexture();
+	
 	const auto texSize = Vector2f(tex->getSize());
 	const auto ar = systemAVInfo.aspectRatio;
 	videoOut.getMutableMaterial().set(0, tex);
@@ -1196,8 +1198,15 @@ void LibretroCore::onLog(retro_log_level level, const char* str)
 uintptr_t LibretroCore::onHWGetCurrentFrameBuffer()
 {
 	if (!glFramebuffer) {
-		cpuUpdateTexture->update(systemAVInfo.maxSize, std::nullopt, {}, TextureFormat::RGBA);
-		glFramebuffer = glInterop->makeInterop(cpuUpdateTexture->getTexture());
+		//cpuUpdateTexture->update(systemAVInfo.maxSize, std::nullopt, {}, TextureFormat::RGBA);
+		if (!renderSurface) {
+			RenderSurfaceOptions options;
+			options.powerOfTwo = false;
+			options.canBeUpdatedOnCPU = true;
+			renderSurface = std::make_unique<RenderSurface>(*environment.getHalleyAPI().video, options);
+		}
+		renderSurface->setSize(systemAVInfo.maxSize);
+		glFramebuffer = glInterop->makeInterop(renderSurface->getRenderTargetPtr());
 	}
 
 	return glFramebuffer->lock();
@@ -1261,13 +1270,12 @@ bool LibretroCore::onEnvSetHWRender(retro_hw_render_callback& data)
 		hwRenderCallback = data;
 		renderCallbackNeedsReset = true;
 
-		if ( data.context_type == RETRO_HW_CONTEXT_OPENGL || data.context_type == RETRO_HW_CONTEXT_OPENGL_CORE) {
+		if (data.context_type == RETRO_HW_CONTEXT_OPENGL || data.context_type == RETRO_HW_CONTEXT_OPENGL_CORE) {
 			data.get_proc_address = &retroHWGetProcAddress;
 			data.get_current_framebuffer = &retroHWGetCurrentFramebuffer;
 
 			auto& dx11Video = static_cast<DX11Video&>(*environment.getHalleyAPI().video);
 			glInterop = std::make_unique<OpenGLInterop>(environment.getHalleyAPI().system->createGLContext(), &dx11Video.getDevice());
-			//glInterop->bindGLContext();
 		}
 		return true;
 	}

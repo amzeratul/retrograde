@@ -16,7 +16,7 @@ public:
 	void bindGLContext();
     void* getGLProcAddress(const char* name);
 
-    std::shared_ptr<OpenGLInteropObject> makeInterop(std::shared_ptr<Texture> texture);
+    std::shared_ptr<OpenGLInteropObject> makeInterop(std::shared_ptr<TextureRenderTarget> renderTarget);
 
 private:
     std::shared_ptr<GLContext> context;
@@ -36,14 +36,15 @@ public:
     void unlockAll();
 
 private:
-    OpenGLInteropObject(OpenGLInterop& parent, std::shared_ptr<Texture> texture);
+    OpenGLInteropObject(OpenGLInterop& parent, std::shared_ptr<TextureRenderTarget> renderTarget);
 
+    void init();
 	void* getGLProcAddress(const char* name);
 
     OpenGLInterop& parent;
-    void* handle = nullptr;
-    uint32_t glRenderbuffer0 = 0;
+    std::array<void*, 2> handle;
+    std::array<uint32_t, 2> glRenderbuffer;
     uint32_t glFramebuffer = 0;
     int lockCount = 0;
-    std::shared_ptr<Texture> texture;
+    std::shared_ptr<TextureRenderTarget> renderTarget;
 };
