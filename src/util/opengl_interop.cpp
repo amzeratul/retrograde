@@ -93,22 +93,8 @@ void OpenGLInteropObject::init()
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, glRenderbuffer[0], 0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, glRenderbuffer[1], 0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, glRenderbuffer[1], 0);
-	const auto status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
 	glCheckError();
-	assert(status == GL_FRAMEBUFFER_COMPLETE);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, glFramebuffer);
-	glCheckError();
-	glViewport(0, 0, renderTarget->getTexture(0)->getSize().x, renderTarget->getTexture(0)->getSize().y);
-	glCheckError();
-	glDrawBuffer(GL_COLOR_ATTACHMENT0);
-	glCheckError();
-	glDisable(GL_SCISSOR_TEST | GL_DEPTH_TEST);
-	glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_CLEAR_VALUE);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glFlush();
-	glCheckError();
-
 	unlock();
 }
 
