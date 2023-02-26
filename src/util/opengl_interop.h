@@ -34,6 +34,7 @@ public:
     uint32_t lock();
     void unlock();
     void unlockAll();
+    bool isLocked() const;
 
 private:
     OpenGLInteropObject(OpenGLInterop& parent, std::shared_ptr<TextureRenderTarget> renderTarget);

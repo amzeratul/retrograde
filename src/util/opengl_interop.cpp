@@ -80,19 +80,36 @@ void OpenGLInteropObject::init()
 
 	//parent.context->bind();
 
-	glGenRenderbuffers(2, glRenderbuffer.data());
-	handle[0] = GL_FUNC(wglDXRegisterObjectNV)(parent.deviceHandle, dx11TextureCol, glRenderbuffer[0], GL_RENDERBUFFER, WGL_ACCESS_READ_WRITE_NV);
-	handle[1] = GL_FUNC(wglDXRegisterObjectNV)(parent.deviceHandle, dx11TextureDepth, glRenderbuffer[1], GL_RENDERBUFFER, WGL_ACCESS_READ_WRITE_NV);
+	glGenTextures(2, glRenderbuffer.data());
+	handle[0] = GL_FUNC(wglDXRegisterObjectNV)(parent.deviceHandle, dx11TextureCol, glRenderbuffer[0], GL_TEXTURE_2D, WGL_ACCESS_READ_WRITE_NV);
+	handle[1] = GL_FUNC(wglDXRegisterObjectNV)(parent.deviceHandle, dx11TextureDepth, glRenderbuffer[1], GL_TEXTURE_2D, WGL_ACCESS_READ_WRITE_NV);
 	assert(handle[0]);
 	assert(handle[1]);
 
+	lock();
+
 	glGenFramebuffers(1, &glFramebuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, glFramebuffer);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, glRenderbuffer[0]);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, glRenderbuffer[1]);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, glRenderbuffer[0], 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, glRenderbuffer[1], 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, glRenderbuffer[1], 0);
+	const auto status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	glCheckError();
+	assert(status == GL_FRAMEBUFFER_COMPLETE);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, glFramebuffer);
+	glCheckError();
+	glViewport(0, 0, renderTarget->getTexture(0)->getSize().x, renderTarget->getTexture(0)->getSize().y);
+	glCheckError();
+	glDrawBuffer(GL_COLOR_ATTACHMENT0);
+	glCheckError();
+	glDisable(GL_SCISSOR_TEST | GL_DEPTH_TEST);
 	glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_CLEAR_VALUE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glFlush();
+	glCheckError();
+
+	unlock();
 }
 
 void* OpenGLInteropObject::getGLProcAddress(const char* name)
@@ -109,7 +126,7 @@ OpenGLInteropObject::~OpenGLInteropObject()
 	if (handle[1]) {
 		GL_FUNC(wglDXUnregisterObjectNV)(parent.deviceHandle, handle[1]);
 	}
-	glDeleteRenderbuffers(2, glRenderbuffer.data());
+	glDeleteTextures(2, glRenderbuffer.data());
 	glDeleteFramebuffers(1, &glFramebuffer);
 	handle.fill(nullptr);
 	glRenderbuffer.fill(0);
@@ -141,4 +158,9 @@ void OpenGLInteropObject::unlockAll()
 		assert(result);
 		lockCount = 0;
 	}
+}
+
+bool OpenGLInteropObject::isLocked() const
+{
+	return lockCount > 0;
 }

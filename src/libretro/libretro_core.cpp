@@ -18,6 +18,7 @@
 #define HAVE_D3D11
 #include "halley/src/plugins/dx11/src/dx11_video.h"
 #include "halley/src/plugins/dx11/src/dx11_texture.h"
+#include "halley/src/plugins/dx11/src/dx11_render_target_texture.h"
 #include "libretro_d3d.h"
 #pragma comment(lib, "D3DCompiler.lib")
 #endif
@@ -419,6 +420,10 @@ void LibretroCore::runFrame()
 		const size_t nLeft = audioOut->getSamplesLeft();
 		const size_t capacity = audioOut->getLatencyTarget() * 2;
 		audioBufferStatusCallback(true, clamp(static_cast<int>(nLeft * 100 / capacity), 0, 100), nLeft < 400);
+	}
+
+	if (glFramebuffer) {
+		glFramebuffer->lock();
 	}
 
 	if (renderCallbackNeedsReset) {
@@ -1206,6 +1211,7 @@ uintptr_t LibretroCore::onHWGetCurrentFrameBuffer()
 			renderSurface = std::make_unique<RenderSurface>(*environment.getHalleyAPI().video, options);
 		}
 		renderSurface->setSize(systemAVInfo.maxSize);
+		dynamic_cast<DX11TextureRenderTarget&>(renderSurface->getRenderTarget()).update();
 		glFramebuffer = glInterop->makeInterop(renderSurface->getRenderTargetPtr());
 	}
 
