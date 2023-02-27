@@ -136,7 +136,7 @@ void OpenGLInteropObject::unlock()
 
 void OpenGLInteropObject::unlockAll()
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glFlush();
 	if (lockCount > 0) {
 		const bool result = GL_FUNC(wglDXUnlockObjectsNV)(parent.deviceHandle, 2, handle.data());
 		assert(result);

@@ -980,6 +980,7 @@ void LibretroCore::onVideoRefresh(const void* data, uint32_t width, uint32_t hei
 	}
 
 	std::shared_ptr<Texture> tex;
+	bool flipBuffer = false;
 	if (data == nullptr) {
 		// Dupe last frame. No need to do anything
 	} else if (data == RETRO_HW_FRAME_BUFFER_VALID) {
@@ -988,6 +989,7 @@ void LibretroCore::onVideoRefresh(const void* data, uint32_t width, uint32_t hei
 			tex = getDX11HWTexture(size);
 		} else if (hwRenderCallback->context_type == RETRO_HW_CONTEXT_OPENGL || hwRenderCallback->context_type == RETRO_HW_CONTEXT_OPENGL_CORE) {
 			tex = getOpenGLHWTexture();
+			flipBuffer = true;
 		}
 	} else {
 		// Software buffer
@@ -1008,12 +1010,15 @@ void LibretroCore::onVideoRefresh(const void* data, uint32_t width, uint32_t hei
 		videoOut.getMutableMaterial().set(0, tex);
 	}
 
+	const auto renderSize = Vector2f(size);
 	const auto texSize = Vector2f(videoOut.getMaterial().getTexture(0)->getSize());
 	const auto ar = systemAVInfo.aspectRatio;
 	videoOut
+		.setFlip(flipBuffer)
 		.setSize(texSize)
-		.scaleTo(systemAVInfo.rotation % 2 == 0 ? Vector2f(texSize.y * ar, texSize.y) : Vector2f(texSize.y, texSize.y * ar))
-		.setRotation(Angle1f::fromDegrees(360.0f - systemAVInfo.rotation * 90.0f));
+		.scaleTo((systemAVInfo.rotation % 2 == 0 ? Vector2f(renderSize.y * ar, renderSize.y) : Vector2f(renderSize.y, renderSize.y * ar)))
+		.setTexRect(Rect4f(Vector2f(), renderSize / texSize))
+		.setRotation(Angle1f::fromDegrees(360.0f - systemAVInfo.rotation * 90.0f + (flipBuffer ? 180.0f : 0.0f)));
 }
 
 void LibretroCore::onAudioSample(int16_t left, int16_t right)

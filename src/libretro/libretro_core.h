@@ -178,6 +178,7 @@ private:
 	Sprite videoOut;
 	std::unique_ptr<CPUUpdateTexture> cpuUpdateTexture;
 	std::unique_ptr<RenderSurface> renderSurface;
+	std::unique_ptr<RenderSurface> renderSurfaceOutput;
 
 	std::shared_ptr<AudioClipStreaming> audioOut;
 	Vector<float> audioBuffer;

@@ -42,7 +42,7 @@ systems:
     regions:
       - name: Nintendo 64
         region: [world]
-    cores: [parallel_n64]
+    cores: [mupen64plus_next, parallel_n64]
     manufacturer: Nintendo
     releaseDate: 1996-06-23
   - id: gba

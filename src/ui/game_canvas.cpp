@@ -73,7 +73,7 @@ void GameCanvas::render(RenderContext& rc) const
 			const auto scale = std::min(scales.x, scales.y) * coreOutScreen.getScale(); // The scale the original sprite would need to fit the view port
 			const auto spriteSize = coreOutScreen.getSize() * scale; // Absolute sprite size
 
-			if (filterChain) {
+			if (false && filterChain) {
 				screen = filterChain->run(coreOutScreen, rc, Vector2i(spriteSize.round()));
 			} else {
 				screen = coreOutScreen;
@@ -156,9 +156,9 @@ void GameCanvas::stepGame()
 		for (int i = 0; i < n; ++i) {
 			core->setFastFowarding(i < n - 1);
 			core->runFrame();
-			auto save = rewindData->getBuffer(core->getSaveStateSize(LibretroCore::SaveStateType::RewindRecording));
-			core->saveState(LibretroCore::SaveStateType::RewindRecording, gsl::as_writable_bytes(gsl::span<Byte>(save)));
-			rewindData->pushFrame(std::move(save));
+			//auto save = rewindData->getBuffer(core->getSaveStateSize(LibretroCore::SaveStateType::RewindRecording));
+			//core->saveState(LibretroCore::SaveStateType::RewindRecording, gsl::as_writable_bytes(gsl::span<Byte>(save)));
+			//rewindData->pushFrame(std::move(save));
 		}
 	}
 
