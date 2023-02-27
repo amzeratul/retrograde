@@ -20,7 +20,7 @@ public:
     void* getGLProcAddress(const char* name);
 
     std::shared_ptr<OpenGLInteropRenderTarget> makeNativeRenderTarget(Vector2i size);
-    std::shared_ptr<OpenGLInteropPixelCopy> makeInterop(std::shared_ptr<CPUUpdateTexture> cpuUpdateTexture);
+    std::shared_ptr<OpenGLInteropPixelCopy> makeCopyPixelRenderTarget(Vector2i size);
 
 private:
     VideoAPI& video;
@@ -40,7 +40,7 @@ public:
     virtual std::shared_ptr<Texture> getTexture() = 0;
 };
 
-class OpenGLInteropRenderTarget : public OpenGLInteropObject {
+class OpenGLInteropRenderTarget final : public OpenGLInteropObject {
     friend class OpenGLInterop;
 public:
     ~OpenGLInteropRenderTarget() override;
@@ -65,7 +65,7 @@ private:
 };
 
 
-class OpenGLInteropPixelCopy : public OpenGLInteropObject {
+class OpenGLInteropPixelCopy final : public OpenGLInteropObject {
     friend class OpenGLInterop;
 public:
     ~OpenGLInteropPixelCopy() override;

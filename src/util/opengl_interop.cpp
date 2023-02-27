@@ -5,6 +5,7 @@
 #include <d3d11.h>
 #include "halley/src/plugins/dx11/src/dx11_texture.h"
 #endif
+#include "cpu_update_texture.h"
 #include "halley/src/plugins/dx11/src/dx11_render_target_texture.h"
 #include "halley/src/plugins/dx11/src/dx11_video.h"
 #include "halley/src/plugins/opengl/src/halley_gl.h"
@@ -40,9 +41,6 @@ OpenGLInterop::OpenGLInterop(std::shared_ptr<GLContext> context, VideoAPI& video
 {
 	this->context->bind();
 	VideoOpenGL::initGLBindings();
-
-	auto& dx11Video = static_cast<DX11Video&>(video);
-	deviceHandle = GL_FUNC(wglDXOpenDeviceNV)(&dx11Video.getDevice());
 }
 
 OpenGLInterop::~OpenGLInterop()
@@ -53,7 +51,6 @@ OpenGLInterop::~OpenGLInterop()
 	deviceHandle = nullptr;
 	context.reset();
 }
-
 
 void OpenGLInterop::bindGLContext()
 {
@@ -67,6 +64,11 @@ void* OpenGLInterop::getGLProcAddress(const char* name)
 
 std::shared_ptr<OpenGLInteropRenderTarget> OpenGLInterop::makeNativeRenderTarget(Vector2i size)
 {
+	if (!deviceHandle) {
+		auto& dx11Video = static_cast<DX11Video&>(video);
+		deviceHandle = GL_FUNC(wglDXOpenDeviceNV)(&dx11Video.getDevice());
+	}
+
 	RenderSurfaceOptions options;
 	options.powerOfTwo = false;
 	options.canBeUpdatedOnCPU = true;
@@ -77,15 +79,17 @@ std::shared_ptr<OpenGLInteropRenderTarget> OpenGLInterop::makeNativeRenderTarget
 	return std::shared_ptr<OpenGLInteropRenderTarget>(new OpenGLInteropRenderTarget(*this, std::move(renderSurface)));
 }
 
-std::shared_ptr<OpenGLInteropPixelCopy> OpenGLInterop::makeInterop(std::shared_ptr<CPUUpdateTexture> cpuUpdateTexture)
+std::shared_ptr<OpenGLInteropPixelCopy> OpenGLInterop::makeCopyPixelRenderTarget(Vector2i size)
 {
+	auto cpuUpdateTexture = std::make_shared<CPUUpdateTexture>(video);
+	cpuUpdateTexture->updateSize(size);
 	return std::shared_ptr<OpenGLInteropPixelCopy>(new OpenGLInteropPixelCopy(std::move(cpuUpdateTexture)));
 }
 
 
 OpenGLInteropRenderTarget::OpenGLInteropRenderTarget(OpenGLInterop& parent, std::shared_ptr<RenderSurface> renderSurface)
 	: parent(parent)
-	, renderSurface(renderSurface)
+	, renderSurface(std::move(renderSurface))
 {
 	init();
 }
@@ -143,7 +147,6 @@ uint32_t OpenGLInteropRenderTarget::lock()
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, glFramebuffer);
 	return glFramebuffer;
-	//return 0;
 }
 
 void OpenGLInteropRenderTarget::unlock()
@@ -171,29 +174,32 @@ std::shared_ptr<Texture> OpenGLInteropRenderTarget::getTexture()
 
 
 OpenGLInteropPixelCopy::OpenGLInteropPixelCopy(std::shared_ptr<CPUUpdateTexture> cpuUpdateTexture)
+	: cpuUpdateTexture(std::move(cpuUpdateTexture))
 {
-	
 }
 
 OpenGLInteropPixelCopy::~OpenGLInteropPixelCopy()
 {
-	
 }
 
 uint32_t OpenGLInteropPixelCopy::lock()
 {
+	// TODO: bind OpenGL FBO
+
 	return 0;
 }
 
 void OpenGLInteropPixelCopy::unlock()
 {
+	unlockAll();
 }
 
 void OpenGLInteropPixelCopy::unlockAll()
 {
+	// TODO: copy OpenGL FBO to DX11 Texture
 }
 
 std::shared_ptr<Texture> OpenGLInteropPixelCopy::getTexture()
 {
-	return {};
+	return cpuUpdateTexture->getTexture();
 }
