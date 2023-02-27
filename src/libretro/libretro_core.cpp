@@ -979,37 +979,37 @@ void LibretroCore::onVideoRefresh(const void* data, uint32_t width, uint32_t hei
 		return;
 	}
 
-	// Update texture
-	gsl::span<const char> dataSpan;
-	Vector<char> temp;
-	if (data == nullptr || data == RETRO_HW_FRAME_BUFFER_VALID) {
-		if (cpuUpdateTexture->getTexture()) {
-			// Dupe frame
-		} else {
-			temp.resize(pitch * height, 0);
-			dataSpan = temp;
+	std::shared_ptr<Texture> tex;
+	if (data == nullptr) {
+		// Dupe last frame. No need to do anything
+	} else if (data == RETRO_HW_FRAME_BUFFER_VALID) {
+		// HW frame, acquire texture from the appropriate source
+		if (hwRenderCallback->context_type == RETRO_HW_CONTEXT_DIRECT3D) {
+			tex = getDX11HWTexture(size);
+		} else if (hwRenderCallback->context_type == RETRO_HW_CONTEXT_OPENGL || hwRenderCallback->context_type == RETRO_HW_CONTEXT_OPENGL_CORE) {
+			tex = getOpenGLHWTexture();
 		}
 	} else {
-		dataSpan = gsl::span<const char>(static_cast<const char*>(data), pitch * height);
-	}
-
-	if (!dataSpan.empty()) {
+		// Software buffer
+		const auto dataSpan = gsl::span<const char>(static_cast<const char*>(data), pitch * height);
 		cpuUpdateTexture->update(size, static_cast<int>(pitch), gsl::as_bytes(dataSpan), getTextureFormat(systemAVInfo.pixelFormat));
-	}
-
-	std::shared_ptr<Texture> tex = cpuUpdateTexture->getTexture();
-	if (data == RETRO_HW_FRAME_BUFFER_VALID) {
-		if (hwRenderCallback->context_type == RETRO_HW_CONTEXT_DIRECT3D) {
-			dx11UpdateTextureToCurrentBound();
-		} else if (hwRenderCallback->context_type == RETRO_HW_CONTEXT_OPENGL || hwRenderCallback->context_type == RETRO_HW_CONTEXT_OPENGL_CORE) {
-			openGLUpdateTextureToFramebuffer();
-			tex = renderSurface->getRenderTarget().getTexture(0);
-		}
+		tex = cpuUpdateTexture->getTexture();
 	}
 	
-	const auto texSize = Vector2f(tex->getSize());
+	// No texture, make an empty one
+	if (!tex && !videoOut.getMaterial().getTexture(0)) {
+		Vector<char> temp;
+		temp.resize(pitch * height, 0);
+		cpuUpdateTexture->update(size, static_cast<int>(pitch), temp.byte_span(), getTextureFormat(systemAVInfo.pixelFormat));
+		tex = cpuUpdateTexture->getTexture();
+	}
+
+	if (tex && tex != videoOut.getMaterial().getTexture(0)) {
+		videoOut.getMutableMaterial().set(0, tex);
+	}
+
+	const auto texSize = Vector2f(videoOut.getMaterial().getTexture(0)->getSize());
 	const auto ar = systemAVInfo.aspectRatio;
-	videoOut.getMutableMaterial().set(0, tex);
 	videoOut
 		.setSize(texSize)
 		.scaleTo(systemAVInfo.rotation % 2 == 0 ? Vector2f(texSize.y * ar, texSize.y) : Vector2f(texSize.y, texSize.y * ar))
@@ -1553,19 +1553,25 @@ void LibretroCore::onEnvSetMinimumAudioLatency(uint32_t data)
 	audioOut->setLatencyTarget(std::max(1024u, data * 48));
 }
 
-void LibretroCore::dx11UpdateTextureToCurrentBound()
+std::shared_ptr<Texture> LibretroCore::getDX11HWTexture(Vector2i size)
 {
 	auto& dx11Video = static_cast<DX11Video&>(*environment.getHalleyAPI().video);
 	ID3D11ShaderResourceView* view;
 	dx11Video.getDeviceContext().PSGetShaderResources(0, 1, &view); // Framebuffer is stored here by the core
 
-	auto tex = std::dynamic_pointer_cast<DX11Texture>(cpuUpdateTexture->getTexture());
-	tex->replaceShaderResourceView(view);
+	if (!dx11Framebuffer || dx11Framebuffer->getSize() != size) {
+		dx11Framebuffer = std::make_shared<DX11Texture>(dx11Video, size, view);
+	} else {
+		dx11Framebuffer->replaceShaderResourceView(view);
+	}
+
+	return dx11Framebuffer;
 }
 
-void LibretroCore::openGLUpdateTextureToFramebuffer()
+std::shared_ptr<Texture> LibretroCore::getOpenGLHWTexture()
 {
 	glFramebuffer->unlockAll();
+	return renderSurface->getRenderTarget().getTexture(0);
 }
 
 TextureFormat LibretroCore::getTextureFormat(retro_pixel_format retroFormat) const

@@ -78,8 +78,6 @@ void OpenGLInteropObject::init()
 	const auto dx11TextureCol = dynamic_cast<DX11Texture&>(*renderTarget->getTexture(0)).getTexture();
 	const auto dx11TextureDepth = dynamic_cast<DX11Texture&>(*renderTarget->getDepthTexture()).getTexture();
 
-	//parent.context->bind();
-
 	glGenTextures(2, glRenderbuffer.data());
 	handle[0] = GL_FUNC(wglDXRegisterObjectNV)(parent.deviceHandle, dx11TextureCol, glRenderbuffer[0], GL_TEXTURE_2D, WGL_ACCESS_READ_WRITE_NV);
 	handle[1] = GL_FUNC(wglDXRegisterObjectNV)(parent.deviceHandle, dx11TextureDepth, glRenderbuffer[1], GL_TEXTURE_2D, WGL_ACCESS_READ_WRITE_NV);

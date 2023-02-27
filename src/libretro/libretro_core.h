@@ -5,6 +5,11 @@
 #include "libretro.h"
 #include "src/util/c_string_cache.h"
 #include "src/util/dll.h"
+
+namespace Halley {
+	class DX11Texture;
+}
+
 class OpenGLInteropObject;
 class ZipFile;
 class LibretroVFS;
@@ -197,6 +202,7 @@ private:
 
 	std::unique_ptr<OpenGLInterop> glInterop;
 	std::shared_ptr<OpenGLInteropObject> glFramebuffer;
+	std::shared_ptr<DX11Texture> dx11Framebuffer;
 
 	CStringCache stringCache;
 	
@@ -264,8 +270,8 @@ private:
 	void onEnvSetAudioBufferStatusCallback(const retro_audio_buffer_status_callback* data);
 	void onEnvSetMinimumAudioLatency(uint32_t data);
 
-	void dx11UpdateTextureToCurrentBound();
-	void openGLUpdateTextureToFramebuffer();
+	std::shared_ptr<Texture> getDX11HWTexture(Vector2i size);
+	std::shared_ptr<Texture> getOpenGLHWTexture();
 	TextureFormat getTextureFormat(retro_pixel_format retroFormat) const;
 
 	void pushInstance() const;
