@@ -1211,16 +1211,7 @@ void LibretroCore::onLog(retro_log_level level, const char* str)
 uintptr_t LibretroCore::onHWGetCurrentFrameBuffer()
 {
 	if (!glFramebuffer) {
-		//cpuUpdateTexture->update(systemAVInfo.maxSize, std::nullopt, {}, TextureFormat::RGBA);
-		if (!renderSurface) {
-			RenderSurfaceOptions options;
-			options.powerOfTwo = false;
-			options.canBeUpdatedOnCPU = true;
-			renderSurface = std::make_unique<RenderSurface>(*environment.getHalleyAPI().video, options);
-		}
-		renderSurface->setSize(systemAVInfo.maxSize);
-		dynamic_cast<DX11TextureRenderTarget&>(renderSurface->getRenderTarget()).update();
-		glFramebuffer = glInterop->makeInterop(renderSurface->getRenderTargetPtr());
+		glFramebuffer = glInterop->makeNativeRenderTarget(systemAVInfo.maxSize);
 	}
 
 	return glFramebuffer->lock();
@@ -1287,9 +1278,7 @@ bool LibretroCore::onEnvSetHWRender(retro_hw_render_callback& data)
 		if (data.context_type == RETRO_HW_CONTEXT_OPENGL || data.context_type == RETRO_HW_CONTEXT_OPENGL_CORE) {
 			data.get_proc_address = &retroHWGetProcAddress;
 			data.get_current_framebuffer = &retroHWGetCurrentFramebuffer;
-
-			auto& dx11Video = static_cast<DX11Video&>(*environment.getHalleyAPI().video);
-			glInterop = std::make_unique<OpenGLInterop>(environment.getHalleyAPI().system->createGLContext(), &dx11Video.getDevice());
+			glInterop = std::make_unique<OpenGLInterop>(environment.getHalleyAPI().system->createGLContext(), *environment.getHalleyAPI().video);
 		}
 		return true;
 	}
@@ -1579,7 +1568,7 @@ std::shared_ptr<Texture> LibretroCore::getDX11HWTexture(Vector2i size)
 std::shared_ptr<Texture> LibretroCore::getOpenGLHWTexture()
 {
 	glFramebuffer->unlockAll();
-	return renderSurface->getRenderTarget().getTexture(0);
+	return glFramebuffer->getTexture();
 }
 
 TextureFormat LibretroCore::getTextureFormat(retro_pixel_format retroFormat) const

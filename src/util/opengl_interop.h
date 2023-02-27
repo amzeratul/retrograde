@@ -13,16 +13,17 @@ class OpenGLInteropRenderTarget;
 class OpenGLInterop {
     friend class OpenGLInteropRenderTarget;
 public:
-    OpenGLInterop(std::shared_ptr<GLContext> context, void* dx11Device);
+    OpenGLInterop(std::shared_ptr<GLContext> context, VideoAPI& video);
     ~OpenGLInterop();
 
 	void bindGLContext();
     void* getGLProcAddress(const char* name);
 
-    std::shared_ptr<OpenGLInteropRenderTarget> makeInterop(std::shared_ptr<TextureRenderTarget> renderTarget);
+    std::shared_ptr<OpenGLInteropRenderTarget> makeNativeRenderTarget(Vector2i size);
     std::shared_ptr<OpenGLInteropPixelCopy> makeInterop(std::shared_ptr<CPUUpdateTexture> cpuUpdateTexture);
 
 private:
+    VideoAPI& video;
     std::shared_ptr<GLContext> context;
     DLL openGLDll;
 
@@ -36,6 +37,7 @@ public:
     virtual uint32_t lock() = 0;
     virtual void unlock() = 0;
     virtual void unlockAll() = 0;
+    virtual std::shared_ptr<Texture> getTexture() = 0;
 };
 
 class OpenGLInteropRenderTarget : public OpenGLInteropObject {
@@ -46,9 +48,10 @@ public:
     uint32_t lock() override;
     void unlock() override;
     void unlockAll() override;
+    std::shared_ptr<Texture> getTexture() override;
 
 private:
-    OpenGLInteropRenderTarget(OpenGLInterop& parent, std::shared_ptr<TextureRenderTarget> renderTarget);
+    OpenGLInteropRenderTarget(OpenGLInterop& parent, std::shared_ptr<RenderSurface> renderSurface);
 
     void init();
 	void* getGLProcAddress(const char* name);
@@ -58,7 +61,7 @@ private:
     std::array<uint32_t, 2> glRenderbuffer;
     uint32_t glFramebuffer = 0;
     int lockCount = 0;
-    std::shared_ptr<TextureRenderTarget> renderTarget;
+    std::shared_ptr<RenderSurface> renderSurface;
 };
 
 
@@ -70,6 +73,7 @@ public:
 	uint32_t lock() override;
 	void unlock() override;
 	void unlockAll() override;
+    std::shared_ptr<Texture> getTexture() override;
 
 private:
     OpenGLInteropPixelCopy(std::shared_ptr<CPUUpdateTexture> cpuUpdateTexture);

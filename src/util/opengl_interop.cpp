@@ -5,6 +5,8 @@
 #include <d3d11.h>
 #include "halley/src/plugins/dx11/src/dx11_texture.h"
 #endif
+#include "halley/src/plugins/dx11/src/dx11_render_target_texture.h"
+#include "halley/src/plugins/dx11/src/dx11_video.h"
 #include "halley/src/plugins/opengl/src/halley_gl.h"
 #include "halley/src/plugins/opengl/src/video_opengl.h"
 
@@ -32,12 +34,15 @@ namespace {
 
 
 
-OpenGLInterop::OpenGLInterop(std::shared_ptr<GLContext> context, void* dx11Device)
-	: context(std::move(context))
+OpenGLInterop::OpenGLInterop(std::shared_ptr<GLContext> context, VideoAPI& video)
+	: video(video)
+	, context(std::move(context))
 {
 	this->context->bind();
 	VideoOpenGL::initGLBindings();
-	deviceHandle = GL_FUNC(wglDXOpenDeviceNV)(dx11Device);
+
+	auto& dx11Video = static_cast<DX11Video&>(video);
+	deviceHandle = GL_FUNC(wglDXOpenDeviceNV)(&dx11Video.getDevice());
 }
 
 OpenGLInterop::~OpenGLInterop()
@@ -60,9 +65,16 @@ void* OpenGLInterop::getGLProcAddress(const char* name)
 	return context->getGLProcAddress(name);
 }
 
-std::shared_ptr<OpenGLInteropRenderTarget> OpenGLInterop::makeInterop(std::shared_ptr<TextureRenderTarget> renderTarget)
+std::shared_ptr<OpenGLInteropRenderTarget> OpenGLInterop::makeNativeRenderTarget(Vector2i size)
 {
-	return std::shared_ptr<OpenGLInteropRenderTarget>(new OpenGLInteropRenderTarget(*this, std::move(renderTarget)));
+	RenderSurfaceOptions options;
+	options.powerOfTwo = false;
+	options.canBeUpdatedOnCPU = true;
+	auto renderSurface = std::make_shared<RenderSurface>(video, options);
+	renderSurface->setSize(size);
+	dynamic_cast<DX11TextureRenderTarget&>(renderSurface->getRenderTarget()).update();
+
+	return std::shared_ptr<OpenGLInteropRenderTarget>(new OpenGLInteropRenderTarget(*this, std::move(renderSurface)));
 }
 
 std::shared_ptr<OpenGLInteropPixelCopy> OpenGLInterop::makeInterop(std::shared_ptr<CPUUpdateTexture> cpuUpdateTexture)
@@ -71,17 +83,18 @@ std::shared_ptr<OpenGLInteropPixelCopy> OpenGLInterop::makeInterop(std::shared_p
 }
 
 
-OpenGLInteropRenderTarget::OpenGLInteropRenderTarget(OpenGLInterop& parent, std::shared_ptr<TextureRenderTarget> renderTarget)
+OpenGLInteropRenderTarget::OpenGLInteropRenderTarget(OpenGLInterop& parent, std::shared_ptr<RenderSurface> renderSurface)
 	: parent(parent)
-	, renderTarget(renderTarget)
+	, renderSurface(renderSurface)
 {
 	init();
 }
 
 void OpenGLInteropRenderTarget::init()
 {
-	const auto dx11TextureCol = dynamic_cast<DX11Texture&>(*renderTarget->getTexture(0)).getTexture();
-	const auto dx11TextureDepth = dynamic_cast<DX11Texture&>(*renderTarget->getDepthTexture()).getTexture();
+	auto& renderTarget = renderSurface->getRenderTarget();
+	const auto dx11TextureCol = dynamic_cast<DX11Texture&>(*renderTarget.getTexture(0)).getTexture();
+	const auto dx11TextureDepth = dynamic_cast<DX11Texture&>(*renderTarget.getDepthTexture()).getTexture();
 
 	glGenTextures(2, glRenderbuffer.data());
 	handle[0] = GL_FUNC(wglDXRegisterObjectNV)(parent.deviceHandle, dx11TextureCol, glRenderbuffer[0], GL_TEXTURE_2D, WGL_ACCESS_READ_WRITE_NV);
@@ -151,6 +164,11 @@ void OpenGLInteropRenderTarget::unlockAll()
 	}
 }
 
+std::shared_ptr<Texture> OpenGLInteropRenderTarget::getTexture()
+{
+	return renderSurface->getRenderTarget().getTexture(0);
+}
+
 
 OpenGLInteropPixelCopy::OpenGLInteropPixelCopy(std::shared_ptr<CPUUpdateTexture> cpuUpdateTexture)
 {
@@ -173,4 +191,9 @@ void OpenGLInteropPixelCopy::unlock()
 
 void OpenGLInteropPixelCopy::unlockAll()
 {
+}
+
+std::shared_ptr<Texture> OpenGLInteropPixelCopy::getTexture()
+{
+	return {};
 }
