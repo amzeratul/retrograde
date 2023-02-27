@@ -60,20 +60,25 @@ void* OpenGLInterop::getGLProcAddress(const char* name)
 	return context->getGLProcAddress(name);
 }
 
-std::shared_ptr<OpenGLInteropObject> OpenGLInterop::makeInterop(std::shared_ptr<TextureRenderTarget> renderTarget)
+std::shared_ptr<OpenGLInteropRenderTarget> OpenGLInterop::makeInterop(std::shared_ptr<TextureRenderTarget> renderTarget)
 {
-	return std::shared_ptr<OpenGLInteropObject>(new OpenGLInteropObject(*this, std::move(renderTarget)));
+	return std::shared_ptr<OpenGLInteropRenderTarget>(new OpenGLInteropRenderTarget(*this, std::move(renderTarget)));
+}
+
+std::shared_ptr<OpenGLInteropPixelCopy> OpenGLInterop::makeInterop(std::shared_ptr<CPUUpdateTexture> cpuUpdateTexture)
+{
+	return std::shared_ptr<OpenGLInteropPixelCopy>(new OpenGLInteropPixelCopy(std::move(cpuUpdateTexture)));
 }
 
 
-OpenGLInteropObject::OpenGLInteropObject(OpenGLInterop& parent, std::shared_ptr<TextureRenderTarget> renderTarget)
+OpenGLInteropRenderTarget::OpenGLInteropRenderTarget(OpenGLInterop& parent, std::shared_ptr<TextureRenderTarget> renderTarget)
 	: parent(parent)
 	, renderTarget(renderTarget)
 {
 	init();
 }
 
-void OpenGLInteropObject::init()
+void OpenGLInteropRenderTarget::init()
 {
 	const auto dx11TextureCol = dynamic_cast<DX11Texture&>(*renderTarget->getTexture(0)).getTexture();
 	const auto dx11TextureDepth = dynamic_cast<DX11Texture&>(*renderTarget->getDepthTexture()).getTexture();
@@ -96,12 +101,13 @@ void OpenGLInteropObject::init()
 	unlock();
 }
 
-void* OpenGLInteropObject::getGLProcAddress(const char* name)
+void* OpenGLInteropRenderTarget::getGLProcAddress(const char* name)
 {
 	return parent.getGLProcAddress(name);
 }
 
-OpenGLInteropObject::~OpenGLInteropObject()
+
+OpenGLInteropRenderTarget::~OpenGLInteropRenderTarget()
 {
 	if (handle[0]) {
 		unlockAll();
@@ -116,17 +122,18 @@ OpenGLInteropObject::~OpenGLInteropObject()
 	glRenderbuffer.fill(0);
 }
 
-uint32_t OpenGLInteropObject::lock()
+uint32_t OpenGLInteropRenderTarget::lock()
 {
 	if (lockCount++ == 0) {
 		const bool result = GL_FUNC(wglDXLockObjectsNV)(parent.deviceHandle, 2, handle.data());
 		assert(result);
 	}
+	glBindFramebuffer(GL_FRAMEBUFFER, glFramebuffer);
 	return glFramebuffer;
 	//return 0;
 }
 
-void OpenGLInteropObject::unlock()
+void OpenGLInteropRenderTarget::unlock()
 {
 	if (--lockCount == 0) {
 		const bool result = GL_FUNC(wglDXUnlockObjectsNV)(parent.deviceHandle, 2, handle.data());
@@ -134,7 +141,7 @@ void OpenGLInteropObject::unlock()
 	}
 }
 
-void OpenGLInteropObject::unlockAll()
+void OpenGLInteropRenderTarget::unlockAll()
 {
 	glFlush();
 	if (lockCount > 0) {
@@ -144,7 +151,26 @@ void OpenGLInteropObject::unlockAll()
 	}
 }
 
-bool OpenGLInteropObject::isLocked() const
+
+OpenGLInteropPixelCopy::OpenGLInteropPixelCopy(std::shared_ptr<CPUUpdateTexture> cpuUpdateTexture)
 {
-	return lockCount > 0;
+	
+}
+
+OpenGLInteropPixelCopy::~OpenGLInteropPixelCopy()
+{
+	
+}
+
+uint32_t OpenGLInteropPixelCopy::lock()
+{
+	return 0;
+}
+
+void OpenGLInteropPixelCopy::unlock()
+{
+}
+
+void OpenGLInteropPixelCopy::unlockAll()
+{
 }

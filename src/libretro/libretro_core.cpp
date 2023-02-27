@@ -180,6 +180,8 @@ void LibretroCore::init()
 	for (auto& option: options) {
 		Logger::logDev("  " + option.first + " = " + option.second.defaultValue);
 	}
+
+	DLL_FUNC(dll, retro_set_controller_port_device)(0, RETRO_DEVICE_JOYPAD);
 }
 
 void LibretroCore::initVideoOut()
@@ -433,7 +435,7 @@ void LibretroCore::runFrame()
 	DLL_FUNC(dll, retro_run)();
 
 	if (!coreHandlesSaveData) {
-		saveGameDataIfNeeded();
+		//saveGameDataIfNeeded();
 	}
 
 	stringCache.clear();
@@ -983,6 +985,7 @@ void LibretroCore::onVideoRefresh(const void* data, uint32_t width, uint32_t hei
 	bool flipBuffer = false;
 	if (data == nullptr) {
 		// Dupe last frame. No need to do anything
+		flipBuffer = videoOut.isFlipped();
 	} else if (data == RETRO_HW_FRAME_BUFFER_VALID) {
 		// HW frame, acquire texture from the appropriate source
 		if (hwRenderCallback->context_type == RETRO_HW_CONTEXT_DIRECT3D) {
