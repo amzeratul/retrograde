@@ -224,8 +224,6 @@ void LibretroCore::init()
 	for (auto& option: options) {
 		Logger::logDev("  " + option.first + " = " + option.second.defaultValue);
 	}
-
-	DLL_FUNC(dll, retro_set_controller_port_device)(0, RETRO_DEVICE_JOYPAD);
 }
 
 void LibretroCore::initVideoOut()
@@ -426,10 +424,12 @@ bool LibretroCore::doLoadGame()
 		if (!coreHandlesSaveData) {
 			loadGameData();
 		}
+
+		DLL_FUNC(dll, retro_set_controller_port_device)(0, RETRO_DEVICE_JOYPAD);
 	} else {
 		gameInfos.clear();
 	}
-	
+
 	return gameLoaded;
 }
 
