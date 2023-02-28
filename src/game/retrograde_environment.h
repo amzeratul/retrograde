@@ -16,6 +16,7 @@ public:
 	const Path& getCoresDir() const;
 	Path getSaveDir(const String& system) const;
 	Path getRomsDir(const String& system) const;
+	Path getCoreAssetsDir(const String& core) const;
 
 	Resources& getResources() const;
 	const HalleyAPI& getHalleyAPI() const;
@@ -41,6 +42,7 @@ private:
 	Path coresDir;
 	Path romsDir;
 	Path shadersDir;
+	Path coreAssetsDir;
 
 	std::shared_ptr<InputVirtual> uiInput;
 

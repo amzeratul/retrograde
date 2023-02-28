@@ -17,9 +17,11 @@ RetrogradeEnvironment::RetrogradeEnvironment(RetrogradeGame& game, Path _rootDir
 	saveDir = rootDir / "save";
 	romsDir = rootDir / "roms";
 	shadersDir = rootDir / "shaders";
+	coreAssetsDir = rootDir / "coreAssets";
 
 	std::error_code ec;
 	std::filesystem::create_directories(saveDir.getNativeString().cppStr(), ec);
+	std::filesystem::create_directories(coreAssetsDir.getNativeString().cppStr(), ec);
 
 	configDatabase.init<CoreConfig>("cores");
 	configDatabase.init<SystemConfig>("systems");
@@ -44,6 +46,11 @@ Path RetrogradeEnvironment::getSaveDir(const String& system) const
 Path RetrogradeEnvironment::getRomsDir(const String& system) const
 {
 	return romsDir / system;
+}
+
+Path RetrogradeEnvironment::getCoreAssetsDir(const String& core) const
+{
+	return coreAssetsDir / core;
 }
 
 Resources& RetrogradeEnvironment::getResources() const

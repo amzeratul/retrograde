@@ -148,6 +148,11 @@ namespace {
 }
 
 
+const String& LibretroCore::Option::Value::toString() const
+{
+	return value;
+}
+
 bool LibretroCore::ContentInfo::isValidExtension(std::string_view filePath) const
 {
 	return isValidExtension(Path(filePath));
@@ -220,10 +225,6 @@ void LibretroCore::init()
 	DLL_FUNC(dll, retro_set_audio_sample_batch)(&retroAudioSampleBatchCallback);
 	DLL_FUNC(dll, retro_set_input_poll)(&retroInputPollCallback);
 	DLL_FUNC(dll, retro_set_input_state)(&retroInputStateCallback);
-
-	for (auto& option: options) {
-		Logger::logDev("  " + option.first + " = " + option.second.defaultValue);
-	}
 }
 
 void LibretroCore::initVideoOut()
@@ -316,6 +317,10 @@ const LibretroCore::ContentInfo* LibretroCore::getContentInfo(const Path& path)
 
 bool LibretroCore::loadGame(const Path& path)
 {
+	for (auto& option: options) {
+		Logger::logDev("  " + option.first + " = " + option.second.value + " [" + String::concat<Option::Value>(option.second.values.span(), ", ") + "]");
+	}
+
 	if (gameLoaded) {
 		unloadGame();
 	}
@@ -812,9 +817,8 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		return false;
 
 	case RETRO_ENVIRONMENT_GET_CORE_ASSETS_DIRECTORY:
-		// TODO
-		Logger::logWarning("TODO: RETRO_ENVIRONMENT_GET_CORE_ASSETS_DIRECTORY");
-		return false;
+		*static_cast<const char**>(data) = stringCache(environment.getCoreAssetsDir(systemInfo.coreName).getNativeString());
+		return true;
 
 	case RETRO_ENVIRONMENT_GET_SAVE_DIRECTORY:
 		onEnvGetSaveDirectory(static_cast<const char**>(data));
@@ -1070,8 +1074,12 @@ void LibretroCore::onVideoRefresh(const void* data, uint32_t width, uint32_t hei
 void LibretroCore::onAudioSample(int16_t left, int16_t right)
 {
 	if (!rewinding) {
-		const float samples[2] = { left / 32768.0f, right / 32768.0f };
-		addAudioSamples(gsl::span(samples));
+		audioBuffer.push_back(left / 32768.0f);
+		audioBuffer.push_back(right / 32768.0f);
+		if (audioBuffer.size() >= 256) {
+			addAudioSamples(gsl::span<const float>(audioBuffer.data(), audioBuffer.size()));
+			audioBuffer.clear();
+		}
 	}
 }
 
@@ -1610,6 +1618,7 @@ std::shared_ptr<Texture> LibretroCore::getDX11HWTexture(Vector2i size)
 	auto& dx11Video = static_cast<DX11Video&>(*environment.getHalleyAPI().video);
 	ID3D11ShaderResourceView* view;
 	dx11Video.getDeviceContext().PSGetShaderResources(0, 1, &view); // Framebuffer is stored here by the core
+	assert(view != nullptr);
 
 	if (!dx11Framebuffer || dx11Framebuffer->getSize() != size) {
 		dx11Framebuffer = std::make_shared<DX11Texture>(dx11Video, size, view);

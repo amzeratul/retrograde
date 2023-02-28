@@ -46,6 +46,8 @@ public:
 		struct Value {
 			String value;
 			String display;
+
+			const String& toString() const;
 		};
 		String value;
 		String defaultValue;

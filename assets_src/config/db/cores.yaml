@@ -17,5 +17,9 @@ cores:
       kronos_videocoretype: opengl_cs
   - id: mednafen_saturn
   - id: pcsx2
+    options:
+      pcsx2_renderer: D3D11
   - id: dolphin
+    options:
+      dolphin_renderer: Hardware
   - id: mupen64plus_next
