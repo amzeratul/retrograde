@@ -232,6 +232,7 @@ private:
 	void onEnvSetPerformanceLevel(uint32_t level);
 	void onEnvSetSubsystemInfo(const retro_subsystem_info& data);
 	void onEnvSetMessageExt(const retro_message_ext& data);
+	void onEnvGetPerfInterface(retro_perf_callback& data);
 
 	bool onEnvSetPixelFormat(retro_pixel_format data);
 	void onEnvSetGeometry(const retro_game_geometry& data);

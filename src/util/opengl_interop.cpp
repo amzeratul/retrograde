@@ -160,6 +160,7 @@ void OpenGLInteropRenderTarget::unlock()
 void OpenGLInteropRenderTarget::unlockAll()
 {
 	glFlush();
+	glFinish();
 	if (lockCount > 0) {
 		const bool result = GL_FUNC(wglDXUnlockObjectsNV)(parent.deviceHandle, 2, handle.data());
 		assert(result);

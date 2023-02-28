@@ -94,6 +94,50 @@ namespace {
 		return ILibretroCoreCallbacks::curInstance->onSetRumbleState(port, effect, strength);
 	}
 
+	uint64_t retroGetCpuFeatures()
+	{
+		// Eh this seems like a reasonable set
+		return RETRO_SIMD_SSE | RETRO_SIMD_SSE2 | RETRO_SIMD_VMX | RETRO_SIMD_VMX128 | RETRO_SIMD_AVX
+		    | RETRO_SIMD_SSE3 | RETRO_SIMD_SSSE3 | RETRO_SIMD_MMX | RETRO_SIMD_MMXEXT
+			| RETRO_SIMD_SSE4 | RETRO_SIMD_SSE42;
+	}
+
+	int64_t getDuration()
+	{
+		static auto start = std::chrono::high_resolution_clock::now();
+		return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now() - start).count();
+	}
+
+	retro_time_t retroPerfGetTimeUsec()
+	{
+		return getDuration() / 1000;
+	}
+	
+	retro_perf_tick_t retroPerfGetCounter()
+	{
+		return getDuration();
+	}
+
+	void retroPerfLog()
+	{
+		// TODO?
+	}
+
+	void retroPerfRegister(retro_perf_counter* counter)
+	{
+		// TODO?
+	}
+
+	void retroPerfStart(retro_perf_counter* counter)
+	{
+		// TODO?
+	}
+
+	void retroPerfStop(retro_perf_counter* counter)
+	{
+		// TODO?
+	}
+
 #ifdef WITH_DX11
 	HRESULT WINAPI retroD3DCompile(LPCVOID pSrcData, SIZE_T srcDataSize, LPCSTR pFileName, CONST D3D_SHADER_MACRO* pDefines, ID3DInclude* pInclude,
 		LPCSTR pEntrypoin, LPCSTR pTarget, UINT flags1, UINT flags2, ID3DBlob** ppCode, ID3DBlob** ppErrorMsgs)
@@ -759,9 +803,8 @@ bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 		return true;
 
 	case RETRO_ENVIRONMENT_GET_PERF_INTERFACE:
-		// TODO
-		Logger::logWarning("TODO: RETRO_ENVIRONMENT_GET_PERF_INTERFACE");
-		return false;
+		onEnvGetPerfInterface(*static_cast<retro_perf_callback*>(data));
+		return true;
 
 	case RETRO_ENVIRONMENT_GET_LOCATION_INTERFACE:
 		// TODO
@@ -1262,6 +1305,7 @@ bool LibretroCore::onEnvSetPixelFormat(retro_pixel_format data)
 void LibretroCore::onEnvSetGeometry(const retro_game_geometry& data)
 {
 	systemAVInfo.loadGeometry(data);
+	Logger::logDev(String("Change geometry to ") + systemAVInfo.baseSize + " / " + systemAVInfo.maxSize);
 }
 
 void LibretroCore::onEnvSetRotation(uint32_t data)
@@ -1410,6 +1454,17 @@ void LibretroCore::onEnvSetMessageExt(const retro_message_ext& data)
 	// TODO: missing other features
 	const auto halleyLevel = static_cast<LoggerLevel>(data.level); // By sheer coincidence, the levels match
 	Logger::log(halleyLevel, "[" + systemInfo.coreName + "] " + data.msg);
+}
+
+void LibretroCore::onEnvGetPerfInterface(retro_perf_callback& data)
+{
+	data.get_cpu_features = &retroGetCpuFeatures;
+	data.get_perf_counter = &retroPerfGetCounter;
+	data.get_time_usec = &retroPerfGetTimeUsec;
+	data.perf_log = &retroPerfLog;
+	data.perf_register = &retroPerfRegister;
+	data.perf_start = &retroPerfStart;
+	data.perf_stop = &retroPerfStop;
 }
 
 uint32_t LibretroCore::onEnvGetLanguage()

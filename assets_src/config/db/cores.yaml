@@ -13,6 +13,8 @@ cores:
   - id: mednafen_gba
   - id: desmume
   - id: kronos
+    options:
+      kronos_videocoretype: opengl_cs
   - id: mednafen_saturn
   - id: pcsx2
   - id: dolphin

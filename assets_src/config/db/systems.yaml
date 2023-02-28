@@ -79,7 +79,7 @@ systems:
     regions:
       - name: Saturn
         region: [world]
-    cores: [kronos, mednafen_saturn]
+    cores: [mednafen_saturn, kronos]
     manufacturer: Sega
   - id: ps2
     regions:
