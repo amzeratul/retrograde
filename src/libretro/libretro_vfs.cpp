@@ -294,9 +294,11 @@ LibretroVFSFileHandleSTDIO::LibretroVFSFileHandleSTDIO(FILE* fp, String path)
 #ifdef _WIN32
 	_fseeki64(fp, 0, SEEK_END);
 	fpSize = _ftelli64(fp);
+	_fseeki64(fp, 0, SEEK_SET);
 #else
 	fseeko(fp, 0, SEEK_END);
 	fpSize = ftello(fp);
+	fseeko(fp, 0, SEEK_SET);
 #endif
 }
 
