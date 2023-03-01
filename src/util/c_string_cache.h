@@ -18,5 +18,5 @@ public:
     }
 
 private:
-    Vector<String> buffer;
+    std::list<String> buffer;
 };

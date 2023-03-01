@@ -332,7 +332,7 @@ bool LibretroCore::loadGame(const Path& path)
 	gameInfoEx.full_path = nullptr;
 	gameInfoEx.archive_path = nullptr;
 	gameInfoEx.archive_file = nullptr;
-	gameInfoEx.dir = cache(path.parentPath().getNativeString());
+	gameInfoEx.dir = cache(path.parentPath().getNativeString(false));
 	gameInfoEx.name = cache(path.getFilename().replaceExtension("").getNativeString());
 	gameInfoEx.ext = nullptr;
 	gameInfoEx.meta = nullptr;
