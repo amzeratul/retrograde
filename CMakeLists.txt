@@ -42,6 +42,7 @@ set (SOURCES
 
 	"src/util/cpu_update_texture.cpp"
 	"src/util/dll.cpp"
+	"src/util/dx11_state.cpp"
 	"src/util/opengl_interop.cpp"
 
 	"src/zip/zip_file.cpp"
@@ -103,6 +104,7 @@ set (HEADERS
 	"src/util/cpu_update_texture.h"
 	"src/util/c_string_cache.h"
 	"src/util/dll.h"
+	"src/util/dx11_state.h"
 	"src/util/opengl_interop.h"
 
 	"src/zip/zip_file.h"

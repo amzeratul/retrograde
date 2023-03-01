@@ -481,7 +481,16 @@ void LibretroCore::runFrame()
 		renderCallbackNeedsReset = false;
 		hwRenderCallback->context_reset();
 	}
+
+	if (dx11State) {
+		dx11State->load(*environment.getHalleyAPI().video);
+	}
+
 	DLL_FUNC(dll, retro_run)();
+	
+	if (dx11State) {
+		dx11State->save(*environment.getHalleyAPI().video);
+	}
 
 	if (!coreHandlesSaveData) {
 		//saveGameDataIfNeeded();
@@ -1332,6 +1341,11 @@ bool LibretroCore::onEnvSetHWRender(retro_hw_render_callback& data)
 			data.get_current_framebuffer = &retroHWGetCurrentFramebuffer;
 			glInterop = std::make_unique<OpenGLInterop>(environment.getHalleyAPI().system->createGLContext(), *environment.getHalleyAPI().video);
 		}
+
+		if (data.context_type == RETRO_HW_CONTEXT_DIRECT3D) {
+			dx11State = std::make_shared<DX11State>();
+		}
+
 		return true;
 	}
 	return false;

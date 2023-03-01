@@ -5,6 +5,7 @@
 #include "libretro.h"
 #include "src/util/c_string_cache.h"
 #include "src/util/dll.h"
+#include "src/util/dx11_state.h"
 
 namespace Halley {
 	class DX11Texture;
@@ -204,6 +205,7 @@ private:
 	std::unique_ptr<OpenGLInterop> glInterop;
 	std::shared_ptr<OpenGLInteropObject> glFramebuffer;
 	std::shared_ptr<DX11Texture> dx11Framebuffer;
+	std::shared_ptr<DX11State> dx11State;
 
 	CStringCache stringCache;
 	
