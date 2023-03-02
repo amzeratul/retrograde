@@ -27,6 +27,10 @@ namespace {
 		std::array<ID3D11ShaderResourceView*, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT> vsShaderResourceViews;
 
 		ID3D11RasterizerState* rasterizerState;
+		UINT numViewports;
+		std::array<D3D11_VIEWPORT, D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE> viewports;
+		UINT numRects;
+		std::array<D3D11_RECT, D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE> rects;
 
 		std::array<ID3D11Buffer*, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT> psConstantBuffers;
 		ID3D11PixelShader* pixelShader;
@@ -92,6 +96,10 @@ void DX11State::save(VideoAPI& video)
 	dc.VSGetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, s.vsShaderResourceViews.data());
 
 	dc.RSGetState(&s.rasterizerState);
+	s.numViewports = D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE;
+	dc.RSGetViewports(&s.numViewports, s.viewports.data());
+	s.numRects = D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE;
+	dc.RSGetScissorRects(&s.numRects, s.rects.data());
 
 	dc.PSGetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, s.psConstantBuffers.data());
 	dc.PSGetShader(&s.pixelShader, nullptr, nullptr);
@@ -101,6 +109,8 @@ void DX11State::save(VideoAPI& video)
 	dc.OMGetDepthStencilState(&s.depthStencilState, &s.stencilRef);
 	dc.OMGetBlendState(&s.blendState, s.blendFactor.data(), &s.sampleMask);
 	dc.OMGetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, s.renderTargetViews.data(), &s.depthStencilViews);
+	
+	dc.ClearState();
 }
 
 void DX11State::load(VideoAPI& video)
@@ -128,6 +138,8 @@ void DX11State::load(VideoAPI& video)
 	dc.VSSetShaderResources(0, countValid(s.vsShaderResourceViews), s.vsShaderResourceViews.data());
 
 	dc.RSSetState(s.rasterizerState);
+	dc.RSSetViewports(s.numViewports, s.viewports.data());
+	dc.RSSetScissorRects(s.numRects, s.rects.data());
 
 	dc.PSSetConstantBuffers(0, countValid(s.psConstantBuffers), s.psConstantBuffers.data());
 	dc.PSSetShader(s.pixelShader, nullptr, 0);
