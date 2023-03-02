@@ -258,12 +258,15 @@ void LibretroCore::addAudioSamples(gsl::span<const float> samples)
 	Vector<float> buffer;
 	buffer.resize(samples.size());
 	memcpy(buffer.data(), samples.data(), samples.size_bytes());
+	const auto sampleRate = systemAVInfo.sampleRate;
 
-	Concurrent::execute(audioThread->getQueue(), [this, buffer = std::move(buffer)]()
+	Concurrent::execute(audioThread->getQueue(), [audioOut=audioOut, sampleRate, buffer = std::move(buffer)]()
 	{
 		constexpr float maxPitchShift = 0.01f;
 		const auto span = gsl::span<const float>(buffer.data(), buffer.size());
-		audioOut->addInterleavedSamplesWithResampleSync(span, static_cast<float>(systemAVInfo.sampleRate), maxPitchShift);
+		if (audioOut) {
+			audioOut->addInterleavedSamplesWithResampleSync(span, static_cast<float>(sampleRate), maxPitchShift);
+		}
 	});
 }
 
@@ -290,6 +293,10 @@ void LibretroCore::deInit()
 	vfs.reset();
 
 	environment.getGame().setTargetFPSOverride(std::nullopt);
+
+	dll.unload();
+
+	Logger::logDev("Core unloaded.");
 }
 
 std::pair<const LibretroCore::ContentInfo*, size_t> LibretroCore::getContentInfo(const ZipFile& zip)
