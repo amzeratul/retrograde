@@ -10,11 +10,10 @@ using Halley::ShaderType;
 
 class ShaderCompiler {
 public:
-	static std::unique_ptr<Shader> loadHLSLShader(VideoAPI& video, const String& name, const Bytes& vertexCode, const Bytes& pixelCode);
-	static const Bytes& compileHLSL(const String& name, const Bytes& code, ShaderType type);
+	static std::shared_ptr<Shader> loadHLSLShader(VideoAPI& video, const String& name, const Bytes& vertexCode, const Bytes& pixelCode);
 
 private:
-	static Halley::HashMap<uint64_t, Bytes> cache;
+	static Halley::HashMap<uint64_t, std::shared_ptr<Shader>> cache;
 
-	static Bytes doCompileHLSL(const String& name, const Bytes& code, ShaderType type);
+	static Bytes compileHLSL(const String& name, const Bytes& code, ShaderType type);
 };

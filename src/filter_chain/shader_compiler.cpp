@@ -6,35 +6,29 @@
 
 using namespace Halley;
 
-std::unique_ptr<Shader> ShaderCompiler::loadHLSLShader(VideoAPI& video, const String& name, const Bytes& vertexCode, const Bytes& pixelCode)
-{
-	ShaderDefinition definition;
-	
-	definition.name = name;
-	definition.shaders[ShaderType::Vertex] = compileHLSL(name + ".vertex.hlsl", vertexCode, ShaderType::Vertex);
-	definition.shaders[ShaderType::Pixel] = compileHLSL(name + ".pixel.hlsl", pixelCode, ShaderType::Pixel);
-
-	return video.createShader(definition);
-}
-
-const Bytes& ShaderCompiler::compileHLSL(const String& name, const Bytes& code, ShaderType type)
+std::shared_ptr<Shader> ShaderCompiler::loadHLSLShader(VideoAPI& video, const String& name, const Bytes& vertexCode, const Bytes& pixelCode)
 {
 	Hash::Hasher hasher;
 	hasher.feed(name);
-	hasher.feedBytes(code.byte_span());
-	hasher.feed(type);
+	hasher.feedBytes(vertexCode.byte_span());
+	hasher.feedBytes(pixelCode.byte_span());
 	const auto key = hasher.digest();
 
 	const auto iter = cache.find(key);
 	if (iter != cache.end()) {
 		return iter->second;
 	}
+
+	ShaderDefinition definition;
+	definition.name = name;
+	definition.shaders[ShaderType::Vertex] = compileHLSL(name + ".vertex.hlsl", vertexCode, ShaderType::Vertex);
+	definition.shaders[ShaderType::Pixel] = compileHLSL(name + ".pixel.hlsl", pixelCode, ShaderType::Pixel);
 	
-	cache[key] = doCompileHLSL(name, code, type);
+	cache[key] = video.createShader(definition);
 	return cache.at(key);
 }
 
-Bytes ShaderCompiler::doCompileHLSL(const String& name, const Bytes& bytes, ShaderType type)
+Bytes ShaderCompiler::compileHLSL(const String& name, const Bytes& bytes, ShaderType type)
 {
 #ifdef _WIN32
 	String target;
@@ -86,4 +80,4 @@ Bytes ShaderCompiler::doCompileHLSL(const String& name, const Bytes& bytes, Shad
 #endif
 }
 
-HashMap<uint64_t, Bytes> ShaderCompiler::cache;
+HashMap<uint64_t, std::shared_ptr<Shader>> ShaderCompiler::cache;

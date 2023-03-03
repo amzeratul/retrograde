@@ -7,7 +7,7 @@ std::unique_ptr<MaterialDefinition> MaterialGenerator::makeMaterial(VideoAPI& vi
 {
 	assert(vertex.format == pixel.format);
 
-	std::unique_ptr<Shader> shader;
+	std::shared_ptr<Shader> shader;
 	if (vertex.format == ShaderFormat::HLSL) {
 		shader = ShaderCompiler::loadHLSLShader(video, name, vertex.shaderCode, pixel.shaderCode);
 	} else {
