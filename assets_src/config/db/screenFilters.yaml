@@ -41,7 +41,21 @@ screenFilters:
     - shader: sonkun/original presets/1440p/06-crt-guest-advanced-slotmask-neutral-rgb.slangp
       minResY: 1350
     - shader: sonkun/original presets/1080p/06-crt-guest-advanced-slotmask-neutral-rgb.slangp
-  - id: lcd-gb
-  - id: lcd-gbc
-  - id: lcd-gba
-  - id: lcd
+  - id: lcd-gameboy
+    presets:
+    - shader: handheld/gameboy.slangp
+  - id: lcd-gameboy-pocket
+    presets:
+    - shader: handheld/gameboy-pocket.slangp
+  - id: lcd-gameboy-color
+    presets:
+    - shader: handheld/gbc-color.slangp
+  - id: lcd-gameboy-advance
+    presets:
+    - shader: handheld/gba-color.slangp
+  - id: lcd-ds
+    presets:
+    - shader: handheld/ds-hybrid-scalefx.slangp
+  - id: lcd-grid
+    presets:
+    - shader: handheld/lcd-grid-v2.slangp

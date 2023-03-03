@@ -58,7 +58,9 @@ systems:
     manufacturer: Nintendo
     releaseDate: 1989-04-21
     screenFilters:
-    - lcd-gb
+    - lcd-gameboy-pocket
+    - lcd-gameboy
+    - lcd-gameboy-color
   - id: gbc
     regions:
       - name: Game Boy Color
@@ -67,7 +69,7 @@ systems:
     manufacturer: Nintendo
     releaseDate: 1998-10-21
     screenFilters:
-    - lcd-gbc
+    - lcd-gameboy-color
   - id: gba
     regions:
       - name: Game Boy Advance
@@ -76,7 +78,7 @@ systems:
     manufacturer: Nintendo
     releaseDate: 2001-03-21
     screenFilters:
-    - lcd-gba
+    - lcd-gameboy-advance
   - id: nds
     regions:
       - name: Nintendo DS
@@ -85,7 +87,7 @@ systems:
     manufacturer: Nintendo
     releaseDate: 2004-11-21
     screenFilters:
-    - lcd
+    - lcd-ds
 
   - id: mastersystem
     regions:
@@ -136,7 +138,7 @@ systems:
     manufacturer: Sega
     releaseDate: 1990-10-06
     screenFilters:
-    - lcd
+    - lcd-grid
 
   - id: psx
     regions:

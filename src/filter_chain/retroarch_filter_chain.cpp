@@ -345,7 +345,7 @@ std::shared_ptr<const Texture> RetroarchFilterChain::lookupTexture(Stage& stage,
 			return originalTexture;
 		} else {
 			// TODO
-			return {};
+			throw Exception("Unimplemented texture parameter: OriginalHistory1+", 0);
 		}
 	}
 	if (name == "Source") {
@@ -365,7 +365,7 @@ std::shared_ptr<const Texture> RetroarchFilterChain::lookupTexture(Stage& stage,
 	}
 	if (name.startsWith("User")) {
 		// TODO
-		return {};
+		throw Exception("Unimplemented texture: User", 0);
 	}
 
 	const bool isFeedback = name.endsWith("Feedback");
