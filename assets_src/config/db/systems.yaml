@@ -124,7 +124,7 @@ systems:
     regions:
       - name: Saturn
         region: [world]
-    cores: [mednafen_saturn, kronos]
+    cores: [mednafen_saturn]
     manufacturer: Sega
     releaseDate: 1994-11-22
     screenFilters:
