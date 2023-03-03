@@ -36,7 +36,7 @@ const Vector<ScreenFilterPresetConfig>& ScreenFilterConfig::getPresets() const
 const String& ScreenFilterConfig::getShaderFor(Vector2i resolution) const
 {
 	for (auto& preset: presets) {
-		if (resolution.y > preset.getMinResY()) {
+		if (resolution.y >= preset.getMinResY()) {
 			return preset.getShader();
 		}
 	}

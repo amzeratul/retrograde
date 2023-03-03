@@ -678,6 +678,11 @@ const LibretroCore::SystemAVInfo& LibretroCore::getSystemAVInfo() const
 	return systemAVInfo;
 }
 
+bool LibretroCore::isScreenRotated() const
+{
+	return systemAVInfo.rotation % 2 == 1;
+}
+
 LibretroVFS& LibretroCore::getVFS()
 {
 	assert(!!vfs);

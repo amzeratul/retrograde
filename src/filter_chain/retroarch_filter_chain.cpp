@@ -230,7 +230,7 @@ std::unique_ptr<Texture> RetroarchFilterChain::loadTexture(VideoAPI& video, cons
 
 void RetroarchFilterChain::updateOriginalTexture(const Sprite& src, RenderContext& rc)
 {
-	const auto size = src.getScaledSize();
+	const auto size = src.getSize();
 	incomingTextureSurface.setSize(Vector2i(size));
 
 	Camera camera;
@@ -240,8 +240,10 @@ void RetroarchFilterChain::updateOriginalTexture(const Sprite& src, RenderContex
 	{
 		painter.resetState();
 		src.clone()
+			.setScale(1)
 			.setPivot(Vector2f(0.5f, 0.5f))
 			.setPosition(size / 2)
+			.setRotation(Angle1f::fromDegrees(src.isFlipped() ? 180.0f : 0.0f))
 			.draw(painter);
 	});
 

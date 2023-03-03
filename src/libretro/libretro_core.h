@@ -128,6 +128,7 @@ public:
 
 	const SystemInfo& getSystemInfo() const;
 	const SystemAVInfo& getSystemAVInfo() const;
+	bool isScreenRotated() const;
 
 	LibretroVFS& getVFS() override;
 

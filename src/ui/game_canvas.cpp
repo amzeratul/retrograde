@@ -191,14 +191,23 @@ void GameCanvas::onGamepadInput(const UIInputResults& input, Time time)
 
 void GameCanvas::updateFilterChain()
 {
+	if (!core) {
+		return;
+	}
+
 	const auto& filters = systemConfig.getScreenFilters();
 	if (filters.empty()) {
 		filterChain = {};
 		return;
 	}
 
+	auto screenSize = Vector2i(getSize());
+	if (core->isScreenRotated()) {
+		std::swap(screenSize.x, screenSize.y);
+	}
+
 	const auto& screenFilterConfig = environment.getConfigDatabase().get<ScreenFilterConfig>(filters.front());
-	const auto& shader = screenFilterConfig.getShaderFor(Vector2i(getSize()));
+	const auto& shader = screenFilterConfig.getShaderFor(screenSize);
 	if (shader.isEmpty()) {
 		filterChain = {};
 		return;
