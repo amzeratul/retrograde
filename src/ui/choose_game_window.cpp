@@ -31,7 +31,8 @@ void ChooseGameWindow::onMakeUI()
 	auto gameList = getWidgetAs<UIList>("gameList");
 
 	const auto dir = retrogradeEnvironment.getRomsDir(systemConfig.getId());
-	for (const auto& e: std::filesystem::directory_iterator(dir.getNativeString().cppStr())) {
+	std::error_code ec;
+	for (const auto& e: std::filesystem::directory_iterator(dir.getNativeString().cppStr(), ec)) {
 		if (e.is_regular_file()) {
 			auto path = e.path().filename().string();
 			gameList->addTextItem(path, LocalisedString::fromUserString(path));

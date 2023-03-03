@@ -29,17 +29,12 @@ General settings UI:
 - Basic UI
 
 Game running features
-* Retroarch shader support (!)
 * Better pixel resample shader
 - Light gun support
 - Mouse support
 - Keyboard support
+- Better audio output?
 - Retro Achievements (!)
-
-Cores:
-- PCSX2 Crashes
-- Kronos needs OpenGL
-- Dolphin crashes
 
 
 

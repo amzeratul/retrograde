@@ -324,9 +324,11 @@ const LibretroCore::ContentInfo* LibretroCore::getContentInfo(const Path& path)
 
 bool LibretroCore::loadGame(const Path& path)
 {
+	/*
 	for (auto& option: options) {
 		Logger::logDev("  " + option.first + " = " + option.second.value + " [" + String::concat<Option::Value>(option.second.values.span(), ", ") + "]");
 	}
+	*/
 
 	if (gameLoaded) {
 		unloadGame();

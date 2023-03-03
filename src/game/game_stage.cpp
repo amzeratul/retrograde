@@ -84,7 +84,7 @@ void GameStage::onUpdate(Time t)
 	auto uiInput = env->getUIInput();
 	uiInput->update(t);
 	uiRoot->setRect(Rect4f(Vector2f(), Vector2f(getVideoAPI().getWindow().getWindowRect().getSize())));
-	uiRoot->update(t, UIInputType::Gamepad, getInputAPI().getMouse(), uiInput);
+	uiRoot->update(t, UIInputType::Mouse, getInputAPI().getMouse(), uiInput);
 
 	if (kb->isButtonPressed(KeyCode::F11)) {
 		perfStats->setActive(!perfStats->isActive());

@@ -17,7 +17,24 @@ std::unique_ptr<Shader> ShaderCompiler::loadHLSLShader(VideoAPI& video, const St
 	return video.createShader(definition);
 }
 
-Bytes ShaderCompiler::compileHLSL(const String& name, const Bytes& bytes, ShaderType type)
+const Bytes& ShaderCompiler::compileHLSL(const String& name, const Bytes& code, ShaderType type)
+{
+	Hash::Hasher hasher;
+	hasher.feed(name);
+	hasher.feedBytes(code.byte_span());
+	hasher.feed(type);
+	const auto key = hasher.digest();
+
+	const auto iter = cache.find(key);
+	if (iter != cache.end()) {
+		return iter->second;
+	}
+	
+	cache[key] = doCompileHLSL(name, code, type);
+	return cache.at(key);
+}
+
+Bytes ShaderCompiler::doCompileHLSL(const String& name, const Bytes& bytes, ShaderType type)
 {
 #ifdef _WIN32
 	String target;
@@ -68,3 +85,5 @@ Bytes ShaderCompiler::compileHLSL(const String& name, const Bytes& bytes, Shader
 
 #endif
 }
+
+HashMap<uint64_t, Bytes> ShaderCompiler::cache;
