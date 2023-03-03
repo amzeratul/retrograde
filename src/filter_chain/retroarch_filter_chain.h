@@ -106,7 +106,8 @@ private:
 
 	HashMap<String, std::shared_ptr<Texture>> textures;
 	uint32_t frameNumber = 0;
-	std::shared_ptr<const Texture> originalTexture;
+	std::deque<std::shared_ptr<Texture>> originalTextures;
+	RenderSurface incomingTextureSurface;
 
 	static ConfigNode parsePreset(const Path& path);
 	static void parsePresetLine(std::string_view str, ConfigNode::MapType& dst);
@@ -116,6 +117,7 @@ private:
 
 	std::unique_ptr<Texture> loadTexture(VideoAPI& video, const Path& path, bool linear, bool mipMap, RetroarchWrapMode wrapMode);
 
+	void updateOriginalTexture(const Sprite& src, RenderContext& rc);
 	void updateStageMaterial(Stage& stage, const FrameParams& frameParams);
 	void updateParameter(Stage& stage, const String& name, Material& material, const FrameParams& frameParams);
 	void updateTexture(Stage& stage, const String& name, Material& material);

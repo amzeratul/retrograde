@@ -20,10 +20,12 @@ RetroarchFilterChain::Stage::Stage(int idx, const ConfigNode& params, const Path
 	wrapModeOutput = params["wrap_mode" + toString(idx + 1)].asEnum(RetroarchWrapMode::ClampToEdge);
 	floatFramebuffer = params["float_framebuffer" + idxStr].asBool(false);
 	srgbFramebuffer = params["srgb_framebuffer" + idxStr].asBool(false);
-	scaleTypeX = params["scale_type_x" + idxStr].asEnum(RetroarchScaleType::Source);
-	scaleTypeY = params["scale_type_y" + idxStr].asEnum(RetroarchScaleType::Source);
-	scale.x = params["scale_x" + idxStr].asFloat(1.0f);
-	scale.y = params["scale_y" + idxStr].asFloat(1.0f);
+	const auto scaleType = params["scale_type" + idxStr].asEnum(RetroarchScaleType::Source);
+	scaleTypeX = params["scale_type_x" + idxStr].asEnum(scaleType);
+	scaleTypeY = params["scale_type_y" + idxStr].asEnum(scaleType);
+	const auto scaleV = params["scale" + idxStr].asFloat(1.0f);
+	scale.x = params["scale_x" + idxStr].asFloat(scaleV);
+	scale.y = params["scale_y" + idxStr].asFloat(scaleV);
 
 	index = idx;
 }
@@ -48,7 +50,7 @@ void RetroarchFilterChain::Stage::loadMaterial(ShaderConverter& converter, Video
 	materialDefinition = MaterialGenerator::makeMaterial(video, name, vertexShader, pixelShader);
 	material = std::make_shared<Material>(materialDefinition);
 
-	if (false) {
+	if (true) {
 		Path::writeFile("../tmp/" + shaderPath.getFilename().replaceExtension(".vertex." + toString(outputFormat)), vertexShader.shaderCode);
 		Path::writeFile("../tmp/" + shaderPath.getFilename().replaceExtension(".pixel." + toString(outputFormat)), pixelShader.shaderCode);
 	}
@@ -118,9 +120,19 @@ void RetroarchFilterChain::Stage::swapTextures()
 }
 
 
+namespace {
+	RenderSurfaceOptions getIncomingSurfaceOptions()
+	{
+		RenderSurfaceOptions options;
+		options.powerOfTwo = false;
+		return options;
+	}
+}
+
 RetroarchFilterChain::RetroarchFilterChain(String id, Path _path, VideoAPI& video)
 	: id(std::move(id))
 	, path(std::move(_path))
+	, incomingTextureSurface(video, getIncomingSurfaceOptions())
 {
 	params = parsePreset(path);
 	loadStages(params, video);
@@ -216,18 +228,46 @@ std::unique_ptr<Texture> RetroarchFilterChain::loadTexture(VideoAPI& video, cons
 	return texture;
 }
 
+void RetroarchFilterChain::updateOriginalTexture(const Sprite& src, RenderContext& rc)
+{
+	const auto size = src.getScaledSize();
+	incomingTextureSurface.setSize(Vector2i(size));
+
+	Camera camera;
+	camera.setPosition(size / 2).setViewPort(Rect4i(Vector2i(), Vector2i(size)));
+
+	rc.with(incomingTextureSurface.getRenderTarget()).with(camera).bind([&] (Painter& painter)
+	{
+		painter.resetState();
+		src.clone()
+			.setPivot(Vector2f(0.5f, 0.5f))
+			.setPosition(size / 2)
+			.draw(painter);
+	});
+
+	originalTextures.push_back(incomingTextureSurface.getRenderTarget().getTexture(0));
+	if (originalTextures.size() >= 16) {
+		incomingTextureSurface.setColourTarget(originalTextures.front());
+		originalTextures.pop_front();
+	} else {
+		incomingTextureSurface.createNewColourTarget();
+	}
+}
+
 Sprite RetroarchFilterChain::run(const Sprite& src, RenderContext& rc, Vector2i viewportSize)
 {
 	if (stages.empty()) {
 		return src;
 	}
 
+	// Make original texture
+	updateOriginalTexture(src, rc);
+	const Vector2i originalSize = originalTextures.back()->getSize();
+
 	// Frame data
-	originalTexture = src.getMaterial().getTexture(0);
-	const Vector2i originalSize = originalTexture->getSize();
 	FrameParams frameParams;
 	frameParams.frameCount = frameNumber++;
-	frameParams.mvp = Matrix4f::makeIdentity(); // TODO
+	frameParams.mvp = Matrix4f::makeIdentity();
 	frameParams.finalViewportSize = texSizeToVec4(viewportSize);
 
 	// Set stage sizes
@@ -337,22 +377,17 @@ std::shared_ptr<const Texture> RetroarchFilterChain::lookupTexture(Stage& stage,
 	}
 
 	if (name == "Original") {
-		return originalTexture;
+		return originalTextures.back();
 	}
 	if (name.startsWith("OriginalHistory")) {
 		const int n = name.substr(15).toInteger();
-		if (n == 0) {
-			return originalTexture;
-		} else {
-			// TODO
-			throw Exception("Unimplemented texture parameter: OriginalHistory1+", 0);
-		}
+		return originalTextures.at(std::max(0, static_cast<int>(originalTextures.size() - n - 1)));
 	}
 	if (name == "Source") {
 		if (stage.index == 0) {
-			return originalTexture;
+			return originalTextures.back();
 		} else {
-			return stages[stage.index - 1].getTexture(0);
+			return stages[std::max(0, stage.index - 1)].getTexture(0);
 		}
 	}
 	if (name.startsWith("PassOutput")) {
@@ -403,6 +438,7 @@ void RetroarchFilterChain::drawStage(const Stage& stage, Painter& painter)
 		dst += stage.materialDefinition->getVertexStride();
 	}
 
+	painter.clear(Colour4f(0, 0, 0, 0));
 	painter.drawQuads(stage.material, 4, vertexData.data());
 }
 

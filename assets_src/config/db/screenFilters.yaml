@@ -49,13 +49,13 @@ screenFilters:
     - shader: handheld/gameboy-pocket.slangp
   - id: lcd-gameboy-color
     presets:
-    - shader: handheld/gbc-color.slangp
+    - shader: handheld/lcd-grid-v2-gbc-color-motionblur.slangp
   - id: lcd-gameboy-advance
     presets:
-    - shader: handheld/gba-color.slangp
+    - shader: handheld/lcd-grid-v2-gba-color-motionblur.slangp
   - id: lcd-ds
     presets:
-    - shader: handheld/ds-hybrid-scalefx.slangp
+    - shader: handheld/lcd-grid-v2-nds-color-motionblur.slangp
   - id: lcd-grid
     presets:
     - shader: handheld/lcd-grid-v2.slangp

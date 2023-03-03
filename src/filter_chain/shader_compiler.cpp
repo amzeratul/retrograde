@@ -41,7 +41,8 @@ Bytes ShaderCompiler::compileHLSL(const String& name, const Bytes& bytes, Shader
 
 	ID3D10Blob *codeBlob = nullptr;
 	ID3D10Blob *errorBlob = nullptr;
-	const HRESULT hResult = D3DCompile2(bytes.data(), bytes.size(), name.c_str(), nullptr, nullptr, "main", target.c_str(), 0, 0, 0, nullptr, 0, &codeBlob, &errorBlob);
+	const int flags = Debug::isDebug() ? D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION : 0;
+	const HRESULT hResult = D3DCompile2(bytes.data(), bytes.size(), name.c_str(), nullptr, nullptr, "main", target.c_str(), flags, 0, 0, nullptr, 0, &codeBlob, &errorBlob);
 	if (hResult != S_OK) {
 		const auto errorMessage = String(reinterpret_cast<const char*>(errorBlob->GetBufferPointer()), errorBlob->GetBufferSize());
 		errorBlob->Release();
