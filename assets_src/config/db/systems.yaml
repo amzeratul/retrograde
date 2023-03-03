@@ -76,7 +76,7 @@ systems:
     manufacturer: Nintendo
     releaseDate: 2001-03-21
     screenFilters:
-    - lcd
+    - lcd-gba
   - id: nds
     regions:
       - name: Nintendo DS

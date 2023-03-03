@@ -42,5 +42,6 @@ screenFilters:
       minResY: 1350
     - shader: sonkun/original presets/1080p/06-crt-guest-advanced-slotmask-neutral-rgb.slangp
   - id: lcd-gb
-  - id: lcd-gac
+  - id: lcd-gbc
   - id: lcd-gba
+  - id: lcd
