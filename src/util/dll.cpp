@@ -16,6 +16,7 @@
 
 DLL::DLL(DLL&& other) noexcept
 	: handle(other.handle)
+	, filename(std::move(other.filename))
 {
 	other.handle = nullptr;
 }
@@ -29,12 +30,16 @@ DLL& DLL::operator=(DLL&& other) noexcept
 {
 	unload();
 	handle = other.handle;
+	filename = std::move(other.filename);
 	other.handle = nullptr;
 	return *this;
 }
 
 bool DLL::load(std::string_view filename)
 {
+	unload();
+	this->filename = filename;
+
 #ifdef _WIN32
 	handle = LoadLibraryW(String(filename).getUTF16().c_str());
 #else
@@ -48,6 +53,10 @@ void DLL::unload()
 	if (handle) {
 #ifdef _WIN32
 		FreeLibrary(static_cast<HMODULE>(handle));
+
+		if (GetModuleHandleW(filename.getUTF16().c_str())) {
+			Logger::logError("DLL " + filename + " refused to unload");
+		}
 #else
 		dlclose(handle);
 #endif

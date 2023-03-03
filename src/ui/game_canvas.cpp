@@ -82,6 +82,7 @@ void GameCanvas::render(RenderContext& rc) const
 			screen
 				.scaleTo(spriteSize)
 				.setRotation(coreOutScreen.getRotation())
+				.setFlip(coreOutScreen.isFlipped())
 				.setPivot(Vector2f(0.5f, 0.5f))
 				.setPosition(windowSize * 0.5f);
 		} else {
