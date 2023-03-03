@@ -1,6 +1,7 @@
 #pragma once
 
 #include <halley.hpp>
+class SystemConfig;
 class FilterChain;
 class RewindData;
 class RetrogradeEnvironment;
@@ -10,7 +11,7 @@ class LibretroCore;
 
 class GameCanvas : public UIWidget {
 public:
-    GameCanvas(UIFactory& factory, RetrogradeEnvironment& environment, String systemId, String gameId, UIWidget& parentMenu);
+    GameCanvas(UIFactory& factory, RetrogradeEnvironment& environment, const SystemConfig& systemConfig, String gameId, UIWidget& parentMenu);
     ~GameCanvas() override;
 
     void update(Time t, bool moved) override;
@@ -22,7 +23,7 @@ public:
 private:
     UIFactory& factory;
     RetrogradeEnvironment& environment;
-    String systemId;
+    const SystemConfig& systemConfig;
     String gameId;
     UIWidget& parentMenu;
 
@@ -43,4 +44,5 @@ private:
     void stepGame();
 
     void onGamepadInput(const UIInputResults& input, Time time) override;
+    void updateFilterChain();
 };

@@ -118,8 +118,9 @@ void RetroarchFilterChain::Stage::swapTextures()
 }
 
 
-RetroarchFilterChain::RetroarchFilterChain(Path _path, VideoAPI& video)
-	: path(std::move(_path))
+RetroarchFilterChain::RetroarchFilterChain(String id, Path _path, VideoAPI& video)
+	: id(std::move(id))
+	, path(std::move(_path))
 {
 	params = parsePreset(path);
 	loadStages(params, video);
@@ -249,6 +250,11 @@ Sprite RetroarchFilterChain::run(const Sprite& src, RenderContext& rc, Vector2i 
 	}
 
 	return stages.back().renderSurface->getSurfaceSprite(src.getMaterialPtr()->clone());
+}
+
+const String& RetroarchFilterChain::getId() const
+{
+	return id;
 }
 
 

@@ -2,6 +2,7 @@
 #include <filesystem>
 
 #include "src/config/core_config.h"
+#include "src/config/screen_filter_config.h"
 #include "src/config/system_config.h"
 #include "src/filter_chain/retroarch_filter_chain.h"
 #include "src/libretro/libretro_core.h"
@@ -24,6 +25,7 @@ RetrogradeEnvironment::RetrogradeEnvironment(RetrogradeGame& game, Path _rootDir
 	std::filesystem::create_directories(coreAssetsDir.getNativeString().cppStr(), ec);
 
 	configDatabase.init<CoreConfig>("cores");
+	configDatabase.init<ScreenFilterConfig>("screenFilters");
 	configDatabase.init<SystemConfig>("systems");
 	configDatabase.load(resources, "db/");
 }
@@ -78,14 +80,13 @@ RetrogradeGame& RetrogradeEnvironment::getGame() const
 	return game;
 }
 
-std::unique_ptr<LibretroCore> RetrogradeEnvironment::loadCore(const String& systemId, const String& gamePath)
+std::unique_ptr<LibretroCore> RetrogradeEnvironment::loadCore(const SystemConfig& systemConfig, const String& gamePath)
 {
-	const auto& systemConfig = getConfigDatabase().get<SystemConfig>(systemId);
 	const String coreId = systemConfig.getCores().at(0);
 	const auto& coreConfig = getConfigDatabase().get<CoreConfig>(coreId);
 	const String corePath = coreId + "_libretro.dll";
 
-	auto core = LibretroCore::load(getCoresDir() + "/" + corePath, systemId, *this);
+	auto core = LibretroCore::load(getCoresDir() + "/" + corePath, systemConfig.getId(), *this);
 	for (int i = 0; i < 4; ++i) {
 		core->setInputDevice(i, makeInput(i));
 	}
@@ -100,7 +101,7 @@ std::unique_ptr<LibretroCore> RetrogradeEnvironment::loadCore(const String& syst
 	}
 
 	if (!gamePath.isEmpty()) {
-		core->loadGame(getRomsDir(systemId) / gamePath);
+		core->loadGame(getRomsDir(systemConfig.getId()) / gamePath);
 	}
 
 	return core;
@@ -108,7 +109,7 @@ std::unique_ptr<LibretroCore> RetrogradeEnvironment::loadCore(const String& syst
 
 std::unique_ptr<FilterChain> RetrogradeEnvironment::makeFilterChain(const String& path)
 {
-	return std::make_unique<RetroarchFilterChain>(shadersDir / path, *halleyAPI.video);
+	return std::make_unique<RetroarchFilterChain>(path, shadersDir / path, *halleyAPI.video);
 }
 
 std::shared_ptr<InputVirtual> RetrogradeEnvironment::getUIInput()

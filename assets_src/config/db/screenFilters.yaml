@@ -1,0 +1,46 @@
+screenFilters:
+  - id: crt-rf-2phase
+    presets:
+    - shader: sonkun/original presets/4k/01-crt-guest-advanced-slotmask-neutral-rf-ntsc-2-phase.slangp
+      minResY: 2000
+    - shader: sonkun/original presets/1440p/01-crt-guest-advanced-slotmask-neutral-rf-ntsc-2-phase.slangp
+      minResY: 1350
+    - shader: sonkun/original presets/1080p/01-crt-guest-advanced-slotmask-neutral-rf-ntsc-2-phase.slangp
+  - id: crt-rf-3phase
+    presets:
+    - shader: sonkun/original presets/4k/02-crt-guest-advanced-slotmask-neutral-rf-ntsc-3-phase.slangp
+      minResY: 2000
+    - shader: sonkun/original presets/1440p/02-crt-guest-advanced-slotmask-neutral-rf-ntsc-3-phase.slangp
+      minResY: 1350
+    - shader: sonkun/original presets/1080p/02-crt-guest-advanced-slotmask-neutral-rf-ntsc-3-phase.slangp
+  - id: crt-composite-ntsc-2phase
+    presets:
+    - shader: sonkun/original presets/4k/03-crt-guest-advanced-slotmask-neutral-composite-ntsc-2-phase.slangp
+      minResY: 2000
+    - shader: sonkun/original presets/1440p/03-crt-guest-advanced-slotmask-neutral-composite-ntsc-2-phase.slangp
+      minResY: 1350
+    - shader: sonkun/original presets/1080p/03-crt-guest-advanced-slotmask-neutral-composite-ntsc-2-phase.slangp
+  - id: crt-composite-ntsc-3phase
+    presets:
+    - shader: sonkun/original presets/4k/04-crt-guest-advanced-slotmask-neutral-composite-ntsc-3-phase.slangp
+      minResY: 2000
+    - shader: sonkun/original presets/1440p/04-crt-guest-advanced-slotmask-neutral-composite-ntsc-3-phase.slangp
+      minResY: 1350
+    - shader: sonkun/original presets/1080p/04-crt-guest-advanced-slotmask-neutral-composite-ntsc-3-phase.slangp
+  - id: crt-svideo
+    presets:
+    - shader: sonkun/original presets/4k/05-crt-guest-advanced-slotmask-neutral-s-video.slangp
+      minResY: 2000
+    - shader: sonkun/original presets/1440p/05-crt-guest-advanced-slotmask-neutral-s-video.slangp
+      minResY: 1350
+    - shader: sonkun/original presets/1080p/05-crt-guest-advanced-slotmask-neutral-s-video.slangp
+  - id: crt-rgb
+    presets:
+    - shader: sonkun/original presets/4k/06-crt-guest-advanced-slotmask-neutral-rgb.slangp
+      minResY: 2000
+    - shader: sonkun/original presets/1440p/06-crt-guest-advanced-slotmask-neutral-rgb.slangp
+      minResY: 1350
+    - shader: sonkun/original presets/1080p/06-crt-guest-advanced-slotmask-neutral-rgb.slangp
+  - id: lcd-gb
+  - id: lcd-gac
+  - id: lcd-gba

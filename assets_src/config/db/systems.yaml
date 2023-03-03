@@ -1,4 +1,25 @@
 systems:
+  - id: atari2600
+    regions: 
+      - name: Atari 2600
+        region: [world]
+    cores: [stella]
+    manufacturer: Atari
+    releaseDate: 1977-09-11
+    screenFilters:
+    - crt-rf-3phase
+
+  - id: nes
+    regions: 
+      - name: Nintendo Entertainment System
+        region: [world]
+      - name: Famicom
+        region: [jp]
+    cores: [nestopia, mesen]
+    manufacturer: Nintendo
+    releaseDate: 1983-07-15
+    screenFilters:
+    - crt-composite-ntsc-3phase
   - id: snes
     regions: 
       - name: Super Nintendo Entertainment System
@@ -8,6 +29,73 @@ systems:
     cores: [snes9x, bsnes]
     manufacturer: Nintendo
     releaseDate: 1990-11-21
+    screenFilters:
+    - crt-composite-ntsc-3phase
+  - id: n64
+    regions:
+      - name: Nintendo 64
+        region: [world]
+    cores: [mupen64plus_next, parallel_n64]
+    manufacturer: Nintendo
+    releaseDate: 1996-06-23
+    screenFilters:
+    - crt-svideo
+  - id: gamecube
+    regions:
+      - name: GameCube
+        region: [world]
+    cores: [dolphin]
+    manufacturer: Nintendo
+    releaseDate: 2001-09-14
+    screenFilters:
+    - crt-svideo
+
+  - id: gb
+    regions:
+      - name: Game Boy
+        region: [world]
+    cores: [gambatte]
+    manufacturer: Nintendo
+    releaseDate: 1989-04-21
+    screenFilters:
+    - lcd-gb
+  - id: gbc
+    regions:
+      - name: Game Boy Color
+        region: [world]
+    cores: [gambatte]
+    manufacturer: Nintendo
+    releaseDate: 1998-10-21
+    screenFilters:
+    - lcd-gbc
+  - id: gba
+    regions:
+      - name: Game Boy Advance
+        region: [world]
+    cores: [mgba, mednafen_gba]
+    manufacturer: Nintendo
+    releaseDate: 2001-03-21
+    screenFilters:
+    - lcd
+  - id: nds
+    regions:
+      - name: Nintendo DS
+        region: [world]
+    cores: [desmume]
+    manufacturer: Nintendo
+    releaseDate: 2004-11-21
+    screenFilters:
+    - lcd
+
+  - id: mastersystem
+    regions:
+      - name: Master System
+        region: [world]
+    cores: [genesis_plus_gx]
+    manufacturer: Sega
+    releaseDate: 1985-10-20
+    screenFilters:
+    - crt-composite-ntsc-3phase
   - id: megadrive
     regions:
       - name: Mega Drive
@@ -17,6 +105,39 @@ systems:
     cores: [genesis_plus_gx]
     manufacturer: Sega
     releaseDate: 1988-10-29
+    screenFilters:
+    - crt-composite-ntsc-2phase
+  - id: megacd
+    regions:
+      - name: Mega CD
+        region: [world]
+      - name: Sega CD
+        region: [us, br]
+    cores: [genesis_plus_gx]
+    manufacturer: Sega
+    releaseDate: 1991-12-12
+    screenFilters:
+    - crt-composite-ntsc-2phase
+  - id: saturn
+    regions:
+      - name: Saturn
+        region: [world]
+    cores: [mednafen_saturn, kronos]
+    manufacturer: Sega
+    releaseDate: 1994-11-22
+    screenFilters:
+    - crt-svideo
+
+  - id: gamegear
+    regions:
+      - name: Game Gear
+        region: [world]
+    cores: [genesis_plus_gx]
+    manufacturer: Sega
+    releaseDate: 1990-10-06
+    screenFilters:
+    - lcd
+
   - id: psx
     regions:
       - name: PlayStation
@@ -24,6 +145,18 @@ systems:
     cores: [swanstation]
     manufacturer: Sony
     releaseDate: 1994-12-03
+    screenFilters:
+    - crt-svideo
+  - id: ps2
+    regions:
+      - name: PlayStation 2
+        region: [world]
+    cores: [pcsx2]
+    manufacturer: Sony
+    releaseDate: 2000-03-04
+    screenFilters:
+    - crt-svideo
+
   - id: neogeo
     regions:
       - name: Neo Geo
@@ -31,6 +164,17 @@ systems:
     cores: [fbneo]
     manufacturer: SNK
     releaseDate: 1990-04-26
+    screenFilters:
+    - crt-rgb
+  - id: cps1
+    regions:
+      - name: CP System I
+        region: [world]
+    cores: [fbneo]
+    manufacturer: Capcom
+    releaseDate: 1988-05-13
+    screenFilters:
+    - crt-rgb
   - id: cps2
     regions:
       - name: CP System II
@@ -38,52 +182,14 @@ systems:
     cores: [fbneo]
     manufacturer: Capcom
     releaseDate: 1993-09-10
-  - id: n64
+    screenFilters:
+    - crt-rgb
+  - id: cps3
     regions:
-      - name: Nintendo 64
+      - name: CP System III
         region: [world]
-    cores: [mupen64plus_next, parallel_n64]
-    manufacturer: Nintendo
-    releaseDate: 1996-06-23
-  - id: gba
-    regions:
-      - name: Game Boy Advance
-        region: [world]
-    cores: [mgba, mednafen_gba]
-    manufacturer: Nintendo
-  - id: gb
-    regions:
-      - name: Game Boy
-        region: [world]
-    cores: [gambatte]
-    manufacturer: Nintendo
-  - id: gbc
-    regions:
-      - name: Game Boy Color
-        region: [world]
-    cores: [gambatte]
-    manufacturer: Nintendo
-  - id: nds
-    regions:
-      - name: Nintendo DS
-        region: [world]
-    cores: [desmume]
-    manufacturer: Nintendo
-  - id: gamecube
-    regions:
-      - name: GameCube
-        region: [world]
-    cores: [dolphin]
-    manufacturer: Nintendo
-  - id: saturn
-    regions:
-      - name: Saturn
-        region: [world]
-    cores: [mednafen_saturn, kronos]
-    manufacturer: Sega
-  - id: ps2
-    regions:
-      - name: PlayStation 2
-        region: [world]
-    cores: [pcsx2]
-    manufacturer: Sony
+    cores: [fbneo]
+    manufacturer: Capcom
+    releaseDate: 1996-10-23
+    screenFilters:
+    - crt-rgb

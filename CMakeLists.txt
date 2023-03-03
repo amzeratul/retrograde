@@ -18,6 +18,7 @@ set (SOURCES
 	"prec.cpp"
 	
 	"src/config/core_config.cpp"
+	"src/config/screen_filter_config.cpp"
 	"src/config/system_config.cpp"
 
 	"src/filter_chain/material_generator.cpp"
@@ -75,6 +76,7 @@ set (HEADERS
 	"src/contrib/spirv_cross/spirv.hpp"
 	
 	"src/config/core_config.h"
+	"src/config/screen_filter_config.h"
 	"src/config/system_config.h"
 
 	"src/filter_chain/filter_chain.h"

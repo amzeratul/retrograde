@@ -25,6 +25,7 @@ public:
     const SystemRegionConfig& getRegion(const String& region) const;
 	const Vector<SystemRegionConfig>& getRegions() const;
 	const Vector<String>& getCores() const;
+    const Vector<String>& getScreenFilters() const;
 
 private:
     String id;
@@ -32,4 +33,5 @@ private:
     String releaseDate;
     Vector<SystemRegionConfig> regions;
     Vector<String> cores;
+    Vector<String> screenFilters;
 };

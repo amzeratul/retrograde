@@ -23,3 +23,6 @@ cores:
     options:
       dolphin_renderer: Hardware
   - id: mupen64plus_next
+  - id: stella
+  - id: mesen
+  - id: nestopia

@@ -9,4 +9,5 @@ class FilterChain {
 public:
 	virtual ~FilterChain() = default;
 	virtual Sprite run(const Sprite& src, RenderContext& rc, Vector2i viewPortSize) = 0;
+	virtual const String& getId() const = 0;
 };

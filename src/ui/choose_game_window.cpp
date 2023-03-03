@@ -4,14 +4,15 @@
 
 #include "choose_system_window.h"
 #include "game_canvas.h"
+#include "src/config/system_config.h"
 #include "src/game/retrograde_environment.h"
 #include "src/libretro/libretro_core.h"
 
-ChooseGameWindow::ChooseGameWindow(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, String systemId, std::optional<String> gameId, UIWidget& parentMenu)
+ChooseGameWindow::ChooseGameWindow(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, const SystemConfig& systemConfig, std::optional<String> gameId, UIWidget& parentMenu)
 	: UIWidget("choose_game", Vector2f(), UISizer())
 	, factory(factory)
 	, retrogradeEnvironment(retrogradeEnvironment)
-	, systemId(std::move(systemId))
+	, systemConfig(systemConfig)
 	, pendingGameId(std::move(gameId))
 	, parentMenu(parentMenu)
 {
@@ -29,7 +30,7 @@ void ChooseGameWindow::onMakeUI()
 {
 	auto gameList = getWidgetAs<UIList>("gameList");
 
-	const auto dir = retrogradeEnvironment.getRomsDir(systemId);
+	const auto dir = retrogradeEnvironment.getRomsDir(systemConfig.getId());
 	for (const auto& e: std::filesystem::directory_iterator(dir.getNativeString().cppStr())) {
 		if (e.is_regular_file()) {
 			auto path = e.path().filename().string();
@@ -82,5 +83,5 @@ void ChooseGameWindow::onGamepadInput(const UIInputResults& input, Time time)
 void ChooseGameWindow::loadGame(const String& gameId)
 {
 	setActive(false);
-	getRoot()->addChild(std::make_shared<GameCanvas>(factory, retrogradeEnvironment, systemId, gameId, *this));
+	getRoot()->addChild(std::make_shared<GameCanvas>(factory, retrogradeEnvironment, systemConfig, gameId, *this));
 }

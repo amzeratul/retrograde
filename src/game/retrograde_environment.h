@@ -24,7 +24,7 @@ public:
 	ConfigDatabase& getConfigDatabase();
 	RetrogradeGame& getGame() const;
 
-	std::unique_ptr<LibretroCore> loadCore(const String& systemId, const String& gamePath = {});
+	std::unique_ptr<LibretroCore> loadCore(const SystemConfig& systemConfig, const String& gamePath = {});
 	std::unique_ptr<FilterChain> makeFilterChain(const String& path);
 
 	std::shared_ptr<InputVirtual> getUIInput();

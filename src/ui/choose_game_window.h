@@ -1,13 +1,14 @@
 #pragma once
 
 #include <halley.hpp>
+class SystemConfig;
 using namespace Halley;
 
 class RetrogradeEnvironment;
 
 class ChooseGameWindow : public UIWidget {
 public:
-    ChooseGameWindow(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, String systemId, std::optional<String> gameId, UIWidget& parentMenu);
+    ChooseGameWindow(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, const SystemConfig& systemConfig, std::optional<String> gameId, UIWidget& parentMenu);
 
     void onMakeUI() override;
     void onAddedToRoot(UIRoot& root) override;
@@ -17,7 +18,7 @@ public:
 private:
     UIFactory& factory;
     RetrogradeEnvironment& retrogradeEnvironment;
-    String systemId;
+    const SystemConfig& systemConfig;
     std::optional<String> pendingGameId;
     UIWidget& parentMenu;
 

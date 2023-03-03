@@ -52,6 +52,7 @@ void ChooseSystemWindow::onMakeUI()
 void ChooseSystemWindow::loadSystem(const String& systemId)
 {
 	setActive(false);
-	getRoot()->addChild(std::make_shared<ChooseGameWindow>(factory, retrogradeEnvironment, systemId, pendingGameId, *this));
+	const auto& systemConfig = retrogradeEnvironment.getConfigDatabase().get<SystemConfig>(systemId);
+	getRoot()->addChild(std::make_shared<ChooseGameWindow>(factory, retrogradeEnvironment, systemConfig, pendingGameId, *this));
 	pendingGameId = {};
 }

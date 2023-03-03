@@ -24,6 +24,7 @@ SystemConfig::SystemConfig(const ConfigNode& node)
 	releaseDate = node["releaseDate"].asString();
 	cores = node["cores"].asVector<String>();
 	regions = node["regions"].asVector<SystemRegionConfig>();
+	screenFilters = node["screenFilters"].asVector<String>({});
 }
 
 const String& SystemConfig::getId() const
@@ -67,4 +68,9 @@ const Vector<SystemRegionConfig>& SystemConfig::getRegions() const
 const Vector<String>& SystemConfig::getCores() const
 {
 	return cores;
+}
+
+const Vector<String>& SystemConfig::getScreenFilters() const
+{
+	return screenFilters;
 }

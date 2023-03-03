@@ -108,7 +108,7 @@ void DX11State::save(VideoAPI& video)
 
 	dc.OMGetDepthStencilState(&s.depthStencilState, &s.stencilRef);
 	dc.OMGetBlendState(&s.blendState, s.blendFactor.data(), &s.sampleMask);
-	dc.OMGetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, s.renderTargetViews.data(), &s.depthStencilViews);
+	//dc.OMGetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, s.renderTargetViews.data(), &s.depthStencilViews);
 	
 	dc.ClearState();
 }
@@ -148,5 +148,5 @@ void DX11State::load(VideoAPI& video)
 
 	dc.OMSetDepthStencilState(s.depthStencilState, s.stencilRef);
 	dc.OMSetBlendState(s.blendState, s.blendFactor.data(), s.sampleMask);
-	dc.OMSetRenderTargets(countValid(s.renderTargetViews), s.renderTargetViews.data(), s.depthStencilViews);
+	//dc.OMSetRenderTargets(countValid(s.renderTargetViews), s.renderTargetViews.data(), s.depthStencilViews);
 }

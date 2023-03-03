@@ -87,9 +87,10 @@ public:
 	};
 
 	RetroarchFilterChain() = default;
-	RetroarchFilterChain(Path path, VideoAPI& video);
+	RetroarchFilterChain(String id, Path path, VideoAPI& video);
 
 	Sprite run(const Sprite& src, RenderContext& rc, Vector2i viewPortSize) override;
+	const String& getId() const override;
 
 private:
 	struct FrameParams {
@@ -98,6 +99,7 @@ private:
 		uint32_t frameCount;
 	};
 
+	String id;
 	Path path;
 	Vector<Stage> stages;
 	ConfigNode params;

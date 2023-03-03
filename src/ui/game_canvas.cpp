@@ -1,17 +1,19 @@
 #include "game_canvas.h"
 
 #include "in_game_menu.h"
+#include "src/config/screen_filter_config.h"
+#include "src/config/system_config.h"
 #include "src/filter_chain/filter_chain.h"
 #include "src/game/retrograde_environment.h"
 #include "src/game/retrograde_game.h"
 #include "src/libretro/libretro_core.h"
 #include "src/savestate/rewind_data.h"
 
-GameCanvas::GameCanvas(UIFactory& factory, RetrogradeEnvironment& environment, String systemId, String gameId, UIWidget& parentMenu)
+GameCanvas::GameCanvas(UIFactory& factory, RetrogradeEnvironment& environment, const SystemConfig& systemConfig, String gameId, UIWidget& parentMenu)
 	: UIWidget("game_canvas")
 	, factory(factory)
 	, environment(environment)
-	, systemId(std::move(systemId))
+	, systemConfig(systemConfig)
 	, gameId(std::move(gameId))
 	, parentMenu(parentMenu)
 {
@@ -21,8 +23,6 @@ GameCanvas::GameCanvas(UIFactory& factory, RetrogradeEnvironment& environment, S
 	UIInputButtons buttons;
 	buttons.cancel = 12;
 	setInputButtons(buttons);
-
-	filterChain = environment.makeFilterChain("sonkun/original presets/1080p/03-crt-guest-advanced-slotmask-neutral-composite-ntsc-2-phase.slangp");
 }
 
 GameCanvas::~GameCanvas()
@@ -35,7 +35,7 @@ GameCanvas::~GameCanvas()
 void GameCanvas::update(Time t, bool moved)
 {
 	if (!loaded) {
-		core = environment.loadCore(systemId, gameId);
+		core = environment.loadCore(systemConfig, gameId);
 		loaded = true;
 	}
 
@@ -51,6 +51,8 @@ void GameCanvas::update(Time t, bool moved)
 	if (t > 0.00001 && pendingCloseState == 0) {
 		stepGame();
 	}
+
+	updateFilterChain();
 }
 
 void GameCanvas::render(RenderContext& rc) const
@@ -71,7 +73,7 @@ void GameCanvas::render(RenderContext& rc) const
 			const auto windowSize = getSize();
 			const auto scales = windowSize / origRotatedSpriteSize;
 			const auto scale = std::min(scales.x, scales.y) * coreOutScreen.getScale(); // The scale the original sprite would need to fit the view port
-			const auto spriteSize = coreOutScreen.getSize() * scale; // Absolute sprite size
+			const auto spriteSize = (coreOutScreen.getSize() * scale * 0.5f).round() * 2.0f; // Absolute sprite size
 
 			if (filterChain) {
 				screen = filterChain->run(coreOutScreen, rc, Vector2i(spriteSize.round()));
@@ -185,5 +187,25 @@ void GameCanvas::onGamepadInput(const UIInputResults& input, Time time)
 {
 	if (input.isButtonPressed(UIGamepadInput::Button::Cancel)) {
 		getRoot()->addChild(std::make_shared<InGameMenu>(factory, environment, *this));
+	}
+}
+
+void GameCanvas::updateFilterChain()
+{
+	const auto& filters = systemConfig.getScreenFilters();
+	if (filters.empty()) {
+		filterChain = {};
+		return;
+	}
+
+	const auto& screenFilterConfig = environment.getConfigDatabase().get<ScreenFilterConfig>(filters.front());
+	const auto& shader = screenFilterConfig.getShaderFor(Vector2i(getSize()));
+	if (shader.isEmpty()) {
+		filterChain = {};
+		return;
+	}
+
+	if (!filterChain || filterChain->getId() != shader) {
+		filterChain = environment.makeFilterChain(shader);
 	}
 }
