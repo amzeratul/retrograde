@@ -25,6 +25,7 @@ SystemConfig::SystemConfig(const ConfigNode& node)
 	cores = node["cores"].asVector<String>();
 	regions = node["regions"].asVector<SystemRegionConfig>();
 	screenFilters = node["screenFilters"].asVector<String>({});
+	bezels = node["bezels"].asVector<String>({});
 }
 
 const String& SystemConfig::getId() const

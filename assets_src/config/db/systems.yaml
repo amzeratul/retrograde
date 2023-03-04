@@ -74,7 +74,7 @@ systems:
     screenFilters:
     - lcd-gameboy-color
     bezels:
-    - gameboy-colour
+    - gameboy-color
   - id: gba
     regions:
       - name: Game Boy Advance

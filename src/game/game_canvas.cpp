@@ -70,16 +70,18 @@ void GameCanvas::render(RenderContext& rc) const
 	});
 
 	if (core) {
-		Rect4i windowRect = Rect4i(getRect());
-		if (bezel) {
-			windowRect = bezel->update(windowRect);
-		}
+		const auto windowRect = Rect4i(getRect());
 
 		const auto coreOutScreen = core->getVideoOut();
 		if (coreOutScreen.hasMaterial() && coreOutScreen.getSize().x >= 32 && coreOutScreen.getSize().y >= 32) {
 			const auto origRotatedSpriteSize = coreOutScreen.getScaledSize().rotate(coreOutScreen.getRotation()).abs();
 			const auto scales = Vector2f(windowRect.getSize()) / origRotatedSpriteSize;
-			const auto scale = std::min(scales.x, scales.y) * coreOutScreen.getScale(); // The scale the original sprite would need to fit the view port
+			auto scale = std::min(scales.x, scales.y) * coreOutScreen.getScale(); // The scale the original sprite would need to fit the view port
+
+			if (bezel) {
+				scale = bezel->update(windowRect, scale);
+			}
+
 			const auto spriteSize = (coreOutScreen.getSize() * scale * 0.5f).round() * 2.0f; // Absolute sprite size
 
 			if (filterChain) {

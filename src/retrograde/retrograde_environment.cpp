@@ -19,6 +19,7 @@ RetrogradeEnvironment::RetrogradeEnvironment(RetrogradeGame& game, Path _rootDir
 	saveDir = rootDir / "save";
 	romsDir = rootDir / "roms";
 	shadersDir = rootDir / "shaders";
+	imagesDir = rootDir / "images";
 	coreAssetsDir = rootDir / "coreAssets";
 
 	std::error_code ec;

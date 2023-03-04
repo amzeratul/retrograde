@@ -16,6 +16,6 @@ bezels:
       baseScale: 4
   - id: gameboy-advance
     images:
-    - image: bezels/gba-border-square-4x.png
+    - image: bezels/gba-border-square-8x.png
       displayCentre: [3200, 1600]
-      baseScale: 4
+      baseScale: 8
