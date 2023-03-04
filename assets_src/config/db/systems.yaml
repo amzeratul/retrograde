@@ -80,6 +80,7 @@ systems:
     manufacturer: Nintendo
     releaseDate: 2004-11-21
     screenFilters: [lcd-ds]
+    bezels: [ndsi]
 
   - id: mastersystem
     regions:

@@ -1,5 +1,6 @@
 bezels:
   - id: gameboy
+    defaultZoom: 0.5
     images:
     - image: bezels/dmg-bg.png
       displayCentre: [85, 78]
@@ -10,6 +11,7 @@ bezels:
       baseScale: 4
       layer: foreground
   - id: gameboy-pocket
+    defaultZoom: 0.5
     images:
     - image: bezels/pocket-bg.png
       displayCentre: [85, 78]
@@ -20,14 +22,26 @@ bezels:
       baseScale: 4
       layer: foreground
   - id: gameboy-color
+    defaultZoom: 0.5
     images:
     - image: bezels/color-border-square-4x.png
       displayCentre: [3200, 1600]
       baseScale: 4
       layer: foreground
   - id: gameboy-advance
+    defaultZoom: 0.5
     images:
     - image: bezels/gba-border-square-8x.png
       displayCentre: [3200, 1600]
       baseScale: 8
       layer: foreground
+  - id: ndsi
+    defaultZoom: 0.75
+    images:
+    - image: bezels/dsi-border-square-4x-90.png
+      displayCentre: [3200, 1600]
+      baseScale: 4
+      layer: foreground
+    coreOptions:
+      desmume:
+        desmume_screens_gap: 90

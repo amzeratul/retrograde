@@ -32,7 +32,11 @@ BezelLayer BezelImageConfig::getLayer() const
 BezelConfig::BezelConfig(const ConfigNode& node)
 {
 	id = node["id"].asString();
+	defaultZoom = node["defaultZoom"].asFloat(0.5f);
 	images = node["images"].asVector<BezelImageConfig>({});
+	if (node.hasKey("coreOptions")) {
+		coreOptions = node["coreOptions"].asHashMap<String, HashMap<String, String>>();
+	}
 }
 
 const String& BezelConfig::getId() const
@@ -40,7 +44,21 @@ const String& BezelConfig::getId() const
 	return id;
 }
 
+float BezelConfig::getDefaultZoom() const
+{
+	return defaultZoom;
+}
+
 const Vector<BezelImageConfig>& BezelConfig::getImages() const
 {
 	return images;
+}
+
+HashMap<String, String> BezelConfig::getCoreOptions(const String& coreId) const
+{
+	const auto iter = coreOptions.find(coreId);
+	if (iter != coreOptions.end()) {
+		return iter->second;
+	}
+	return {};
 }

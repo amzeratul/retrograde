@@ -30,7 +30,7 @@ Vector2f SystemBezel::update(Rect4i windowSize, Vector2f maxScale)
 	}
 
 	const auto pos = Vector2f(windowSize.getCenter());
-	const auto scale = std::ceil(maxScale.y / 2);
+	const auto scale = std::ceil(maxScale.y * curConfig->getDefaultZoom());
 
 	for (auto& image: images) {
 		image.sprite

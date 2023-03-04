@@ -103,7 +103,7 @@ public:
 		RollbackNetplay
 	};
 
-	static std::unique_ptr<LibretroCore> load(std::string_view filename, String systemId, const RetrogradeEnvironment& environment);
+	static std::unique_ptr<LibretroCore> load(String coreId, std::string_view filename, String systemId, const RetrogradeEnvironment& environment);
 	~LibretroCore() override;
 
 	bool loadGame(const Path& path);
@@ -126,6 +126,7 @@ public:
 	void runFrame();
 	const Sprite& getVideoOut() const;
 
+	const String& getCoreId() const;
 	const SystemInfo& getSystemInfo() const;
 	const SystemAVInfo& getSystemAVInfo() const;
 	bool isScreenRotated() const;
@@ -151,6 +152,7 @@ protected:
 	bool onSetRumbleState(uint32_t port, retro_rumble_effect effect, uint16_t strength) override;
 
 private:
+	String coreId;
 	DLL dll;
 	const RetrogradeEnvironment& environment;
 
@@ -210,7 +212,7 @@ private:
 
 	CStringCache stringCache;
 	
-	LibretroCore(DLL dll, String systemId, const RetrogradeEnvironment& environment);
+	LibretroCore(DLL dll, String coreId, String systemId, const RetrogradeEnvironment& environment);
 
 	void init();
 	void deInit();

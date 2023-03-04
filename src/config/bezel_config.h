@@ -43,9 +43,13 @@ public:
     BezelConfig(const ConfigNode& node);
 
     const String& getId() const;
+    float getDefaultZoom() const;
     const Vector<BezelImageConfig>& getImages() const;
+    HashMap<String, String> getCoreOptions(const String& coreId) const;
 
 private:
     String id;
+    float defaultZoom;
     Vector<BezelImageConfig> images;
+    HashMap<String, HashMap<String, String>> coreOptions;
 };

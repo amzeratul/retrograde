@@ -174,7 +174,7 @@ void LibretroCore::SystemAVInfo::loadGeometry(const retro_game_geometry& geometr
 	}
 }
 
-std::unique_ptr<LibretroCore> LibretroCore::load(std::string_view filename, String systemId, const RetrogradeEnvironment& environment)
+std::unique_ptr<LibretroCore> LibretroCore::load(String coreId, std::string_view filename, String systemId, const RetrogradeEnvironment& environment)
 {
 	DLL dll;
 	
@@ -182,14 +182,15 @@ std::unique_ptr<LibretroCore> LibretroCore::load(std::string_view filename, Stri
 		const auto retroAPIVersion = static_cast<decltype(&retro_api_version)>(dll.getFunction("retro_api_version"));
 		const auto dllVersion = retroAPIVersion();
 		if (dllVersion == RETRO_API_VERSION) {
-			return std::unique_ptr<LibretroCore>(new LibretroCore(std::move(dll), std::move(systemId), environment));
+			return std::unique_ptr<LibretroCore>(new LibretroCore(std::move(dll), std::move(coreId), std::move(systemId), environment));
 		}
 	}
 	return {};
 }
 
-LibretroCore::LibretroCore(DLL dll, String systemId, const RetrogradeEnvironment& environment)
-	: dll(std::move(dll))
+LibretroCore::LibretroCore(DLL dll, String coreId, String systemId, const RetrogradeEnvironment& environment)
+	: coreId(std::move(coreId))
+	, dll(std::move(dll))
 	, environment(environment)
 	, systemId(std::move(systemId))
 {
@@ -669,6 +670,11 @@ const Sprite& LibretroCore::getVideoOut() const
 	return videoOut;
 }
 
+const String& LibretroCore::getCoreId() const
+{
+	return coreId;
+}
+
 const LibretroCore::SystemInfo& LibretroCore::getSystemInfo() const
 {
 	return systemInfo;
@@ -716,11 +722,13 @@ void LibretroCore::setOption(const String& key, const String& value)
 	}
 
 	auto& option = iter->second;
-	if (std_ex::contains_if(option.values, [&] (const Option::Value& v) { return v.value == value; })) {
-		option.value = value;
-		optionsModified = true;
-	} else {
-		Logger::logError("Unknown value \"" + value + "\" for option \"" + key + "\"");
+	if (option.value != value) {
+		if (std_ex::contains_if(option.values, [&] (const Option::Value& v) { return v.value == value; })) {
+			option.value = value;
+			optionsModified = true;
+		} else {
+			Logger::logError("Unknown value \"" + value + "\" for option \"" + key + "\"");
+		}
 	}
 }
 

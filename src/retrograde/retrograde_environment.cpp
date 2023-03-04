@@ -94,7 +94,7 @@ std::unique_ptr<LibretroCore> RetrogradeEnvironment::loadCore(const SystemConfig
 	const auto& coreConfig = getConfigDatabase().get<CoreConfig>(coreId);
 	const String corePath = coreId + "_libretro.dll";
 
-	auto core = LibretroCore::load(getCoresDir() + "/" + corePath, systemConfig.getId(), *this);
+	auto core = LibretroCore::load(coreId, getCoresDir() + "/" + corePath, systemConfig.getId(), *this);
 	for (int i = 0; i < 4; ++i) {
 		core->setInputDevice(i, makeInput(i));
 	}

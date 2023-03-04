@@ -50,11 +50,12 @@ void GameCanvas::update(Time t, bool moved)
 	setMinSize(rect.getSize());
 	layout();
 
+	updateBezels();
+
 	if (t > 0.00001 && pendingCloseState == 0) {
 		stepGame();
 	}
 
-	updateBezels();
 	updateFilterChain(Vector2i(getSize()));
 }
 
@@ -217,6 +218,11 @@ void GameCanvas::updateBezels()
 		bezel->setBezel(nullptr);
 	} else {
 		const auto& bezelConfig = environment.getConfigDatabase().get<BezelConfig>(bezels.front());
+		if (core) {
+			for (const auto& [k, v]: bezelConfig.getCoreOptions(core->getCoreId())) {
+				core->setOption(k, v);
+			}
+		}
 		bezel->setBezel(&bezelConfig);
 	}
 }
