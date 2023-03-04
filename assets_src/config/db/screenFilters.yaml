@@ -1,46 +1,62 @@
+# Sonkun shader notes:
+
+# Curved screen:
+#   warpX = "0.050000"
+#   warpY = "0.070000"
+#   csize = "0.040000"
+# Flat screen:
+#   (all 3 are 0)
+
 screenFilters:
   - id: crt-rf-2phase
     presets:
-    - shader: sonkun/original presets/4k/01-crt-guest-advanced-slotmask-neutral-rf-ntsc-2-phase.slangp
+    - shader: sonkun/original-presets/slot-mask/curved-screen/4k/01-crt-guest-advanced-slot-mask-neutral-rf-ntsc-2-phase.slangp
       minResY: 2000
-    - shader: sonkun/original presets/1440p/01-crt-guest-advanced-slotmask-neutral-rf-ntsc-2-phase.slangp
+    - shader: sonkun/original-presets/slot-mask/curved-screen/1440p/01-crt-guest-advanced-slot-mask-neutral-rf-ntsc-2-phase.slangp
       minResY: 1350
-    - shader: sonkun/original presets/1080p/01-crt-guest-advanced-slotmask-neutral-rf-ntsc-2-phase.slangp
+    - shader: sonkun/original-presets/slot-mask/curved-screen/1080p/01-crt-guest-advanced-slot-mask-neutral-rf-ntsc-2-phase.slangp
   - id: crt-rf-3phase
     presets:
-    - shader: sonkun/original presets/4k/02-crt-guest-advanced-slotmask-neutral-rf-ntsc-3-phase.slangp
+    - shader: sonkun/original-presets/slot-mask/curved-screen/4k/02-crt-guest-advanced-slot-mask-neutral-rf-ntsc-3-phase.slangp
       minResY: 2000
-    - shader: sonkun/original presets/1440p/02-crt-guest-advanced-slotmask-neutral-rf-ntsc-3-phase.slangp
+    - shader: sonkun/original-presets/slot-mask/curved-screen/1440p/02-crt-guest-advanced-slot-mask-neutral-rf-ntsc-3-phase.slangp
       minResY: 1350
-    - shader: sonkun/original presets/1080p/02-crt-guest-advanced-slotmask-neutral-rf-ntsc-3-phase.slangp
+    - shader: sonkun/original-presets/slot-mask/curved-screen/1080p/02-crt-guest-advanced-slot-mask-neutral-rf-ntsc-3-phase.slangp
   - id: crt-composite-ntsc-2phase
     presets:
-    - shader: sonkun/original presets/4k/03-crt-guest-advanced-slotmask-neutral-composite-ntsc-2-phase.slangp
+    - shader: sonkun/original-presets/slot-mask/curved-screen/4k/03-crt-guest-advanced-slot-mask-neutral-composite-ntsc-2-phase.slangp
       minResY: 2000
-    - shader: sonkun/original presets/1440p/03-crt-guest-advanced-slotmask-neutral-composite-ntsc-2-phase.slangp
+    - shader: sonkun/original-presets/slot-mask/curved-screen/1440p/03-crt-guest-advanced-slot-mask-neutral-composite-ntsc-2-phase.slangp
       minResY: 1350
-    - shader: sonkun/original presets/1080p/03-crt-guest-advanced-slotmask-neutral-composite-ntsc-2-phase.slangp
+    - shader: sonkun/original-presets/slot-mask/curved-screen/1080p/03-crt-guest-advanced-slot-mask-neutral-composite-ntsc-2-phase.slangp
+  - id: crt-composite-ntsc-2phase-megadrive
+    presets:
+    - shader: sonkun/original-presets/slot-mask/curved-screen/4k/04-crt-guest-advanced-slot-mask-neutral-composite-ntsc-2-phase-megadrive-rainbows.slangp
+      minResY: 2000
+    - shader: sonkun/original-presets/slot-mask/curved-screen/1440p/04-crt-guest-advanced-slot-mask-neutral-composite-ntsc-2-phase-megadrive-rainbows.slangp
+      minResY: 1350
+    - shader: sonkun/original-presets/slot-mask/curved-screen/1080p/04-crt-guest-advanced-slot-mask-neutral-composite-ntsc-2-phase-megadrive-rainbows.slangp
   - id: crt-composite-ntsc-3phase
     presets:
-    - shader: sonkun/original presets/4k/04-crt-guest-advanced-slotmask-neutral-composite-ntsc-3-phase.slangp
+    - shader: sonkun/original-presets/slot-mask/curved-screen/4k/05-crt-guest-advanced-slot-mask-neutral-composite-ntsc-3-phase.slangp
       minResY: 2000
-    - shader: sonkun/original presets/1440p/04-crt-guest-advanced-slotmask-neutral-composite-ntsc-3-phase.slangp
+    - shader: sonkun/original-presets/slot-mask/curved-screen/1440p/05-crt-guest-advanced-slot-mask-neutral-composite-ntsc-3-phase.slangp
       minResY: 1350
-    - shader: sonkun/original presets/1080p/04-crt-guest-advanced-slotmask-neutral-composite-ntsc-3-phase.slangp
+    - shader: sonkun/original-presets/slot-mask/curved-screen/1080p/05-crt-guest-advanced-slot-mask-neutral-composite-ntsc-3-phase.slangp
   - id: crt-svideo
     presets:
-    - shader: sonkun/original presets/4k/05-crt-guest-advanced-slotmask-neutral-s-video.slangp
+    - shader: sonkun/original-presets/slot-mask/curved-screen/4k/06-crt-guest-advanced-slot-mask-neutral-s-video.slangp
       minResY: 2000
-    - shader: sonkun/original presets/1440p/05-crt-guest-advanced-slotmask-neutral-s-video.slangp
+    - shader: sonkun/original-presets/slot-mask/curved-screen/1440p/06-crt-guest-advanced-slot-mask-neutral-s-video.slangp
       minResY: 1350
-    - shader: sonkun/original presets/1080p/05-crt-guest-advanced-slotmask-neutral-s-video.slangp
+    - shader: sonkun/original-presets/slot-mask/curved-screen/1080p/06-crt-guest-advanced-slot-mask-neutral-s-video.slangp
   - id: crt-rgb
     presets:
-    - shader: sonkun/original presets/4k/06-crt-guest-advanced-slotmask-neutral-rgb.slangp
+    - shader: sonkun/original-presets/slot-mask/curved-screen/4k/07-crt-guest-advanced-slot-mask-neutral-rgb.slangp
       minResY: 2000
-    - shader: sonkun/original presets/1440p/06-crt-guest-advanced-slotmask-neutral-rgb.slangp
+    - shader: sonkun/original-presets/slot-mask/curved-screen/1440p/07-crt-guest-advanced-slot-mask-neutral-rgb.slangp
       minResY: 1350
-    - shader: sonkun/original presets/1080p/06-crt-guest-advanced-slotmask-neutral-rgb.slangp
+    - shader: sonkun/original-presets/slot-mask/curved-screen/1080p/07-crt-guest-advanced-slot-mask-neutral-rgb.slangp
   - id: lcd-gameboy
     presets:
     - shader: handheld/gameboy.slangp
