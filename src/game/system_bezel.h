@@ -14,12 +14,13 @@ public:
     void setBezel(const BezelConfig* config);
 
 	Vector2f update(Rect4i windowSize, Vector2f maxScale);
-    void draw(Painter& painter) const;
+    void draw(Painter& painter, BezelLayer layer) const;
 
 private:
     struct ImageData {
         Sprite sprite;
         float baseScale = 1;
+        BezelLayer layer;
     };
 
     const RetrogradeEnvironment& env;

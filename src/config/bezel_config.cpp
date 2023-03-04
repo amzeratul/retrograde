@@ -5,6 +5,7 @@ BezelImageConfig::BezelImageConfig(const ConfigNode& node)
 	image = node["image"].asString("image");
 	displayCentre = node["displayCentre"].asVector2i({});
 	baseScale = node["baseScale"].asFloat(1.0f);
+	layer = node["layer"].asEnum(BezelLayer::Foreground);
 }
 
 const String& BezelImageConfig::getImage() const
@@ -20,6 +21,11 @@ Vector2i BezelImageConfig::getDisplayCentre() const
 float BezelImageConfig::getBaseScale() const
 {
 	return baseScale;
+}
+
+BezelLayer BezelImageConfig::getLayer() const
+{
+	return layer;
 }
 
 

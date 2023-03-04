@@ -41,10 +41,10 @@ Vector2f SystemBezel::update(Rect4i windowSize, Vector2f maxScale)
 	return maxScale * (scale / maxScale.y);
 }
 
-void SystemBezel::draw(Painter& painter) const
+void SystemBezel::draw(Painter& painter, BezelLayer layer) const
 {
 	for (auto& image: images) {
-		if (image.sprite.hasMaterial()) {
+		if (image.sprite.hasMaterial() && image.layer == layer) {
 			image.sprite.draw(painter);
 		}
 	}
@@ -81,7 +81,6 @@ SystemBezel::ImageData SystemBezel::makeImage(const BezelImageConfig& imgConfig)
 	auto tex = std::shared_ptr<Texture>(env.getHalleyAPI().video->createTexture(img->getSize()));
 	TextureDescriptor desc(img->getSize(), TextureFormat::RGBA);
 	desc.pixelData = std::move(img);
-	//desc.useMipMap = true;
 	desc.useFiltering = true;
 	tex->startLoading();
 	tex->load(std::move(desc));
@@ -92,5 +91,5 @@ SystemBezel::ImageData SystemBezel::makeImage(const BezelImageConfig& imgConfig)
 		.setImageData(*tex)
 		.setAbsolutePivot(Vector2f(imgConfig.getDisplayCentre() - rect.getTopLeft()));
 
-	return ImageData{ std::move(sprite), imgConfig.getBaseScale() };
+	return ImageData{ std::move(sprite), imgConfig.getBaseScale(), imgConfig.getLayer() };
 }

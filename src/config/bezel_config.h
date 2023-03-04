@@ -3,6 +3,23 @@
 #include <halley.hpp>
 using namespace Halley;
 
+enum class BezelLayer {
+	Background,
+    Foreground
+};
+
+namespace Halley {
+	template <>
+	struct EnumNames<BezelLayer> {
+		constexpr std::array<const char*, 2> operator()() const {
+			return{{
+				"background",
+                "foreground"
+			}};
+		}
+	};
+}
+
 class BezelImageConfig {
 public:
     BezelImageConfig() = default;
@@ -11,11 +28,13 @@ public:
     const String& getImage() const;
     Vector2i getDisplayCentre() const;
     float getBaseScale() const;
+    BezelLayer getLayer() const;
 
 private:
     String image;
     Vector2i displayCentre;
     float baseScale;
+    BezelLayer layer;
 };
 
 class BezelConfig {

@@ -113,12 +113,16 @@ void GameCanvas::draw(UIPainter& uiPainter) const
 
 void GameCanvas::paint(Painter& painter) const
 {
+	if (bezel) {
+		bezel->draw(painter, BezelLayer::Background);
+	}
+
 	if (pendingCloseState == 0 && screen.hasMaterial()) {
 		screen.draw(painter);
 	}
 
 	if (bezel) {
-		bezel->draw(painter);
+		bezel->draw(painter, BezelLayer::Foreground);
 	}
 }
 
