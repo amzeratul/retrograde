@@ -50,7 +50,7 @@ void RetroarchFilterChain::Stage::loadMaterial(ShaderConverter& converter, Video
 	materialDefinition = MaterialGenerator::makeMaterial(video, name, vertexShader, pixelShader);
 	material = std::make_shared<Material>(materialDefinition);
 
-	if (true) {
+	if (false) {
 		Path::writeFile("../tmp/" + shaderPath.getFilename().replaceExtension(".vertex." + toString(outputFormat)), vertexShader.shaderCode);
 		Path::writeFile("../tmp/" + shaderPath.getFilename().replaceExtension(".pixel." + toString(outputFormat)), pixelShader.shaderCode);
 	}
@@ -143,7 +143,11 @@ ConfigNode RetroarchFilterChain::parsePreset(const Path& path)
 {
 	ConfigNode::MapType result;
 
-	for (auto& line: Path::readFileLines(path)) {
+	const auto& lines = Path::readFileLines(path);
+	if (lines.empty()) {
+		Logger::logError("Shader preset not found: " + path);
+	}
+	for (auto& line: lines) {
 		parsePresetLine(line, result);
 	}
 
@@ -189,6 +193,10 @@ void RetroarchFilterChain::loadTextures(const ConfigNode& params, VideoAPI& vide
 	textures.clear();
 	const auto textureNames = params["textures"].asString("").split(';');
 	for (const auto& name: textureNames) {
+		if (name.isEmpty()) {
+			continue;
+		}
+
 		const auto relPath = params[name].asString("");
 		if (relPath.isEmpty()) {
 			Logger::logWarning("Texture details not found for " + name);

@@ -240,7 +240,7 @@ ShaderReflection ShaderConverter::getReflectionInfo(spirv_cross::Compiler& compi
 
 	auto resources = compiler.get_shader_resources();
 
-	int binding = 2;
+	int binding = 1;
 
 	auto readParams = [&](const spirv_cross::Resource& resource, bool pushBuffer)
 	{
@@ -249,7 +249,7 @@ ShaderReflection ShaderConverter::getReflectionInfo(spirv_cross::Compiler& compi
 		block.name = compiler.get_remapped_declared_block_name(resource.id);
 
 		if (pushBuffer) {
-			block.binding = 1;
+			block.binding = binding++;
 		} else {
 			block.binding = binding;
 			compiler.set_decoration(resource.id, spv::DecorationBinding, binding++);
