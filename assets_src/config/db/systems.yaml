@@ -58,12 +58,12 @@ systems:
     manufacturer: Nintendo
     releaseDate: 1989-04-21
     screenFilters:
-    - lcd-gameboy
     - lcd-gameboy-pocket
+    - lcd-gameboy
     - lcd-gameboy-color
     bezels:
-    - gameboy
     - gameboy-pocket
+    - gameboy
   - id: gbc
     regions:
       - name: Game Boy Color
