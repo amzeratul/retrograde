@@ -74,3 +74,8 @@ const Vector<String>& SystemConfig::getScreenFilters() const
 {
 	return screenFilters;
 }
+
+const Vector<String>& SystemConfig::getBezels() const
+{
+	return bezels;
+}

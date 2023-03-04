@@ -1,6 +1,7 @@
 #pragma once
 
 #include <halley.hpp>
+class SystemBezel;
 class SystemConfig;
 class FilterChain;
 class RewindData;
@@ -32,6 +33,7 @@ private:
 
     mutable Sprite screen;
     std::unique_ptr<FilterChain> filterChain;
+    std::unique_ptr<SystemBezel> bezel;
 
     int pauseFrames = 0;
     mutable int pendingCloseState = 0;
@@ -44,5 +46,7 @@ private:
     void stepGame();
 
     void onGamepadInput(const UIInputResults& input, Time time) override;
-    void updateFilterChain();
+
+	Vector2i updateBezels();
+    void updateFilterChain(Vector2i screenSize);
 };

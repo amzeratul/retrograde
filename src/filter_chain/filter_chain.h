@@ -2,7 +2,7 @@
 
 #include <halley.hpp>
 
-#include "src/ui/game_canvas.h"
+#include "src/game/game_canvas.h"
 using namespace Halley;
 
 class FilterChain {

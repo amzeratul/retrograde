@@ -17,6 +17,7 @@ endif()
 set (SOURCES
 	"prec.cpp"
 	
+	"src/config/bezel_config.cpp"
 	"src/config/core_config.cpp"
 	"src/config/screen_filter_config.cpp"
 	"src/config/system_config.cpp"
@@ -27,18 +28,20 @@ set (SOURCES
 	"src/filter_chain/shader_compiler.cpp"
 	"src/filter_chain/shader_converter.cpp"
 
-	"src/game/game_stage.cpp"
-	"src/game/retrograde_environment.cpp"
-	"src/game/retrograde_game.cpp"
+	"src/game/game_canvas.cpp"
+	"src/game/system_bezel.cpp"
 
 	"src/libretro/libretro_core.cpp"
 	"src/libretro/libretro_vfs.cpp"
+
+	"src/retrograde/game_stage.cpp"
+	"src/retrograde/retrograde_environment.cpp"
+	"src/retrograde/retrograde_game.cpp"
 
 	"src/savestate/rewind_data.cpp"
 
 	"src/ui/choose_game_window.cpp"
 	"src/ui/choose_system_window.cpp"
-	"src/ui/game_canvas.cpp"
 	"src/ui/in_game_menu.cpp"
 
 	"src/util/cpu_update_texture.cpp"
@@ -75,6 +78,7 @@ set (HEADERS
 	"src/contrib/spirv_cross/spirv.h"
 	"src/contrib/spirv_cross/spirv.hpp"
 	
+	"src/config/bezel_config.h"
 	"src/config/core_config.h"
 	"src/config/screen_filter_config.h"
 	"src/config/system_config.h"
@@ -86,9 +90,8 @@ set (HEADERS
 	"src/filter_chain/shader_compiler.h"
 	"src/filter_chain/shader_converter.h"
 
-	"src/game/game_stage.h"
-	"src/game/retrograde_environment.h"
-	"src/game/retrograde_game.h"
+	"src/game/game_canvas.h"
+	"src/game/system_bezel.h"
 
 	"src/libretro/libretro_core.h"
 	"src/libretro/libretro_vfs.h"
@@ -96,11 +99,14 @@ set (HEADERS
 	"src/libretro/libretro_d3d.h"
 	"src/libretro/libretro_vulkan.h"
 
+	"src/retrograde/game_stage.h"
+	"src/retrograde/retrograde_environment.h"
+	"src/retrograde/retrograde_game.h"
+
 	"src/savestate/rewind_data.h"
 
 	"src/ui/choose_game_window.h"
 	"src/ui/choose_system_window.h"
-	"src/ui/game_canvas.h"
 	"src/ui/in_game_menu.h"
 
 	"src/util/cpu_update_texture.h"

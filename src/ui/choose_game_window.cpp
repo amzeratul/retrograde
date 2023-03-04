@@ -3,10 +3,9 @@
 #include <filesystem>
 
 #include "choose_system_window.h"
-#include "game_canvas.h"
+#include "src/game/game_canvas.h"
 #include "src/config/system_config.h"
-#include "src/game/retrograde_environment.h"
-#include "src/libretro/libretro_core.h"
+#include "src/retrograde/retrograde_environment.h"
 
 ChooseGameWindow::ChooseGameWindow(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, const SystemConfig& systemConfig, std::optional<String> gameId, UIWidget& parentMenu)
 	: UIWidget("choose_game", Vector2f(), UISizer())

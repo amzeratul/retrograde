@@ -61,6 +61,9 @@ systems:
     - lcd-gameboy-pocket
     - lcd-gameboy
     - lcd-gameboy-color
+    bezels:
+    - gameboy-pocket
+    - gameboy
   - id: gbc
     regions:
       - name: Game Boy Color
@@ -70,6 +73,8 @@ systems:
     releaseDate: 1998-10-21
     screenFilters:
     - lcd-gameboy-color
+    bezels:
+    - gameboy-colour
   - id: gba
     regions:
       - name: Game Boy Advance
@@ -79,6 +84,8 @@ systems:
     releaseDate: 2001-03-21
     screenFilters:
     - lcd-gameboy-advance
+    bezels:
+    - gameboy-advance
   - id: nds
     regions:
       - name: Nintendo DS

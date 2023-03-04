@@ -14,6 +14,7 @@ public:
 
 	const Path& getSystemDir() const;
 	const Path& getCoresDir() const;
+	const Path& getImagesDir() const;
 	Path getSaveDir(const String& system) const;
 	Path getRomsDir(const String& system) const;
 	Path getCoreAssetsDir(const String& core) const;
@@ -42,6 +43,7 @@ private:
 	Path coresDir;
 	Path romsDir;
 	Path shadersDir;
+	Path imagesDir;
 	Path coreAssetsDir;
 
 	std::shared_ptr<InputVirtual> uiInput;

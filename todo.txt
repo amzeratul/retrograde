@@ -1,5 +1,4 @@
 General
-* Fix mouse support on UI
 * Per-system available game enumeration
 * User config
 - Input device properties
@@ -29,7 +28,7 @@ General settings UI:
 - Basic UI
 
 Game running features
-* Better pixel resample shader
+- Better pixel resample shader when no filter is applied
 - Light gun support
 - Mouse support
 - Keyboard support

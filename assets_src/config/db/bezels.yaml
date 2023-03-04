@@ -1,0 +1,21 @@
+bezels:
+  - id: gameboy
+    images:
+    - image: bezels/dmg-border-square-4x.png
+      displayCentre: [3200, 1600]
+      baseScale: 4
+  - id: gameboy-pocket
+    images:
+    - image: bezels/pocket-border-square-4x.png
+      displayCentre: [3200, 1600]
+      baseScale: 4
+  - id: gameboy-color
+    images:
+    - image: bezels/color-border-square-4x.png
+      displayCentre: [3200, 1600]
+      baseScale: 4
+  - id: gameboy-advance
+    images:
+    - image: bezels/gba-border-square-4x.png
+      displayCentre: [3200, 1600]
+      baseScale: 4

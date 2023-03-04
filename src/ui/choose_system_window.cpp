@@ -2,7 +2,7 @@
 
 #include "choose_game_window.h"
 #include "src/config/system_config.h"
-#include "src/game/retrograde_environment.h"
+#include "src/retrograde/retrograde_environment.h"
 
 ChooseSystemWindow::ChooseSystemWindow(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, std::optional<String> systemId, std::optional<String> gameId)
 	: UIWidget("choose_system", Vector2f(), UISizer())

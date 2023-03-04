@@ -1,8 +1,7 @@
 #include "game_stage.h"
 #include "retrograde_game.h"
-#include "src/game/retrograde_environment.h"
+#include "src/retrograde/retrograde_environment.h"
 #include "src/ui/choose_system_window.h"
-#include "src/ui/game_canvas.h"
 
 GameStage::GameStage() = default;
 

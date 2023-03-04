@@ -1,6 +1,7 @@
 #include "retrograde_environment.h"
 #include <filesystem>
 
+#include "src/config/bezel_config.h"
 #include "src/config/core_config.h"
 #include "src/config/screen_filter_config.h"
 #include "src/config/system_config.h"
@@ -24,6 +25,7 @@ RetrogradeEnvironment::RetrogradeEnvironment(RetrogradeGame& game, Path _rootDir
 	std::filesystem::create_directories(saveDir.getNativeString().cppStr(), ec);
 	std::filesystem::create_directories(coreAssetsDir.getNativeString().cppStr(), ec);
 
+	configDatabase.init<BezelConfig>("bezels");
 	configDatabase.init<CoreConfig>("cores");
 	configDatabase.init<ScreenFilterConfig>("screenFilters");
 	configDatabase.init<SystemConfig>("systems");
@@ -38,6 +40,11 @@ const Path& RetrogradeEnvironment::getSystemDir() const
 const Path& RetrogradeEnvironment::getCoresDir() const
 {
 	return coresDir;
+}
+
+const Path& RetrogradeEnvironment::getImagesDir() const
+{
+	return imagesDir;
 }
 
 Path RetrogradeEnvironment::getSaveDir(const String& system) const

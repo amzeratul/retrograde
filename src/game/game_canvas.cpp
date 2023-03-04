@@ -1,11 +1,13 @@
 #include "game_canvas.h"
 
-#include "in_game_menu.h"
+#include "system_bezel.h"
+#include "src/ui/in_game_menu.h"
 #include "src/config/screen_filter_config.h"
+#include "src/config/bezel_config.h"
 #include "src/config/system_config.h"
 #include "src/filter_chain/filter_chain.h"
-#include "src/game/retrograde_environment.h"
-#include "src/game/retrograde_game.h"
+#include "src/retrograde/retrograde_environment.h"
+#include "src/retrograde/retrograde_game.h"
 #include "src/libretro/libretro_core.h"
 #include "src/savestate/rewind_data.h"
 
@@ -47,12 +49,13 @@ void GameCanvas::update(Time t, bool moved)
 	setPosition(rect.getP1());
 	setMinSize(rect.getSize());
 	layout();
-	
+
 	if (t > 0.00001 && pendingCloseState == 0) {
 		stepGame();
 	}
 
-	updateFilterChain();
+	const auto size = updateBezels();
+	updateFilterChain(size);
 }
 
 void GameCanvas::render(RenderContext& rc) const
@@ -67,11 +70,15 @@ void GameCanvas::render(RenderContext& rc) const
 	});
 
 	if (core) {
-		auto coreOutScreen = core->getVideoOut();
+		Rect4i windowRect = Rect4i(getRect());
+		if (bezel) {
+			windowRect = bezel->update(windowRect);
+		}
+
+		const auto coreOutScreen = core->getVideoOut();
 		if (coreOutScreen.hasMaterial() && coreOutScreen.getSize().x >= 32 && coreOutScreen.getSize().y >= 32) {
 			const auto origRotatedSpriteSize = coreOutScreen.getScaledSize().rotate(coreOutScreen.getRotation()).abs();
-			const auto windowSize = getSize();
-			const auto scales = windowSize / origRotatedSpriteSize;
+			const auto scales = Vector2f(windowRect.getSize()) / origRotatedSpriteSize;
 			const auto scale = std::min(scales.x, scales.y) * coreOutScreen.getScale(); // The scale the original sprite would need to fit the view port
 			const auto spriteSize = (coreOutScreen.getSize() * scale * 0.5f).round() * 2.0f; // Absolute sprite size
 
@@ -85,7 +92,7 @@ void GameCanvas::render(RenderContext& rc) const
 				.scaleTo(spriteSize)
 				.setRotation(coreOutScreen.getRotation() + Angle1f::fromDegrees(coreOutScreen.isFlipped() ? -180.0f : 0.0f))
 				.setPivot(Vector2f(0.5f, 0.5f))
-				.setPosition(windowSize * 0.5f);
+				.setPosition(Vector2f(windowRect.getCenter()));
 		} else {
 			screen = {};
 		}
@@ -106,6 +113,10 @@ void GameCanvas::paint(Painter& painter) const
 {
 	if (pendingCloseState == 0 && screen.hasMaterial()) {
 		screen.draw(painter);
+	}
+
+	if (bezel) {
+		bezel->draw(painter);
 	}
 }
 
@@ -189,7 +200,24 @@ void GameCanvas::onGamepadInput(const UIInputResults& input, Time time)
 	}
 }
 
-void GameCanvas::updateFilterChain()
+Vector2i GameCanvas::updateBezels()
+{
+	if (!bezel) {
+		bezel = std::make_unique<SystemBezel>(environment);
+	}
+
+	const auto& bezels = systemConfig.getBezels();
+	if (bezels.empty()) {
+		bezel->setBezel(nullptr);
+	} else {
+		const auto& bezelConfig = environment.getConfigDatabase().get<BezelConfig>(bezels.front());
+		bezel->setBezel(&bezelConfig);
+	}
+
+	return Vector2i(getSize());
+}
+
+void GameCanvas::updateFilterChain(Vector2i screenSize)
 {
 	if (!core) {
 		return;
@@ -201,7 +229,6 @@ void GameCanvas::updateFilterChain()
 		return;
 	}
 
-	auto screenSize = Vector2i(getSize());
 	if (core->isScreenRotated()) {
 		std::swap(screenSize.x, screenSize.y);
 	}

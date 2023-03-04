@@ -5,9 +5,9 @@
 #include <filesystem>
 
 #include "libretro.h"
-#include "../game/retrograde_environment.h"
+#include "src/retrograde/retrograde_environment.h"
 #include "libretro_vfs.h"
-#include "src/game/retrograde_game.h"
+#include "src/retrograde/retrograde_game.h"
 #include "src/util/cpu_update_texture.h"
 #include "src/util/c_string_cache.h"
 #include "src/util/opengl_interop.h"

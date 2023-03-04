@@ -1,6 +1,6 @@
 #include "in_game_menu.h"
 
-#include "game_canvas.h"
+#include "src/game/game_canvas.h"
 
 InGameMenu::InGameMenu(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, GameCanvas& gameCanvas)
 	: UIWidget("in_game_menu", Vector2f(), UISizer())
