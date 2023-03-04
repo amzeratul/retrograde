@@ -88,7 +88,7 @@ RetrogradeGame& RetrogradeEnvironment::getGame() const
 	return game;
 }
 
-std::unique_ptr<LibretroCore> RetrogradeEnvironment::loadCore(const SystemConfig& systemConfig, const String& gamePath)
+std::unique_ptr<LibretroCore> RetrogradeEnvironment::loadCore(const SystemConfig& systemConfig)
 {
 	const String coreId = systemConfig.getCores().at(0);
 	const auto& coreConfig = getConfigDatabase().get<CoreConfig>(coreId);
@@ -106,10 +106,6 @@ std::unique_ptr<LibretroCore> RetrogradeEnvironment::loadCore(const SystemConfig
 
 	for (const auto& [k, v]: coreConfig.getOptions()) {
 		core->setOption(k, v);
-	}
-
-	if (!gamePath.isEmpty()) {
-		core->loadGame(getRomsDir(systemConfig.getId()) / gamePath);
 	}
 
 	return core;

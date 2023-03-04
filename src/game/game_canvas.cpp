@@ -36,8 +36,10 @@ GameCanvas::~GameCanvas()
 
 void GameCanvas::update(Time t, bool moved)
 {
+	bool needToLoadGame = false;
 	if (!loaded) {
-		core = environment.loadCore(systemConfig, gameId);
+		core = environment.loadCore(systemConfig);
+		needToLoadGame = true;
 		loaded = true;
 	}
 
@@ -51,6 +53,10 @@ void GameCanvas::update(Time t, bool moved)
 	layout();
 
 	updateBezels();
+
+	if (needToLoadGame && !gameId.isEmpty()) {
+		core->loadGame(environment.getRomsDir(systemConfig.getId()) / gameId);
+	}
 
 	if (t > 0.00001 && pendingCloseState == 0) {
 		stepGame();

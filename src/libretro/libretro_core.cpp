@@ -1245,15 +1245,15 @@ int16_t LibretroCore::onInputState(uint32_t port, uint32_t device, uint32_t inde
 		}
 	} else if (device == RETRO_DEVICE_MOUSE) {
 		// TODO
-		Logger::logError("LibretroCore::onInputState - RETRO_DEVICE_MOUSE not implemented");
+		Logger::logError("LibretroCore::onInputState - RETRO_DEVICE_MOUSE not implemented", true);
 		return 0;
 	} else if (device == RETRO_DEVICE_KEYBOARD) {
 		// TODO
-		Logger::logError("LibretroCore::onInputState - RETRO_DEVICE_KEYBOARD not implemented");
+		Logger::logError("LibretroCore::onInputState - RETRO_DEVICE_KEYBOARD not implemented", true);
 		return 0;
 	} else if (device == RETRO_DEVICE_LIGHTGUN) {
 		// TODO
-		Logger::logError("LibretroCore::onInputState - RETRO_DEVICE_LIGHTGUN not implemented");
+		Logger::logError("LibretroCore::onInputState - RETRO_DEVICE_LIGHTGUN not implemented", true);
 		return 0;
 	} else if (device == RETRO_DEVICE_ANALOG) {
 		if (index == RETRO_DEVICE_INDEX_ANALOG_LEFT || index == RETRO_DEVICE_INDEX_ANALOG_RIGHT) {
@@ -1268,7 +1268,7 @@ int16_t LibretroCore::onInputState(uint32_t port, uint32_t device, uint32_t inde
 		}
 	} else if (device == RETRO_DEVICE_POINTER) {
 		// TODO
-		Logger::logError("LibretroCore::onInputState - RETRO_DEVICE_POINTER not implemented");
+		Logger::logError("LibretroCore::onInputState - RETRO_DEVICE_POINTER not implemented", true);
 		return 0;
 	}
 	return 0;
