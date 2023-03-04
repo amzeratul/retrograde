@@ -1,5 +1,4 @@
 General
-* Per-system available game enumeration
 * User config
 - Input device properties
 
@@ -7,30 +6,31 @@ Profile selector:
 - Basic UI
 
 Console selector:
-* Only show consoles that have games
 - Better UI
 
 Game list UI:
-- Input chooser UI
 - Scrape online data (!)
 - Show screenshots
 - Show videos (!)
 - Show metadata
 - Render PDF manual (!!) (Try PDFium?)
 
+Input chooser UI
+- Basic UI
+
 In-game UI:
 - Swap disc
-- Manual Save/load state
-- Change input
+- Savestates
 - Configure core
 
 General settings UI:
 - Basic UI
 
 Game running features
+* Sort out the whole cartridge ram save situation
+* Mouse support
+* Light gun support
 - Better pixel resample shader when no filter is applied
-- Light gun support
-- Mouse support
 - Keyboard support
 - Better audio output?
 - Retro Achievements (!)

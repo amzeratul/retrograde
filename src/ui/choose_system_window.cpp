@@ -2,6 +2,7 @@
 
 #include "choose_game_window.h"
 #include "src/config/system_config.h"
+#include "src/metadata/game_collection.h"
 #include "src/retrograde/retrograde_environment.h"
 
 ChooseSystemWindow::ChooseSystemWindow(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, std::optional<String> systemId, std::optional<String> gameId)
@@ -35,7 +36,9 @@ void ChooseSystemWindow::onMakeUI()
 
 	auto systemList = getWidgetAs<UIList>("systemList");
 	for (const auto& system : systems) {
-		systemList->addTextItem(system->getId(), LocalisedString::fromUserString(system->getRegion(region).getName()));
+		if (!retrogradeEnvironment.getGameCollection(system->getId()).getEntries().empty()) {
+			systemList->addTextItem(system->getId(), LocalisedString::fromUserString(system->getRegion(region).getName()));
+		}
 	}
 
 	setHandle(UIEventType::ListAccept, "systemList", [=] (const UIEvent& event)

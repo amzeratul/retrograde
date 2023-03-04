@@ -30,8 +30,7 @@ void ChooseGameWindow::onMakeUI()
 {
 	auto gameList = getWidgetAs<UIList>("gameList");
 
-	auto& collection = retrogradeEnvironment.getGameCollection(systemConfig.getId());
-	collection.scanGames();
+	const auto& collection = retrogradeEnvironment.getGameCollection(systemConfig.getId());
 	for (const auto& entry: collection.getEntries()) {
 		gameList->addTextItem(entry.getBestFileToLoad(coreConfig).string(), LocalisedString::fromUserString(entry.displayName));
 	}
