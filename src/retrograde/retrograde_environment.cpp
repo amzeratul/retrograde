@@ -7,6 +7,7 @@
 #include "src/config/system_config.h"
 #include "src/filter_chain/retroarch_filter_chain.h"
 #include "src/libretro/libretro_core.h"
+#include "src/metadata/game_collection.h"
 
 RetrogradeEnvironment::RetrogradeEnvironment(RetrogradeGame& game, Path _rootDir, Resources& resources, const HalleyAPI& halleyAPI)
 	: game(game)
@@ -114,6 +115,19 @@ std::unique_ptr<LibretroCore> RetrogradeEnvironment::loadCore(const SystemConfig
 std::unique_ptr<FilterChain> RetrogradeEnvironment::makeFilterChain(const String& path)
 {
 	return std::make_unique<RetroarchFilterChain>(path, shadersDir / path, *halleyAPI.video);
+}
+
+GameCollection& RetrogradeEnvironment::getGameCollection(const String& systemId)
+{
+	const auto iter = gameCollections.find(systemId);
+	if (iter != gameCollections.end()) {
+		return *iter->second;
+	}
+
+	auto col = std::make_shared<GameCollection>(getRomsDir(systemId));
+	col->scanGames();
+	gameCollections[systemId] = col;
+	return *col;
 }
 
 std::shared_ptr<InputVirtual> RetrogradeEnvironment::getUIInput()

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <halley.hpp>
+class GameCollection;
 class SystemConfig;
 using namespace Halley;
 
@@ -21,7 +22,7 @@ private:
     const SystemConfig& systemConfig;
     std::optional<String> pendingGameId;
     UIWidget& parentMenu;
-
+   
     void onGamepadInput(const UIInputResults& input, Time time) override;
     void loadGame(const String& gameId);
 };

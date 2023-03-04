@@ -1,10 +1,9 @@
 #include "choose_game_window.h"
 
-#include <filesystem>
-
 #include "choose_system_window.h"
 #include "src/game/game_canvas.h"
 #include "src/config/system_config.h"
+#include "src/metadata/game_collection.h"
 #include "src/retrograde/retrograde_environment.h"
 
 ChooseGameWindow::ChooseGameWindow(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, const SystemConfig& systemConfig, std::optional<String> gameId, UIWidget& parentMenu)
@@ -29,13 +28,10 @@ void ChooseGameWindow::onMakeUI()
 {
 	auto gameList = getWidgetAs<UIList>("gameList");
 
-	const auto dir = retrogradeEnvironment.getRomsDir(systemConfig.getId());
-	std::error_code ec;
-	for (const auto& e: std::filesystem::directory_iterator(dir.getNativeString().cppStr(), ec)) {
-		if (e.is_regular_file()) {
-			auto path = e.path().filename().string();
-			gameList->addTextItem(path, LocalisedString::fromUserString(path));
-		}
+	auto& collection = retrogradeEnvironment.getGameCollection(systemConfig.getId());
+	collection.scanGames();
+	for (const auto& entry: collection.getEntries()) {
+		gameList->addTextItem(entry.filename.getString(), LocalisedString::fromUserString(entry.displayName));
 	}
 
 	setHandle(UIEventType::ListAccept, "gameList", [=] (const UIEvent& event)

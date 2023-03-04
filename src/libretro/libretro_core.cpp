@@ -361,7 +361,7 @@ bool LibretroCore::loadGame(const Path& path)
 		zip.open(path, false);
 		std::tie(targetContentInfo, archiveIdx) = getContentInfo(zip);
 		const auto archiveFileName = zip.getFileName(archiveIdx);
-		targetPath = Path("!zip") / archiveFileName;
+		targetPath = Path("_zip") / archiveFileName;
 		gameInfoEx.archive_path = cache(path.getNativeString());
 		gameInfoEx.archive_file = cache(archiveFileName);
 		gameInfoEx.file_in_archive = true;
@@ -378,7 +378,7 @@ bool LibretroCore::loadGame(const Path& path)
 		// Fullpath cores can still read zipped files if they support VFS
 		// In those cases, we'll extract the zip into VFS and load that instead
 		if (vfs && canExtract) {
-			zip.extractAll("!zip", *vfs);
+			zip.extractAll("_zip", *vfs);
 			gameInfoEx.full_path = cache(targetPath.getString()); // VFS requires unix style path
 		}
 	} else {
@@ -1439,7 +1439,7 @@ bool LibretroCore::onEnvGetVFSInterface(retro_vfs_interface_info& data)
 	}
 
 	loadVFS();
-	data.required_interface_version = versionSupported;
+	//data.required_interface_version = versionSupported;
 	data.iface = LibretroVFS::getLibretroInterface();
 
 	return true;

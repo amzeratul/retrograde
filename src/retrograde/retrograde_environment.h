@@ -3,6 +3,7 @@
 #include <halley.hpp>
 
 #include "src/filter_chain/filter_chain.h"
+#include "src/ui/choose_game_window.h"
 
 class LibretroCore;
 class RetrogradeGame;
@@ -27,6 +28,7 @@ public:
 
 	std::unique_ptr<LibretroCore> loadCore(const SystemConfig& systemConfig);
 	std::unique_ptr<FilterChain> makeFilterChain(const String& path);
+	GameCollection& getGameCollection(const String& systemId);
 
 	std::shared_ptr<InputVirtual> getUIInput();
 
@@ -47,6 +49,8 @@ private:
 	Path coreAssetsDir;
 
 	std::shared_ptr<InputVirtual> uiInput;
+
+	HashMap<String, std::shared_ptr<GameCollection>> gameCollections;
 
 	std::shared_ptr<InputVirtual> makeUIInput();
 	std::shared_ptr<InputVirtual> makeInput(int idx);

@@ -12,6 +12,8 @@ cores:
   - id: gambatte
   - id: mednafen_gba
   - id: desmume
+    options:
+      desmume_num_cores: 4
   - id: kronos
     options:
       kronos_videocoretype: opengl_cs
