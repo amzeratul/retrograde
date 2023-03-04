@@ -45,3 +45,5 @@ bezels:
     coreOptions:
       desmume:
         desmume_screens_gap: 90
+      melonds:
+        melonds_screen_gap: 90

@@ -327,15 +327,14 @@ const LibretroCore::ContentInfo* LibretroCore::getContentInfo(const Path& path)
 
 bool LibretroCore::loadGame(const Path& path)
 {
-	/*
 	for (auto& option: options) {
 		Logger::logDev("  " + option.first + " = " + option.second.value + " [" + String::concat<Option::Value>(option.second.values.span(), ", ") + "]");
 	}
-	*/
 
 	if (gameLoaded) {
 		unloadGame();
 	}
+	gameName = Path(path).getFilename().replaceExtension("").getString();
 
 	CStringCache cache;
 
@@ -403,7 +402,6 @@ bool LibretroCore::loadGame(const Path& path)
 	}
 
 	if (gameLoaded) {
-		gameName = Path(path).getFilename().replaceExtension("").getString();
 		auto& audio = *environment.getHalleyAPI().audio;
 		audioStreamHandle = audio.play(audioOut, audio.getGlobalEmitter(), 1, true);
 	}
@@ -505,7 +503,7 @@ void LibretroCore::runFrame()
 	}
 
 	if (!coreHandlesSaveData) {
-		//saveGameDataIfNeeded();
+		saveGameDataIfNeeded();
 	}
 
 	stringCache.clear();
@@ -1487,7 +1485,7 @@ void LibretroCore::onEnvSetContentInfoOverride(const retro_system_content_info_o
 void LibretroCore::onEnvGetSaveDirectory(const char** data)
 {
 	*data = stringCache(environment.getSaveDir(systemId).getNativeString());
-	coreHandlesSaveData = true;
+	//coreHandlesSaveData = true;
 }
 
 void LibretroCore::onEnvSetSubsystemInfo(const retro_subsystem_info& data)

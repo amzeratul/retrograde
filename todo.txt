@@ -1,6 +1,6 @@
 General
 * User config
-- Input device properties
+* Input device properties
 
 Profile selector:
 - Basic UI
@@ -9,11 +9,13 @@ Console selector:
 - Better UI
 
 Game list UI:
+* Show screenshots
 - Scrape online data (!)
-- Show screenshots
 - Show videos (!)
 - Show metadata
 - Render PDF manual (!!) (Try PDFium?)
+- Filter
+- Quick browse
 
 Input chooser UI
 - Basic UI
@@ -25,6 +27,7 @@ In-game UI:
 
 General settings UI:
 - Basic UI
+- Configure core
 
 Game running features
 * Sort out the whole cartridge ram save situation
@@ -34,6 +37,10 @@ Game running features
 - Keyboard support
 - Better audio output?
 - Retro Achievements (!)
+
+Core specific:
+- Stella is requesting analog controls??
+- Desmume is not working great
 
 
 

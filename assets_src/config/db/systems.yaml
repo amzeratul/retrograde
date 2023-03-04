@@ -76,7 +76,7 @@ systems:
     regions:
       - name: Nintendo DS
         region: [world]
-    cores: [desmume]
+    cores: [melonds, desmume]
     manufacturer: Nintendo
     releaseDate: 2004-11-21
     screenFilters: [lcd-ds]

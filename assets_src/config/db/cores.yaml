@@ -11,6 +11,7 @@ cores:
   - id: mgba
   - id: gambatte
   - id: mednafen_gba
+  - id: melonds
   - id: desmume
     options:
       desmume_num_cores: 4
