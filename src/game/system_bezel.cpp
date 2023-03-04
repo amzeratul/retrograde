@@ -25,6 +25,10 @@ void SystemBezel::setBezel(const BezelConfig* config)
 
 Vector2f SystemBezel::update(Rect4i windowSize, Vector2f maxScale)
 {
+	if (!curConfig) {
+		return maxScale;
+	}
+
 	const auto pos = Vector2f(windowSize.getCenter());
 	const auto scale = std::ceil(maxScale.y / 2);
 
@@ -33,7 +37,7 @@ Vector2f SystemBezel::update(Rect4i windowSize, Vector2f maxScale)
 			.setPosition(pos)
 			.setScale(scale / image.baseScale);
 	}
-
+	
 	return maxScale * (scale / maxScale.y);
 }
 
@@ -66,7 +70,7 @@ SystemBezel::ImageData SystemBezel::makeImage(const BezelImageConfig& imgConfig)
 	auto rect = img->getTrimRect();
 	if (rect.getSize() != img->getSize()) {
 		auto img2 = std::make_shared<Image>(Image::Format::RGBA, rect.getSize());
-		img2->blitFrom(rect.getTopLeft(), *img);
+		img2->blitFrom(Vector2i(), *img, rect);
 		img = std::move(img2);
 	}
 

@@ -54,8 +54,8 @@ void GameCanvas::update(Time t, bool moved)
 		stepGame();
 	}
 
-	const auto size = updateBezels();
-	updateFilterChain(size);
+	updateBezels();
+	updateFilterChain(Vector2i(getSize()));
 }
 
 void GameCanvas::render(RenderContext& rc) const
@@ -202,7 +202,7 @@ void GameCanvas::onGamepadInput(const UIInputResults& input, Time time)
 	}
 }
 
-Vector2i GameCanvas::updateBezels()
+void GameCanvas::updateBezels()
 {
 	if (!bezel) {
 		bezel = std::make_unique<SystemBezel>(environment);
@@ -215,8 +215,6 @@ Vector2i GameCanvas::updateBezels()
 		const auto& bezelConfig = environment.getConfigDatabase().get<BezelConfig>(bezels.front());
 		bezel->setBezel(&bezelConfig);
 	}
-
-	return Vector2i(getSize());
 }
 
 void GameCanvas::updateFilterChain(Vector2i screenSize)

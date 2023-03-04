@@ -47,6 +47,6 @@ private:
 
     void onGamepadInput(const UIInputResults& input, Time time) override;
 
-	Vector2i updateBezels();
+	void updateBezels();
     void updateFilterChain(Vector2i screenSize);
 };
