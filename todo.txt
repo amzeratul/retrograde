@@ -40,7 +40,6 @@ Game running features
 
 Core specific:
 - Stella is requesting analog controls??
-- Desmume is not working great
 
 
 
