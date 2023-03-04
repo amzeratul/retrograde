@@ -10,8 +10,11 @@ public:
 
     const String& getId() const;
     const HashMap<String, String>& getOptions() const;
+    Vector<String> filterExtensions(Vector<String> reportedByCore) const;
+    const Vector<String>& getBlockedExtensions() const;
 
 private:
     String id;
     HashMap<String, String> options;
+    Vector<String> blockedExtensions;
 };

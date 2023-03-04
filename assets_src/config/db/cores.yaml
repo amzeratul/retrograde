@@ -21,6 +21,7 @@ cores:
   - id: pcsx2
     options:
       pcsx2_renderer: D3D11
+    blockedExtensions: [cue]
   - id: dolphin
     options:
       dolphin_renderer: Hardware

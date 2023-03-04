@@ -7,6 +7,7 @@
 #include "libretro.h"
 #include "src/retrograde/retrograde_environment.h"
 #include "libretro_vfs.h"
+#include "src/config/core_config.h"
 #include "src/retrograde/retrograde_game.h"
 #include "src/util/cpu_update_texture.h"
 #include "src/util/c_string_cache.h"
@@ -174,7 +175,7 @@ void LibretroCore::SystemAVInfo::loadGeometry(const retro_game_geometry& geometr
 	}
 }
 
-std::unique_ptr<LibretroCore> LibretroCore::load(String coreId, std::string_view filename, String systemId, const RetrogradeEnvironment& environment)
+std::unique_ptr<LibretroCore> LibretroCore::load(const CoreConfig& coreConfig, std::string_view filename, String systemId, const RetrogradeEnvironment& environment)
 {
 	DLL dll;
 	
@@ -182,14 +183,14 @@ std::unique_ptr<LibretroCore> LibretroCore::load(String coreId, std::string_view
 		const auto retroAPIVersion = static_cast<decltype(&retro_api_version)>(dll.getFunction("retro_api_version"));
 		const auto dllVersion = retroAPIVersion();
 		if (dllVersion == RETRO_API_VERSION) {
-			return std::unique_ptr<LibretroCore>(new LibretroCore(std::move(dll), std::move(coreId), std::move(systemId), environment));
+			return std::unique_ptr<LibretroCore>(new LibretroCore(std::move(dll), std::move(coreConfig), std::move(systemId), environment));
 		}
 	}
 	return {};
 }
 
-LibretroCore::LibretroCore(DLL dll, String coreId, String systemId, const RetrogradeEnvironment& environment)
-	: coreId(std::move(coreId))
+LibretroCore::LibretroCore(DLL dll, const CoreConfig& coreConfig, String systemId, const RetrogradeEnvironment& environment)
+	: coreConfig(coreConfig)
 	, dll(std::move(dll))
 	, environment(environment)
 	, systemId(std::move(systemId))
@@ -212,7 +213,8 @@ void LibretroCore::init()
 	systemInfo.blockExtract = retroSystemInfo.block_extract;
 	contentInfos.clear();
 	auto& cInfo = contentInfos.emplace_back();
-	cInfo.validExtensions = String(retroSystemInfo.valid_extensions).split('|');
+	cInfo.validExtensions = coreConfig.filterExtensions(String(retroSystemInfo.valid_extensions).split('|'));
+	
 	cInfo.needFullpath = retroSystemInfo.need_fullpath;
 	cInfo.persistData = false;
 
@@ -670,9 +672,9 @@ const Sprite& LibretroCore::getVideoOut() const
 	return videoOut;
 }
 
-const String& LibretroCore::getCoreId() const
+const CoreConfig& LibretroCore::getCoreConfig() const
 {
-	return coreId;
+	return coreConfig;
 }
 
 const LibretroCore::SystemInfo& LibretroCore::getSystemInfo() const

@@ -6,6 +6,7 @@ CoreConfig::CoreConfig(const ConfigNode& node)
 	if (node.hasKey("options")) {
 		options = node["options"].asHashMap<String, String>();
 	}
+	blockedExtensions = node["blockedExtensions"].asVector<String>({});
 }
 
 const String& CoreConfig::getId() const
@@ -16,4 +17,17 @@ const String& CoreConfig::getId() const
 const HashMap<String, String>& CoreConfig::getOptions() const
 {
 	return options;
+}
+
+Vector<String> CoreConfig::filterExtensions(Vector<String> reportedByCore) const
+{
+	if (!blockedExtensions.empty()) {
+		std_ex::erase_if(reportedByCore, [&](const String& ext) { return std_ex::contains(blockedExtensions, ext); });
+	}
+	return reportedByCore;
+}
+
+const Vector<String>& CoreConfig::getBlockedExtensions() const
+{
+	return blockedExtensions;
 }

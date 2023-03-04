@@ -4,6 +4,7 @@
 #include "src/ui/in_game_menu.h"
 #include "src/config/screen_filter_config.h"
 #include "src/config/bezel_config.h"
+#include "src/config/core_config.h"
 #include "src/config/system_config.h"
 #include "src/filter_chain/filter_chain.h"
 #include "src/retrograde/retrograde_environment.h"
@@ -11,10 +12,11 @@
 #include "src/libretro/libretro_core.h"
 #include "src/savestate/rewind_data.h"
 
-GameCanvas::GameCanvas(UIFactory& factory, RetrogradeEnvironment& environment, const SystemConfig& systemConfig, String gameId, UIWidget& parentMenu)
+GameCanvas::GameCanvas(UIFactory& factory, RetrogradeEnvironment& environment, const CoreConfig& coreConfig, const SystemConfig& systemConfig, String gameId, UIWidget& parentMenu)
 	: UIWidget("game_canvas")
 	, factory(factory)
 	, environment(environment)
+	, coreConfig(coreConfig)
 	, systemConfig(systemConfig)
 	, gameId(std::move(gameId))
 	, parentMenu(parentMenu)
@@ -38,7 +40,7 @@ void GameCanvas::update(Time t, bool moved)
 {
 	bool needToLoadGame = false;
 	if (!loaded) {
-		core = environment.loadCore(systemConfig);
+		core = environment.loadCore(coreConfig, systemConfig);
 		needToLoadGame = true;
 		loaded = true;
 	}
@@ -225,7 +227,7 @@ void GameCanvas::updateBezels()
 	} else {
 		const auto& bezelConfig = environment.getConfigDatabase().get<BezelConfig>(bezels.front());
 		if (core) {
-			for (const auto& [k, v]: bezelConfig.getCoreOptions(core->getCoreId())) {
+			for (const auto& [k, v]: bezelConfig.getCoreOptions(core->getCoreConfig().getId())) {
 				core->setOption(k, v);
 			}
 		}

@@ -1,13 +1,18 @@
 #pragma once
 
 #include <halley.hpp>
+class CoreConfig;
 using namespace Halley;
 
 class GameCollection {
 public:
     struct Entry {
-        Path filename;
         String displayName;
+        Vector<Path> files;
+        Vector<String> tags;
+
+        void sortFiles();
+        const Path& getBestFileToLoad(const CoreConfig& coreConfig) const;
     };
 
     GameCollection(Path dir);
@@ -18,6 +23,8 @@ public:
 private:
     Path dir;
     Vector<Entry> entries;
+    HashMap<String, size_t> index;
 
-    Entry makeEntry(const Path& path) const;
+    void makeEntry(const Path& path);
+    std::pair<String, Vector<String>> parseName(const String& name) const;
 };

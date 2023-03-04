@@ -168,7 +168,7 @@ LibretroVFSFileHandle* LibretroVFS::open(std::string_view path, uint32_t mode, u
 	const bool update = mode & RETRO_VFS_FILE_ACCESS_UPDATE_EXISTING;
 	const bool frequentAccess = hints & RETRO_VFS_FILE_ACCESS_HINT_FREQUENT_ACCESS;
 
-	const auto iter = virtualFiles.find(path);
+	const auto iter = virtualFiles.find(Path(path).getString());
 	if (iter != virtualFiles.end()) {
 		return openVFile(path, read, write, update, frequentAccess, iter->second);
 	} else {

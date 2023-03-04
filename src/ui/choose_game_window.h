@@ -1,6 +1,7 @@
 #pragma once
 
 #include <halley.hpp>
+class CoreConfig;
 class GameCollection;
 class SystemConfig;
 using namespace Halley;
@@ -20,6 +21,7 @@ private:
     UIFactory& factory;
     RetrogradeEnvironment& retrogradeEnvironment;
     const SystemConfig& systemConfig;
+    const CoreConfig& coreConfig;
     std::optional<String> pendingGameId;
     UIWidget& parentMenu;
    

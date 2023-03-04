@@ -5,6 +5,7 @@
 #include "src/filter_chain/filter_chain.h"
 #include "src/ui/choose_game_window.h"
 
+class CoreConfig;
 class LibretroCore;
 class RetrogradeGame;
 using namespace Halley;
@@ -26,7 +27,7 @@ public:
 	ConfigDatabase& getConfigDatabase();
 	RetrogradeGame& getGame() const;
 
-	std::unique_ptr<LibretroCore> loadCore(const SystemConfig& systemConfig);
+	std::unique_ptr<LibretroCore> loadCore(const CoreConfig& coreConfig, const SystemConfig& systemConfig);
 	std::unique_ptr<FilterChain> makeFilterChain(const String& path);
 	GameCollection& getGameCollection(const String& systemId);
 

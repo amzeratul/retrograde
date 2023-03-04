@@ -3,6 +3,7 @@
 #include "choose_system_window.h"
 #include "src/game/game_canvas.h"
 #include "src/config/system_config.h"
+#include "src/config/core_config.h"
 #include "src/metadata/game_collection.h"
 #include "src/retrograde/retrograde_environment.h"
 
@@ -11,6 +12,7 @@ ChooseGameWindow::ChooseGameWindow(UIFactory& factory, RetrogradeEnvironment& re
 	, factory(factory)
 	, retrogradeEnvironment(retrogradeEnvironment)
 	, systemConfig(systemConfig)
+	, coreConfig(retrogradeEnvironment.getConfigDatabase().get<CoreConfig>(systemConfig.getCores().front()))
 	, pendingGameId(std::move(gameId))
 	, parentMenu(parentMenu)
 {
@@ -31,7 +33,7 @@ void ChooseGameWindow::onMakeUI()
 	auto& collection = retrogradeEnvironment.getGameCollection(systemConfig.getId());
 	collection.scanGames();
 	for (const auto& entry: collection.getEntries()) {
-		gameList->addTextItem(entry.filename.getString(), LocalisedString::fromUserString(entry.displayName));
+		gameList->addTextItem(entry.getBestFileToLoad(coreConfig).string(), LocalisedString::fromUserString(entry.displayName));
 	}
 
 	setHandle(UIEventType::ListAccept, "gameList", [=] (const UIEvent& event)
@@ -79,5 +81,5 @@ void ChooseGameWindow::onGamepadInput(const UIInputResults& input, Time time)
 void ChooseGameWindow::loadGame(const String& gameId)
 {
 	setActive(false);
-	getRoot()->addChild(std::make_shared<GameCanvas>(factory, retrogradeEnvironment, systemConfig, gameId, *this));
+	getRoot()->addChild(std::make_shared<GameCanvas>(factory, retrogradeEnvironment, coreConfig, systemConfig, gameId, *this));
 }

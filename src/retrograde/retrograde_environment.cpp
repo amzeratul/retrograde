@@ -89,13 +89,11 @@ RetrogradeGame& RetrogradeEnvironment::getGame() const
 	return game;
 }
 
-std::unique_ptr<LibretroCore> RetrogradeEnvironment::loadCore(const SystemConfig& systemConfig)
+std::unique_ptr<LibretroCore> RetrogradeEnvironment::loadCore(const CoreConfig& coreConfig, const SystemConfig& systemConfig)
 {
-	const String coreId = systemConfig.getCores().at(0);
-	const auto& coreConfig = getConfigDatabase().get<CoreConfig>(coreId);
-	const String corePath = coreId + "_libretro.dll";
+	const String corePath = coreConfig.getId() + "_libretro.dll";
 
-	auto core = LibretroCore::load(coreId, getCoresDir() + "/" + corePath, systemConfig.getId(), *this);
+	auto core = LibretroCore::load(coreConfig, getCoresDir() + "/" + corePath, systemConfig.getId(), *this);
 	for (int i = 0; i < 4; ++i) {
 		core->setInputDevice(i, makeInput(i));
 	}

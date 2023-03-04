@@ -7,6 +7,8 @@
 #include "src/util/dll.h"
 #include "src/util/dx11_state.h"
 
+class CoreConfig;
+
 namespace Halley {
 	class DX11Texture;
 }
@@ -103,7 +105,7 @@ public:
 		RollbackNetplay
 	};
 
-	static std::unique_ptr<LibretroCore> load(String coreId, std::string_view filename, String systemId, const RetrogradeEnvironment& environment);
+	static std::unique_ptr<LibretroCore> load(const CoreConfig& coreConfig, std::string_view filename, String systemId, const RetrogradeEnvironment& environment);
 	~LibretroCore() override;
 
 	bool loadGame(const Path& path);
@@ -126,7 +128,7 @@ public:
 	void runFrame();
 	const Sprite& getVideoOut() const;
 
-	const String& getCoreId() const;
+	const CoreConfig& getCoreConfig() const;
 	const SystemInfo& getSystemInfo() const;
 	const SystemAVInfo& getSystemAVInfo() const;
 	bool isScreenRotated() const;
@@ -152,7 +154,7 @@ protected:
 	bool onSetRumbleState(uint32_t port, retro_rumble_effect effect, uint16_t strength) override;
 
 private:
-	String coreId;
+	const CoreConfig& coreConfig;
 	DLL dll;
 	const RetrogradeEnvironment& environment;
 
@@ -212,7 +214,7 @@ private:
 
 	CStringCache stringCache;
 	
-	LibretroCore(DLL dll, String coreId, String systemId, const RetrogradeEnvironment& environment);
+	LibretroCore(DLL dll, const CoreConfig& coreConfig, String systemId, const RetrogradeEnvironment& environment);
 
 	void init();
 	void deInit();

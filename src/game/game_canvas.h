@@ -1,6 +1,7 @@
 #pragma once
 
 #include <halley.hpp>
+class CoreConfig;
 class SystemBezel;
 class SystemConfig;
 class FilterChain;
@@ -12,7 +13,7 @@ class LibretroCore;
 
 class GameCanvas : public UIWidget {
 public:
-    GameCanvas(UIFactory& factory, RetrogradeEnvironment& environment, const SystemConfig& systemConfig, String gameId, UIWidget& parentMenu);
+    GameCanvas(UIFactory& factory, RetrogradeEnvironment& environment, const CoreConfig& coreConfig, const SystemConfig& systemConfig, String gameId, UIWidget& parentMenu);
     ~GameCanvas() override;
 
     void update(Time t, bool moved) override;
@@ -24,6 +25,7 @@ public:
 private:
     UIFactory& factory;
     RetrogradeEnvironment& environment;
+    const CoreConfig& coreConfig;
     const SystemConfig& systemConfig;
     String gameId;
     UIWidget& parentMenu;
