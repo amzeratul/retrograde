@@ -31,13 +31,13 @@ void ChooseSystemWindow::onMakeUI()
 	auto systems = retrogradeEnvironment.getConfigDatabase().getValues<SystemConfig>();
 	std::sort(systems.begin(), systems.end(), [&](const SystemConfig* a, const SystemConfig* b)
 	{
-		return a->getRegion(region).getName() < b->getRegion(region).getName();
+		return std::pair(a->getGeneration(), a->getReleaseDate()) < std::pair(b->getGeneration(), b->getReleaseDate());
 	});
 
 	auto systemList = getWidgetAs<UIList>("systemList");
 	for (const auto& system : systems) {
 		if (!retrogradeEnvironment.getGameCollection(system->getId()).getEntries().empty()) {
-			systemList->addTextItem(system->getId(), LocalisedString::fromUserString(system->getRegion(region).getName()));
+			systemList->addTextItem(system->getId(), LocalisedString::fromUserString("Gen " + toString(system->getGeneration()) + ": " + system->getRegion(region).getName()));
 		}
 	}
 

@@ -29,6 +29,7 @@ public:
 	const Vector<String>& getCores() const;
     const Vector<String>& getScreenFilters() const;
     const Vector<String>& getBezels() const;
+    int getGeneration() const;
 
 private:
     String id;
@@ -38,4 +39,5 @@ private:
     Vector<String> cores;
     Vector<String> screenFilters;
     Vector<String> bezels;
+    int generation;
 };
