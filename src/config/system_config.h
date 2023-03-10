@@ -32,6 +32,7 @@ public:
     int getGeneration() const;
 
 	String getDescriptionKey() const;
+    String getInfoImage() const;
 
 private:
     String id;

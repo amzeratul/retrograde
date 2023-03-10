@@ -4,6 +4,7 @@
 #include "src/config/system_config.h"
 #include "src/metadata/game_collection.h"
 #include "src/retrograde/retrograde_environment.h"
+#include "src/util/image_cache.h"
 
 ChooseSystemWindow::ChooseSystemWindow(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, std::optional<String> systemId, std::optional<String> gameId)
 	: UIWidget("choose_system", Vector2f(), UISizer())
@@ -53,6 +54,8 @@ void ChooseSystemWindow::setSelectedSystem(const SystemConfig& systemConfig)
 	getWidgetAs<UILabel>("system_name")->setText(LocalisedString::fromUserString(regionConfig.getName()));
 	getWidgetAs<UILabel>("system_info")->setText(LocalisedString::fromUserString(systemConfig.getReleaseDate() + "  " + systemConfig.getManufacturer()));
 	getWidgetAs<UILabel>("system_description")->setText(factory.getI18N().get(systemConfig.getDescriptionKey()));
+
+	retrogradeEnvironment.getImageCache().loadInto(systemConfig.getInfoImage(), getWidgetAs<UIImage>("system_image"));
 }
 
 const String& ChooseSystemWindow::getRegion() const

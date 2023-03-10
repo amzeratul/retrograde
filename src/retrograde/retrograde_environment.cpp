@@ -8,6 +8,7 @@
 #include "src/filter_chain/retroarch_filter_chain.h"
 #include "src/libretro/libretro_core.h"
 #include "src/metadata/game_collection.h"
+#include "src/util/image_cache.h"
 
 RetrogradeEnvironment::RetrogradeEnvironment(RetrogradeGame& game, Path _rootDir, Resources& resources, const HalleyAPI& halleyAPI)
 	: game(game)
@@ -32,6 +33,8 @@ RetrogradeEnvironment::RetrogradeEnvironment(RetrogradeGame& game, Path _rootDir
 	configDatabase.init<ScreenFilterConfig>("screenFilters");
 	configDatabase.init<SystemConfig>("systems");
 	configDatabase.load(resources, "db/");
+
+	imageCache = std::make_shared<ImageCache>(*halleyAPI.video, resources, imagesDir);
 }
 
 const Path& RetrogradeEnvironment::getSystemDir() const
@@ -134,6 +137,11 @@ std::shared_ptr<InputVirtual> RetrogradeEnvironment::getUIInput()
 		uiInput = makeUIInput();
 	}
 	return uiInput;
+}
+
+ImageCache& RetrogradeEnvironment::getImageCache()
+{
+	return *imageCache;
 }
 
 std::shared_ptr<InputVirtual> RetrogradeEnvironment::makeUIInput()

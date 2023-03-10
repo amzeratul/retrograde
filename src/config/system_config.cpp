@@ -91,3 +91,8 @@ String SystemConfig::getDescriptionKey() const
 {
 	return "system_description_" + id;
 }
+
+String SystemConfig::getInfoImage() const
+{
+	return "systems/info_" + id + ".png";
+}

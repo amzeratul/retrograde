@@ -17,7 +17,7 @@ children:
           columnProportions: []
         widget:
           class: widget
-          id: console_image_holder
+          id: system_image_holder
           size: [830, 500]
         children:
           - uuid: 08c0a3a1-26c1-4bdb-911d-0e1ef497b4b4
@@ -27,7 +27,7 @@ children:
             widget:
               class: image
               colour: "#282828"
-              id: console_image
+              id: system_image
               image: whitebox.png
               size: [0, 0]
       - uuid: 773e8ffb-20c6-4b80-bd3c-244754abe268
