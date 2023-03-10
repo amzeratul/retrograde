@@ -1,182 +1,5 @@
 systems:
-  - id: atari2600
-    regions: 
-      - name: Atari 2600
-        region: [world]
-    cores: [stella]
-    manufacturer: Atari
-    releaseDate: 1977-09-11
-    generation: 2
-    category: console
-    screenFilters: [crt-rf-3phase]
-
-  - id: nes
-    regions: 
-      - name: Nintendo Entertainment System
-        region: [world]
-      - name: Famicom
-        region: [jp]
-    cores: [nestopia, mesen]
-    manufacturer: Nintendo
-    releaseDate: 1983-07-15
-    generation: 3
-    category: console
-    screenFilters: [crt-composite-ntsc-3phase]
-  - id: snes
-    regions: 
-      - name: Super Nintendo Entertainment System
-        region: [world]
-      - name: Super Famicom
-        region: [jp]
-    cores: [snes9x, bsnes]
-    manufacturer: Nintendo
-    releaseDate: 1990-11-21
-    generation: 4
-    category: console
-    screenFilters: [crt-composite-ntsc-3phase]
-  - id: n64
-    regions:
-      - name: Nintendo 64
-        region: [world]
-    cores: [mupen64plus_next, parallel_n64]
-    manufacturer: Nintendo
-    releaseDate: 1996-06-23
-    generation: 5
-    category: console
-    screenFilters: [crt-svideo]
-  - id: gamecube
-    regions:
-      - name: GameCube
-        region: [world]
-    cores: [dolphin]
-    manufacturer: Nintendo
-    releaseDate: 2001-09-14
-    generation: 6
-    category: console
-    screenFilters: [crt-svideo]
-
-  - id: gb
-    regions:
-      - name: Game Boy
-        region: [world]
-    cores: [gambatte]
-    manufacturer: Nintendo
-    releaseDate: 1989-04-21
-    generation: 4
-    category: handheld
-    screenFilters: [lcd-gameboy-pocket, lcd-gameboy, lcd-gameboy-color]
-    bezels: [gameboy-pocket, gameboy]
-  - id: gbc
-    regions:
-      - name: Game Boy Color
-        region: [world]
-    cores: [gambatte]
-    manufacturer: Nintendo
-    releaseDate: 1998-10-21
-    generation: 5
-    category: handheld
-    screenFilters: [lcd-gameboy-color]
-    bezels: [gameboy-color]
-  - id: gba
-    regions:
-      - name: Game Boy Advance
-        region: [world]
-    cores: [mgba, mednafen_gba]
-    manufacturer: Nintendo
-    releaseDate: 2001-03-21
-    generation: 6
-    category: handheld
-    screenFilters: [lcd-gameboy-advance]
-    bezels: [gameboy-advance]
-  - id: nds
-    regions:
-      - name: Nintendo DS
-        region: [world]
-    cores: [melonds, desmume]
-    manufacturer: Nintendo
-    releaseDate: 2004-11-21
-    generation: 7
-    category: handheld
-    screenFilters: [lcd-ds]
-    bezels: [ndsi]
-
-  - id: mastersystem
-    regions:
-      - name: Master System
-        region: [world]
-    cores: [genesis_plus_gx]
-    manufacturer: Sega
-    releaseDate: 1985-10-20
-    generation: 3
-    category: console
-    screenFilters: [crt-composite-ntsc-3phase]
-  - id: megadrive
-    regions:
-      - name: Mega Drive
-        region: [world]
-      - name: Sega Genesis
-        region: [us]
-    cores: [genesis_plus_gx]
-    manufacturer: Sega
-    releaseDate: 1988-10-29
-    generation: 4
-    category: console
-    screenFilters: [crt-composite-ntsc-2phase-megadrive, crt-composite-ntsc-2phase]
-  - id: megacd
-    regions:
-      - name: Mega CD
-        region: [world]
-      - name: Sega CD
-        region: [us, br]
-    cores: [genesis_plus_gx]
-    manufacturer: Sega
-    releaseDate: 1991-12-12
-    generation: 4
-    category: console
-    screenFilters: [crt-composite-ntsc-2phase-megadrive, crt-composite-ntsc-2phase]
-  - id: saturn
-    regions:
-      - name: Saturn
-        region: [world]
-    cores: [mednafen_saturn]
-    manufacturer: Sega
-    releaseDate: 1994-11-22
-    generation: 5
-    category: console
-    screenFilters: [crt-svideo]
-
-  - id: gamegear
-    regions:
-      - name: Game Gear
-        region: [world]
-    cores: [genesis_plus_gx]
-    manufacturer: Sega
-    releaseDate: 1990-10-06
-    generation: 4
-    category: handheld
-    screenFilters: [lcd-grid]
-
-  - id: psx
-    regions:
-      - name: PlayStation
-        region: [world]
-    cores: [swanstation]
-    manufacturer: Sony
-    releaseDate: 1994-12-03
-    generation: 5
-    category: console
-    screenFilters: [crt-svideo]
-  - id: ps2
-    regions:
-      - name: PlayStation 2
-        region: [world]
-    cores: [pcsx2]
-    manufacturer: Sony
-    releaseDate: 2000-03-04
-    generation: 6
-    category: console
-    screenFilters: [crt-svideo]
-
+  # Arcade
   - id: neogeo
     regions:
       - name: Neo Geo
@@ -217,3 +40,297 @@ systems:
     generation: 4
     category: arcade
     screenFilters: [crt-rgb]
+  - id: naomi
+    regions:
+      - name: NAOMI
+        region: [world]
+    cores: []
+    manufacturer: Sega
+    releaseDate: 1998-11-20
+    generation: 6
+    category: arcade
+    screenFilters: [crt-rgb]
+  - id: atomiswave
+    regions:
+      - name: Atomiswave
+        region: [world]
+    cores: []
+    manufacturer: Sammy
+    releaseDate: 2003-04-01
+    generation: 6
+    category: arcade
+    screenFilters: [crt-rgb]
+
+  # 1st Generation
+
+  # 2nd Generation
+  - id: atari2600
+    regions: 
+      - name: Atari 2600
+        region: [world]
+    cores: [stella]
+    manufacturer: Atari
+    releaseDate: 1977-09-11
+    generation: 2
+    category: console
+    unitsSold: 30000000
+    screenFilters: [crt-rf-3phase]
+
+  # 3rd Generation
+  - id: nes
+    regions: 
+      - name: Nintendo Entertainment System
+        region: [world]
+      - name: Famicom
+        region: [jp]
+    cores: [nestopia, mesen]
+    manufacturer: Nintendo
+    releaseDate: 1983-07-15
+    generation: 3
+    category: console
+    unitsSold: 61910000
+    screenFilters: [crt-composite-ntsc-3phase]
+  - id: mastersystem
+    regions:
+      - name: Master System
+        region: [world]
+    cores: [genesis_plus_gx]
+    manufacturer: Sega
+    releaseDate: 1985-10-20
+    generation: 3
+    category: console
+    unitsSold: 13000000
+    screenFilters: [crt-composite-ntsc-3phase]
+
+  # 4th Generation Consoles
+  - id: snes
+    regions: 
+      - name: Super Nintendo Entertainment System
+        region: [world]
+      - name: Super Famicom
+        region: [jp]
+    cores: [snes9x, bsnes]
+    manufacturer: Nintendo
+    releaseDate: 1990-11-21
+    generation: 4
+    category: console
+    unitsSold: 49100000
+    screenFilters: [crt-composite-ntsc-3phase]
+  - id: megadrive
+    regions:
+      - name: Mega Drive
+        region: [world]
+      - name: Sega Genesis
+        region: [us]
+    cores: [genesis_plus_gx]
+    manufacturer: Sega
+    releaseDate: 1988-10-29
+    generation: 4
+    category: console
+    unitsSold: 30750000
+    screenFilters: [crt-composite-ntsc-2phase-megadrive, crt-composite-ntsc-2phase]
+  - id: megacd
+    regions:
+      - name: Mega CD
+        region: [world]
+      - name: Sega CD
+        region: [us, br]
+    cores: [genesis_plus_gx]
+    manufacturer: Sega
+    releaseDate: 1991-12-12
+    generation: 4
+    category: console
+    unitsSold: 2240000
+    screenFilters: [crt-composite-ntsc-2phase-megadrive, crt-composite-ntsc-2phase]
+
+  # 4th Generation Handhelds
+  - id: gb
+    regions:
+      - name: Game Boy
+        region: [world]
+    cores: [gambatte]
+    manufacturer: Nintendo
+    releaseDate: 1989-04-21
+    generation: 4
+    category: handheld
+    unitsSold: 70000000
+    screenFilters: [lcd-gameboy-pocket, lcd-gameboy, lcd-gameboy-color]
+    bezels: [gameboy-pocket, gameboy]
+  - id: gamegear
+    regions:
+      - name: Game Gear
+        region: [world]
+    cores: [genesis_plus_gx]
+    manufacturer: Sega
+    releaseDate: 1990-10-06
+    generation: 4
+    category: handheld
+    unitsSold: 11000000
+    screenFilters: [lcd-grid]
+
+  # 5th Generation Consoles
+  - id: n64
+    regions:
+      - name: Nintendo 64
+        region: [world]
+    cores: [mupen64plus_next, parallel_n64]
+    manufacturer: Nintendo
+    releaseDate: 1996-06-23
+    generation: 5
+    category: console
+    unitsSold: 32930000
+    screenFilters: [crt-svideo]
+  - id: 32x
+    regions:
+      - name: 32X
+        region: [world]
+    cores: []
+    manufacturer: Sega
+    releaseDate: 1994-11-21
+    generation: 5
+    category: console
+    unitsSold: 665000
+    screenFilters: [crt-composite-ntsc-2phase-megadrive, crt-composite-ntsc-2phase]
+  - id: saturn
+    regions:
+      - name: Saturn
+        region: [world]
+    cores: [mednafen_saturn]
+    manufacturer: Sega
+    releaseDate: 1994-11-22
+    generation: 5
+    category: console
+    unitsSold: 9260000
+    screenFilters: [crt-svideo]
+  - id: jaguar
+    regions: 
+      - name: Jaguar
+        region: [world]
+    cores: []
+    manufacturer: Atari
+    releaseDate: 1993-11-23
+    generation: 5
+    category: console
+    unitsSold: 250000
+    screenFilters: [crt-svideo]
+  - id: psx
+    regions:
+      - name: PlayStation
+        region: [world]
+    cores: [swanstation]
+    manufacturer: Sony
+    releaseDate: 1994-12-03
+    generation: 5
+    category: console
+    unitsSold: 102490000
+    screenFilters: [crt-svideo]
+
+  # 5th Generation Handhelds
+  - id: gbc
+    regions:
+      - name: Game Boy Color
+        region: [world]
+    cores: [gambatte]
+    manufacturer: Nintendo
+    releaseDate: 1998-10-21
+    generation: 5
+    category: handheld
+    unitsSold: 48690000
+    screenFilters: [lcd-gameboy-color]
+    bezels: [gameboy-color]
+  - id: virtualboy
+    regions:
+      - name: Virtual Boy
+        region: [world]
+    cores: []
+    manufacturer: Nintendo
+    releaseDate: 1995-07-21
+    generation: 5
+    category: handheld
+    unitsSold: 770000
+    screenFilters: [lcd-grid]
+  - id: nomad
+    regions:
+      - name: Nomad
+        region: [world]
+    cores: [genesis_plus_gx]
+    manufacturer: Sega
+    releaseDate: 1995-10-01
+    generation: 5
+    category: handheld
+    unitsSold: 1000000
+    screenFilters: [lcd-grid]
+
+  # 6th Generation Consoles
+  - id: gamecube
+    regions:
+      - name: GameCube
+        region: [world]
+    cores: [dolphin]
+    manufacturer: Nintendo
+    releaseDate: 2001-09-14
+    generation: 6
+    category: console
+    unitsSold: 21740000
+    screenFilters: [crt-svideo]
+  - id: dreamcast
+    regions:
+      - name: Dreamcast
+        region: [world]
+    cores: []
+    manufacturer: Sega
+    releaseDate: 1998-11-27
+    generation: 6
+    category: console
+    unitsSold: 9130000
+    screenFilters: [crt-svideo]
+  - id: ps2
+    regions:
+      - name: PlayStation 2
+        region: [world]
+    cores: [pcsx2]
+    manufacturer: Sony
+    releaseDate: 2000-03-04
+    generation: 6
+    category: console
+    unitsSold: 155000000
+    screenFilters: [crt-svideo]
+
+  # 6th Generation Handhelds
+  - id: gba
+    regions:
+      - name: Game Boy Advance
+        region: [world]
+    cores: [mgba, mednafen_gba]
+    manufacturer: Nintendo
+    releaseDate: 2001-03-21
+    generation: 6
+    category: handheld
+    unitsSold: 81510000
+    screenFilters: [lcd-gameboy-advance]
+    bezels: [gameboy-advance]
+
+  # 7th Generation Consoles
+
+  # 7th Generation Handhelds
+  - id: nds
+    regions:
+      - name: Nintendo DS
+        region: [world]
+    cores: [melonds, desmume]
+    manufacturer: Nintendo
+    releaseDate: 2004-11-21
+    generation: 7
+    category: handheld
+    unitsSold: 154000000
+    screenFilters: [lcd-ds]
+    bezels: [ndsi]
+
+  # 8th Generation Consoles
+
+  # 8th Generation Handhelds
+
+  
+  # 9th Generation Consoles
+
+  # 9th Generation Handhelds

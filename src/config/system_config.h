@@ -52,6 +52,7 @@ public:
     const Vector<String>& getScreenFilters() const;
     const Vector<String>& getBezels() const;
     int getGeneration() const;
+    int getUnitsSold() const;
     SystemCategory getCategory() const;
 
 	String getDescriptionKey() const;
@@ -68,4 +69,5 @@ private:
     Vector<String> screenFilters;
     Vector<String> bezels;
     int generation;
+    int unitsSold;
 };

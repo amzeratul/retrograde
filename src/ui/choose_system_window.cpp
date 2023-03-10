@@ -114,7 +114,7 @@ void SystemList::onMakeUI()
 
 	std::sort(systems.begin(), systems.end(), [&](const SystemConfig* a, const SystemConfig* b)
 	{
-		return std::pair(a->getCategory(), a->getReleaseDate()) < std::pair(b->getCategory(), b->getReleaseDate());
+		return std::tuple(a->getCategory(), -a->getUnitsSold(), a->getReleaseDate()) < std::tuple(b->getCategory(), -b->getUnitsSold(), b->getReleaseDate());
 	});
 
 	getWidgetAs<UILabel>("title")->setText(title);
