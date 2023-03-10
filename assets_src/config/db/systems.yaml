@@ -56,10 +56,62 @@ systems:
         region: [world]
     cores: []
     manufacturer: Sammy
-    releaseDate: 2003-04-01
+    releaseDate: 2003-04
     generation: 6
     category: arcade
     screenFilters: [crt-rgb]
+
+  # Computer
+  - id: msdos
+    regions:
+      - name: MS-DOS
+        region: [world]
+    cores: [dosbox]
+    manufacturer: Microsoft
+    releaseDate: 1981
+    category: computer
+    unitsSold: 150000000
+    screenFilters: [crt-rgb]
+  - id: zx
+    regions:
+      - name: ZX Spectrum
+        region: [world]
+    cores: []
+    manufacturer: Sinclair
+    releaseDate: 1982-04-23
+    category: computer
+    unitsSold: 5000000
+    screenFilters: [crt-rf]
+  - id: c64
+    regions:
+      - name: Commodore 64
+        region: [world]
+    cores: []
+    manufacturer: Commodore
+    releaseDate: 1982-08
+    category: computer
+    unitsSold: 15000000
+    screenFilters: [crt-composite-ntsc-2phase]
+  - id: amiga
+    regions:
+      - name: Amiga
+        region: [world]
+    cores: []
+    manufacturer: Commodore
+    releaseDate: 1985
+    category: computer
+    unitsSold: 4850000
+    screenFilters: [crt-composite-ntsc-2phase]
+  - id: msx
+    regions:
+      - name: MSX
+        region: [world]
+    cores: []
+    manufacturer: ASCII
+    releaseDate: 1983-10-21
+    category: computer
+    unitsSold: 9000000
+    screenFilters: [crt-composite-ntsc-2phase]
 
   # 1st Generation
 
@@ -74,6 +126,50 @@ systems:
     generation: 2
     category: console
     unitsSold: 30000000
+    screenFilters: [crt-rf-3phase]
+  - id: atari5200
+    regions: 
+      - name: Atari 5200
+        region: [world]
+    cores: []
+    manufacturer: Atari
+    releaseDate: 1982-05-21
+    generation: 2
+    category: console
+    unitsSold: 1400000
+    screenFilters: [crt-rf-3phase]
+  - id: colecovision
+    regions: 
+      - name: ColecoVision
+        region: [world]
+    cores: []
+    manufacturer: Coleco
+    releaseDate: 1982-08
+    generation: 2
+    category: console
+    unitsSold: 2000000
+    screenFilters: [crt-rf-3phase]
+  - id: intellivision
+    regions: 
+      - name: Intellivision
+        region: [world]
+    cores: []
+    manufacturer: Mattel
+    releaseDate: 1979
+    generation: 2
+    category: console
+    unitsSold: 3000000
+    screenFilters: [crt-rf-3phase]
+  - id: odyssey2
+    regions: 
+      - name: Odyssey 2
+        region: [world]
+    cores: []
+    manufacturer: Magnavox
+    releaseDate: 1978-09
+    generation: 2
+    category: console
+    unitsSold: 2000000
     screenFilters: [crt-rf-3phase]
 
   # 3rd Generation
@@ -101,6 +197,17 @@ systems:
     category: console
     unitsSold: 13000000
     screenFilters: [crt-composite-ntsc-3phase]
+  - id: atari7800
+    regions:
+      - name: Atari 7800
+        region: [world]
+    cores: []
+    manufacturer: Atari
+    releaseDate: 1986-05-01
+    generation: 3
+    category: console
+    unitsSold: 3770000
+    screenFilters: [crt-rf-3phase]
 
   # 4th Generation Consoles
   - id: snes
@@ -142,6 +249,30 @@ systems:
     category: console
     unitsSold: 2240000
     screenFilters: [crt-composite-ntsc-2phase-megadrive, crt-composite-ntsc-2phase]
+  - id: pcengine
+    regions:
+      - name: PC Engine
+        region: [world]
+      - name: TurboGrafx-16
+        region: [us]
+    cores: []
+    manufacturer: NEC
+    releaseDate: 1987-10-30
+    generation: 4
+    category: console
+    unitsSold: 5620000
+    screenFilters: [crt-composite-ntsc-2phase]
+  - id: cdi
+    regions:
+      - name: CD-i
+        region: [world]
+    cores: []
+    manufacturer: Philips
+    releaseDate: 1991-10-03
+    generation: 4
+    category: console
+    unitsSold: 1000000
+    screenFilters: [crt-composite-ntsc-2phase]
 
   # 4th Generation Handhelds
   - id: gb
@@ -166,6 +297,30 @@ systems:
     generation: 4
     category: handheld
     unitsSold: 11000000
+    screenFilters: [lcd-grid]
+  - id: lynx
+    regions:
+      - name: Lynx
+        region: [world]
+    cores: []
+    manufacturer: Atari
+    releaseDate: 1989-09-01
+    generation: 4
+    category: handheld
+    unitsSold: 2000000
+    screenFilters: [lcd-grid]
+  - id: pcenginegt
+    regions:
+      - name: PC Engine GT
+        region: [world]
+      - name: TurboExpress
+        region: [us]
+    cores: []
+    manufacturer: NEC
+    releaseDate: 1990-12-01
+    generation: 4
+    category: handheld
+    unitsSold: 1500000
     screenFilters: [lcd-grid]
 
   # 5th Generation Consoles
@@ -224,6 +379,17 @@ systems:
     category: console
     unitsSold: 102490000
     screenFilters: [crt-svideo]
+  - id: 3do
+    regions:
+      - name: 3DO
+        region: [world]
+    cores: []
+    manufacturer: 3DO
+    releaseDate: 1993-10-04
+    generation: 5
+    category: console
+    unitsSold: 2000000
+    screenFilters: [crt-svideo]
 
   # 5th Generation Handhelds
   - id: gbc
@@ -260,6 +426,28 @@ systems:
     category: handheld
     unitsSold: 1000000
     screenFilters: [lcd-grid]
+  - id: ngp
+    regions:
+      - name: Neo Geo Pocket
+        region: [world]
+    cores: []
+    manufacturer: SNK
+    releaseDate: 1998-10-28
+    generation: 5
+    category: handheld
+    unitsSold: 100000
+    screenFilters: [lcd-grid]
+  - id: ngpc
+    regions:
+      - name: Neo Geo Pocket Color
+        region: [world]
+    cores: []
+    manufacturer: SNK
+    releaseDate: 1999-03-16
+    generation: 5
+    category: handheld
+    unitsSold: 2000000
+    screenFilters: [lcd-grid]
 
   # 6th Generation Consoles
   - id: gamecube
@@ -295,6 +483,17 @@ systems:
     category: console
     unitsSold: 155000000
     screenFilters: [crt-svideo]
+  - id: xbox
+    regions:
+      - name: Xbox
+        region: [world]
+    cores: []
+    manufacturer: Microsoft
+    releaseDate: 2001-11-15
+    generation: 6
+    category: console
+    unitsSold: 24000000
+    screenFilters: [crt-svideo]
 
   # 6th Generation Handhelds
   - id: gba
@@ -309,6 +508,30 @@ systems:
     unitsSold: 81510000
     screenFilters: [lcd-gameboy-advance]
     bezels: [gameboy-advance]
+  - id: wonderswan
+    regions:
+      - name: WonderSwan
+        region: [world]
+    cores: []
+    manufacturer: Bandai
+    releaseDate: 1999-03-04
+    generation: 6
+    category: handheld
+    unitsSold: 1550000
+    screenFilters: [lcd-grid]
+    bezels: []
+  - id: wonderswancolor
+    regions:
+      - name: WonderSwan Color
+        region: [world]
+    cores: []
+    manufacturer: Bandai
+    releaseDate: 2000-12-09
+    generation: 6
+    category: handheld
+    unitsSold: 1100000
+    screenFilters: [lcd-grid]
+    bezels: []
 
   # 7th Generation Consoles
 
@@ -325,6 +548,18 @@ systems:
     unitsSold: 154000000
     screenFilters: [lcd-ds]
     bezels: [ndsi]
+  - id: psp
+    regions:
+      - name: PlayStation Portable
+        region: [world]
+    cores: []
+    manufacturer: Sony
+    releaseDate: 2004-12-12
+    generation: 7
+    category: handheld
+    unitsSold: 81000000
+    screenFilters: [lcd-grid]
+    bezels: []
 
   # 8th Generation Consoles
 

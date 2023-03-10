@@ -22,7 +22,7 @@ SystemConfig::SystemConfig(const ConfigNode& node)
 	id = node["id"].asString();
 	manufacturer = node["manufacturer"].asString();
 	releaseDate = node["releaseDate"].asString();
-	generation = node["generation"].asInt();
+	generation = node["generation"].asInt(0);
 	unitsSold = node["unitsSold"].asInt(0);
 	category = node["category"].asEnum<SystemCategory>();
 	cores = node["cores"].asVector<String>();

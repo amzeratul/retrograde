@@ -1,15 +1,19 @@
 ---
 
 en-GB:
-  gen1: 1st Generation
-  gen2: 2nd Generation
-  gen3: 3rd Generation
-  gen4: 4th Generation
-  gen5: 5th Generation
-  gen6: 6th Generation
-  gen7: 7th Generation
-  gen8: 8th Generation
-  gen9: 9th Generation
+  gen1console: 1st Generation Consoles
+  gen2console: 2nd Generation Consoles
+  gen3console: 3rd Generation Consoles
+  gen4console: 4th Generation Consoles
+  gen5console: 5th Generation Consoles
+  gen6console: 6th Generation Consoles
+  gen7console: 7th Generation Consoles
+  gen8console: 8th Generation Consoles
+  gen4handheld: 4th Generation Handhelds
+  gen5handheld: 5th Generation Handhelds
+  gen6handheld: 6th Generation Handhelds
+  gen7handheld: 7th Generation Handhelds
+  gen8handheld: 8th Generation Handhelds
   arcade: Arcade
   console: Console
   handheld: Handheld

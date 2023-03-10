@@ -78,14 +78,24 @@ void ChooseSystemWindow::close()
 
 void ChooseSystemWindow::populateSystems()
 {
+	auto getCategoryId = [](const SystemConfig& s) -> String
+	{
+		if (s.getCategory() == SystemCategory::Arcade) {
+			return "arcade";
+		} else if (s.getCategory() == SystemCategory::Computer) {
+			return "computer";
+		} else {
+			return "gen" + toString(s.getGeneration()) + toString(s.getCategory());
+		}
+	};
+
 	bool showEmptySystems = true;
 
 	// Sort systems by category & generation
 	std::map<String, Vector<const SystemConfig*>> systemsByCategory;
 	for (const auto& s: retrogradeEnvironment.getConfigDatabase().getValues<SystemConfig>()) {
 		if (showEmptySystems || !retrogradeEnvironment.getGameCollection(s->getId()).getEntries().empty()) {
-			const auto categoryId = s->getCategory() == SystemCategory::Arcade ? "arcade" : "gen" + toString(s->getGeneration());
-			systemsByCategory[categoryId].push_back(s);
+			systemsByCategory[getCategoryId(*s)].push_back(s);
 		}
 	}
 
