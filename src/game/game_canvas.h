@@ -16,6 +16,8 @@ public:
     GameCanvas(UIFactory& factory, RetrogradeEnvironment& environment, const CoreConfig& coreConfig, const SystemConfig& systemConfig, String gameId, UIWidget& parentMenu);
     ~GameCanvas() override;
 
+    void onAddedToRoot(UIRoot& root) override;
+
     void update(Time t, bool moved) override;
     void render(RenderContext& rc) const override;
     void draw(UIPainter& painter) const override;

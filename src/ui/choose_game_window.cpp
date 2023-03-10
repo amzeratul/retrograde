@@ -52,6 +52,12 @@ void ChooseGameWindow::onAddedToRoot(UIRoot& root)
 		loadGame(*pendingGameId);
 		pendingGameId = {};
 	}
+	fitToRoot();
+}
+
+void ChooseGameWindow::update(Time t, bool moved)
+{
+	fitToRoot();
 }
 
 void ChooseGameWindow::close()

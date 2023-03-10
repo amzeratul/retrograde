@@ -36,6 +36,11 @@ GameCanvas::~GameCanvas()
 	environment.getGame().setTargetFPSOverride(std::nullopt);
 }
 
+void GameCanvas::onAddedToRoot(UIRoot& root)
+{
+	fitToRoot();
+}
+
 void GameCanvas::update(Time t, bool moved)
 {
 	bool needToLoadGame = false;
@@ -49,10 +54,7 @@ void GameCanvas::update(Time t, bool moved)
 		doClose();
 	}
 
-	auto rect = getRoot()->getRect();
-	setPosition(rect.getP1());
-	setMinSize(rect.getSize());
-	layout();
+	fitToRoot();
 
 	updateBezels();
 

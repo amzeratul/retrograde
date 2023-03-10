@@ -23,23 +23,12 @@ void ChooseSystemWindow::onAddedToRoot(UIRoot& root)
 		loadSystem(*pendingSystemId);
 		pendingSystemId = {};
 	}
+	fitToRoot();
 }
 
 void ChooseSystemWindow::onMakeUI()
 {
-	const String region = "world";
-	auto systems = retrogradeEnvironment.getConfigDatabase().getValues<SystemConfig>();
-	std::sort(systems.begin(), systems.end(), [&](const SystemConfig* a, const SystemConfig* b)
-	{
-		return std::pair(a->getGeneration(), a->getReleaseDate()) < std::pair(b->getGeneration(), b->getReleaseDate());
-	});
-
-	auto systemList = getWidgetAs<UIList>("systemList");
-	for (const auto& system : systems) {
-		if (!retrogradeEnvironment.getGameCollection(system->getId()).getEntries().empty()) {
-			systemList->addTextItem(system->getId(), LocalisedString::fromUserString("Gen " + toString(system->getGeneration()) + ": " + system->getRegion(region).getName()));
-		}
-	}
+	populateSystems();
 
 	setHandle(UIEventType::ListAccept, "systemList", [=] (const UIEvent& event)
 	{
@@ -50,6 +39,11 @@ void ChooseSystemWindow::onMakeUI()
 	{
 		close();
 	});
+}
+
+void ChooseSystemWindow::update(Time t, bool moved)
+{
+	fitToRoot();
 }
 
 void ChooseSystemWindow::loadSystem(const String& systemId)
@@ -63,4 +57,59 @@ void ChooseSystemWindow::loadSystem(const String& systemId)
 void ChooseSystemWindow::close()
 {
 	retrogradeEnvironment.getHalleyAPI().core->quit();
+}
+
+void ChooseSystemWindow::populateSystems()
+{
+	auto systems = retrogradeEnvironment.getConfigDatabase().getValues<SystemConfig>();
+
+	// Sort systems by generation
+	std::map<int, Vector<const SystemConfig*>> systemsByGen;
+	for (const auto& s: systems) {
+		if (!retrogradeEnvironment.getGameCollection(s->getId()).getEntries().empty()) {
+			systemsByGen[s->getGeneration()].push_back(s);
+		}
+	}
+
+	auto systemCategoryList = getWidgetAs<UIList>("systemCategoryList");
+	for (auto& [gen, systems]: systemsByGen) {
+		auto title = factory.getI18N().get("gen" + toString(gen));
+		systemCategoryList->addItem("gen" + toString(gen), std::make_shared<SystemList>(factory, retrogradeEnvironment, std::move(title), std::move(systems)), 1);
+	}
+}
+
+
+SystemList::SystemList(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, LocalisedString title, Vector<const SystemConfig*> systems)
+	: UIWidget("system_list", {}, UISizer())
+	, factory(factory)
+	, retrogradeEnvironment(retrogradeEnvironment)
+	, title(std::move(title))
+	, systems(std::move(systems))
+{
+	factory.loadUI(*this, "system_list");
+}
+
+void SystemList::onMakeUI()
+{
+	const String region = "world";
+
+	std::sort(systems.begin(), systems.end(), [&](const SystemConfig* a, const SystemConfig* b)
+	{
+		return a->getReleaseDate() < b->getReleaseDate();
+	});
+
+	getWidgetAs<UILabel>("title")->setText(title);
+
+	const auto systemList = getWidgetAs<UIList>("systemList");
+	for (const auto& system: systems) {
+		systemList->addTextItem(system->getId(), LocalisedString::fromUserString(system->getRegion(region).getName()));
+	}
+	systemList->setShowSelection(false);
+	systemList->setEnabled(false);
+
+	setHandle(UIEventType::SetSelected, [=](const UIEvent& event)
+	{
+		systemList->setShowSelection(event.getBoolData());
+		systemList->setEnabled(event.getBoolData());
+	});
 }

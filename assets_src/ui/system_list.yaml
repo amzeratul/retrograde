@@ -1,0 +1,32 @@
+uuid: 33fcc4ad-c1f1-4006-811c-55181b770445
+proportion: 1
+sizer:
+  columnProportions: []
+  type: vertical
+widget:
+  class: widget
+children:
+  - uuid: 8f9eadb1-6ea4-4c7d-85f7-e9961cba33fc
+    widget:
+      class: label
+      id: title
+      text: Systems
+  - uuid: 67989b23-3f3b-4696-9d0e-390aa56d5524
+    sizer:
+      columnProportions: []
+      type: vertical
+    widget:
+      class: scrollPane
+      id: pane
+      scrollHorizontal: true
+      scrollVertical: false
+    children:
+      - uuid: b4ac2109-4df4-418f-a30e-2ca17cc2b20f
+        proportion: 1
+        sizer:
+          columnProportions: []
+        widget:
+          class: list
+          id: systemList
+          options: []
+          type: horizontal

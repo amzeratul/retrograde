@@ -1,0 +1,18 @@
+---
+uiStyle:
+  blankList:
+    classes: [list]
+    background: ""
+    item:
+      normal: ""
+      hover: ""
+      selected: ""
+      drag: ""
+      innerBorder: [ 0, 0, 0, 0 ]
+    innerBorder: [ 0, 0, 0, 0 ]
+    extraMouseBorder: [ 1, 1, 1, 1 ]
+    selectionChangedSound: ""
+    label: { font: Ubuntu Regular, size: 15, colour: $ui_unselectedText }
+    selectedLabel: { font: Ubuntu Regular, size: 15, colour: $ui_selectedText }
+    disabledLabel: { font: Ubuntu Regular, size: 15, colour: $ui_disabledText }
+    gap: 1

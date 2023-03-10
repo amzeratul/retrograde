@@ -15,6 +15,8 @@ public:
     void onMakeUI() override;
     void onAddedToRoot(UIRoot& root) override;
 
+    void update(Time t, bool moved) override;
+
     void close();
 
 private:
