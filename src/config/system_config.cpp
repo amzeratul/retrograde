@@ -23,6 +23,7 @@ SystemConfig::SystemConfig(const ConfigNode& node)
 	manufacturer = node["manufacturer"].asString();
 	releaseDate = node["releaseDate"].asString();
 	generation = node["generation"].asInt();
+	category = node["category"].asEnum<SystemCategory>();
 	cores = node["cores"].asVector<String>();
 	regions = node["regions"].asVector<SystemRegionConfig>();
 	screenFilters = node["screenFilters"].asVector<String>({});
@@ -85,6 +86,11 @@ const Vector<String>& SystemConfig::getBezels() const
 int SystemConfig::getGeneration() const
 {
 	return generation;
+}
+
+SystemCategory SystemConfig::getCategory() const
+{
+	return category;
 }
 
 String SystemConfig::getDescriptionKey() const

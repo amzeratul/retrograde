@@ -7,6 +7,7 @@ systems:
     manufacturer: Atari
     releaseDate: 1977-09-11
     generation: 2
+    category: console
     screenFilters: [crt-rf-3phase]
 
   - id: nes
@@ -19,6 +20,7 @@ systems:
     manufacturer: Nintendo
     releaseDate: 1983-07-15
     generation: 3
+    category: console
     screenFilters: [crt-composite-ntsc-3phase]
   - id: snes
     regions: 
@@ -30,6 +32,7 @@ systems:
     manufacturer: Nintendo
     releaseDate: 1990-11-21
     generation: 4
+    category: console
     screenFilters: [crt-composite-ntsc-3phase]
   - id: n64
     regions:
@@ -39,6 +42,7 @@ systems:
     manufacturer: Nintendo
     releaseDate: 1996-06-23
     generation: 5
+    category: console
     screenFilters: [crt-svideo]
   - id: gamecube
     regions:
@@ -48,6 +52,7 @@ systems:
     manufacturer: Nintendo
     releaseDate: 2001-09-14
     generation: 6
+    category: console
     screenFilters: [crt-svideo]
 
   - id: gb
@@ -58,6 +63,7 @@ systems:
     manufacturer: Nintendo
     releaseDate: 1989-04-21
     generation: 4
+    category: handheld
     screenFilters: [lcd-gameboy-pocket, lcd-gameboy, lcd-gameboy-color]
     bezels: [gameboy-pocket, gameboy]
   - id: gbc
@@ -68,6 +74,7 @@ systems:
     manufacturer: Nintendo
     releaseDate: 1998-10-21
     generation: 5
+    category: handheld
     screenFilters: [lcd-gameboy-color]
     bezels: [gameboy-color]
   - id: gba
@@ -78,6 +85,7 @@ systems:
     manufacturer: Nintendo
     releaseDate: 2001-03-21
     generation: 6
+    category: handheld
     screenFilters: [lcd-gameboy-advance]
     bezels: [gameboy-advance]
   - id: nds
@@ -88,6 +96,7 @@ systems:
     manufacturer: Nintendo
     releaseDate: 2004-11-21
     generation: 7
+    category: handheld
     screenFilters: [lcd-ds]
     bezels: [ndsi]
 
@@ -99,6 +108,7 @@ systems:
     manufacturer: Sega
     releaseDate: 1985-10-20
     generation: 3
+    category: console
     screenFilters: [crt-composite-ntsc-3phase]
   - id: megadrive
     regions:
@@ -110,6 +120,7 @@ systems:
     manufacturer: Sega
     releaseDate: 1988-10-29
     generation: 4
+    category: console
     screenFilters: [crt-composite-ntsc-2phase-megadrive, crt-composite-ntsc-2phase]
   - id: megacd
     regions:
@@ -121,6 +132,7 @@ systems:
     manufacturer: Sega
     releaseDate: 1991-12-12
     generation: 4
+    category: console
     screenFilters: [crt-composite-ntsc-2phase-megadrive, crt-composite-ntsc-2phase]
   - id: saturn
     regions:
@@ -130,6 +142,7 @@ systems:
     manufacturer: Sega
     releaseDate: 1994-11-22
     generation: 5
+    category: console
     screenFilters: [crt-svideo]
 
   - id: gamegear
@@ -140,6 +153,7 @@ systems:
     manufacturer: Sega
     releaseDate: 1990-10-06
     generation: 4
+    category: handheld
     screenFilters: [lcd-grid]
 
   - id: psx
@@ -150,6 +164,7 @@ systems:
     manufacturer: Sony
     releaseDate: 1994-12-03
     generation: 5
+    category: console
     screenFilters: [crt-svideo]
   - id: ps2
     regions:
@@ -159,6 +174,7 @@ systems:
     manufacturer: Sony
     releaseDate: 2000-03-04
     generation: 6
+    category: console
     screenFilters: [crt-svideo]
 
   - id: neogeo
@@ -169,6 +185,7 @@ systems:
     manufacturer: SNK
     releaseDate: 1990-04-26
     generation: 4
+    category: arcade
     screenFilters: [crt-rgb]
   - id: cps1
     regions:
@@ -178,6 +195,7 @@ systems:
     manufacturer: Capcom
     releaseDate: 1988-05-13
     generation: 4
+    category: arcade
     screenFilters: [crt-rgb]
   - id: cps2
     regions:
@@ -187,6 +205,7 @@ systems:
     manufacturer: Capcom
     releaseDate: 1993-09-10
     generation: 4
+    category: arcade
     screenFilters: [crt-rgb]
   - id: cps3
     regions:
@@ -196,4 +215,5 @@ systems:
     manufacturer: Capcom
     releaseDate: 1996-10-23
     generation: 4
+    category: arcade
     screenFilters: [crt-rgb]

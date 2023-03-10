@@ -50,4 +50,4 @@ uiStyle:
     
   labelListEntry:
     classes: [label]
-    label: { font: Roboto Regular, size: 36, colour: "#FFFFFF" }
+    label: { font: Roboto Regular, size: 35, colour: "#FFFFFF" }

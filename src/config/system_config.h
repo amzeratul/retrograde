@@ -3,6 +3,26 @@
 #include <halley.hpp>
 using namespace Halley;
 
+enum class SystemCategory {
+	Console,
+    Handheld,
+    Arcade
+};
+
+namespace Halley {
+	
+	template <>
+	struct EnumNames<SystemCategory> {
+		constexpr std::array<const char*, 3> operator()() const {
+			return{{
+				"console",
+				"handheld",
+				"arcade"
+			}};
+		}
+	};
+}
+
 class SystemRegionConfig {
 public:
     SystemRegionConfig() = default;
@@ -30,6 +50,7 @@ public:
     const Vector<String>& getScreenFilters() const;
     const Vector<String>& getBezels() const;
     int getGeneration() const;
+    SystemCategory getCategory() const;
 
 	String getDescriptionKey() const;
     String getInfoImage() const;
@@ -39,6 +60,7 @@ private:
     String id;
     String manufacturer;
     String releaseDate;
+    SystemCategory category;
     Vector<SystemRegionConfig> regions;
     Vector<String> cores;
     Vector<String> screenFilters;

@@ -78,10 +78,12 @@ void ChooseSystemWindow::close()
 
 void ChooseSystemWindow::populateSystems()
 {
+	bool showEmptySystems = true;
+
 	// Sort systems by generation
 	std::map<int, Vector<const SystemConfig*>> systemsByGen;
 	for (const auto& s: retrogradeEnvironment.getConfigDatabase().getValues<SystemConfig>()) {
-		if (!retrogradeEnvironment.getGameCollection(s->getId()).getEntries().empty()) {
+		if (showEmptySystems || !retrogradeEnvironment.getGameCollection(s->getId()).getEntries().empty()) {
 			systemsByGen[s->getGeneration()].push_back(s);
 		}
 	}
@@ -111,7 +113,7 @@ void SystemList::onMakeUI()
 
 	std::sort(systems.begin(), systems.end(), [&](const SystemConfig* a, const SystemConfig* b)
 	{
-		return a->getReleaseDate() < b->getReleaseDate();
+		return std::pair(a->getCategory(), a->getReleaseDate()) < std::pair(b->getCategory(), b->getReleaseDate());
 	});
 
 	getWidgetAs<UILabel>("title")->setText(title);
