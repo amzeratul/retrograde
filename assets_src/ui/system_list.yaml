@@ -7,6 +7,7 @@ widget:
   class: widget
 children:
   - uuid: 8f9eadb1-6ea4-4c7d-85f7-e9961cba33fc
+    border: [60, 0, 0, 30]
     widget:
       class: label
       id: title

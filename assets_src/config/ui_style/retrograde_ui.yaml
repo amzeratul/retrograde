@@ -21,12 +21,12 @@ uiStyle:
     classes: [list]
     background: ""
     item:
-      normal: ""
-      hover: { img: $ui_list_item, colour: $ui_listHover }
-      selected: { img: $ui_list_item, colour: $ui_listSelected }
-      drag: { img: $ui_list_item_drag, colour: $ui_listDrag }
-      innerBorder: [ 6, 5, 6, 2 ]
-    innerBorder: [ 0, 0, 0, 0 ]
+      normal: { img: "ui/grid_item.png", colour: "#FFFFFF" }
+      hover: ""
+      selected: { img: "ui/grid_item_selected.png", colour: "#EE595A" }
+      drag: ""
+      innerBorder: [ 28, 28, 28, 28 ]
+    innerBorder: [ 2, 2, 2, 2 ]
     extraMouseBorder: [ 1, 1, 1, 1 ]
     selectionChangedSound: ""
     label: { font: Roboto Regular, size: 36, colour: "#FFFFFF" }

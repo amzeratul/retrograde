@@ -6,7 +6,7 @@ widget:
 children:
   - uuid: 26a873e6-7cb7-40ef-8c83-0a51bda64cca
     proportion: 1
-    border: [20, 600, 20, 20]
+    border: [40, 800, 100, 40]
     sizer:
       columnProportions: []
       type: vertical
