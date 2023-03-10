@@ -23,7 +23,7 @@ uiStyle:
     background: ""
     item:
       normal: { img: "ui/grid_item.png", colour: "#FFFFFF" }
-      hover: { img: "ui/grid_item_selected.png", colour: "#EE595A" }
+      hover: { img: "ui/grid_item.png", colour: "#FFFFFF" }
       selected: { img: "ui/grid_item_selected.png", colour: "#EE595A" }
       drag: ""
       innerBorder: [ 28, 28, 28, 28 ]
