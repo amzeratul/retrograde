@@ -80,18 +80,19 @@ void ChooseSystemWindow::populateSystems()
 {
 	bool showEmptySystems = true;
 
-	// Sort systems by generation
-	std::map<int, Vector<const SystemConfig*>> systemsByGen;
+	// Sort systems by category & generation
+	std::map<String, Vector<const SystemConfig*>> systemsByCategory;
 	for (const auto& s: retrogradeEnvironment.getConfigDatabase().getValues<SystemConfig>()) {
 		if (showEmptySystems || !retrogradeEnvironment.getGameCollection(s->getId()).getEntries().empty()) {
-			systemsByGen[s->getGeneration()].push_back(s);
+			const auto categoryId = s->getCategory() == SystemCategory::Arcade ? "arcade" : "gen" + toString(s->getGeneration());
+			systemsByCategory[categoryId].push_back(s);
 		}
 	}
 
 	const auto systemCategoryList = getWidgetAs<UIList>("systemCategoryList");
-	for (auto& [gen, systems]: systemsByGen) {
-		auto title = factory.getI18N().get("gen" + toString(gen));
-		systemCategoryList->addItem("gen" + toString(gen), std::make_shared<SystemList>(factory, retrogradeEnvironment, std::move(title), std::move(systems), *this), 1);
+	for (auto& [categoryId, systems]: systemsByCategory) {
+		auto title = factory.getI18N().get(categoryId);
+		systemCategoryList->addItem(categoryId, std::make_shared<SystemList>(factory, retrogradeEnvironment, std::move(title), std::move(systems), *this), 1);
 	}
 }
 

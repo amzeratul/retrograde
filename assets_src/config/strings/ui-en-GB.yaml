@@ -10,5 +10,9 @@ en-GB:
   gen7: 7th Generation
   gen8: 8th Generation
   gen9: 9th Generation
+  arcade: Arcade
+  console: Console
+  handheld: Handheld
+  computer: Computer
 
 ...

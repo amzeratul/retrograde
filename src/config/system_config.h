@@ -6,18 +6,20 @@ using namespace Halley;
 enum class SystemCategory {
 	Console,
     Handheld,
-    Arcade
+    Arcade,
+    Computer
 };
 
 namespace Halley {
 	
 	template <>
 	struct EnumNames<SystemCategory> {
-		constexpr std::array<const char*, 3> operator()() const {
+		constexpr std::array<const char*, 4> operator()() const {
 			return{{
 				"console",
 				"handheld",
-				"arcade"
+				"arcade",
+                "computer"
 			}};
 		}
 	};
