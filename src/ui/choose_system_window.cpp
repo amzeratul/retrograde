@@ -50,11 +50,6 @@ void ChooseSystemWindow::onMakeUI()
 	{
 		close();
 	});
-
-	setHandle(UIEventType::ButtonClicked, "exit", [=] (const UIEvent& event)
-	{
-		close();
-	});
 }
 
 void ChooseSystemWindow::loadSystem(const String& systemId)

@@ -4,38 +4,21 @@ sizer:
 widget:
   class: widget
 children:
-  - uuid: 4eb96e13-c19a-4890-a741-3c67a3cc2b2b
+  - uuid: 26a873e6-7cb7-40ef-8c83-0a51bda64cca
     sizer:
       columnProportions: []
       type: vertical
     widget:
-      class: image
-      colour: "#381922"
-      image: halley_ui/ui_float_solid_window.png
-      innerBorder: [20, 20, 20, 20]
+      childLayerAdjustment: 0
+      class: scrollBarPane
+      size: [400, 400]
     children:
-      - uuid: 26a873e6-7cb7-40ef-8c83-0a51bda64cca
-        sizer:
-          columnProportions: []
-          type: vertical
-        widget:
-          childLayerAdjustment: 0
-          class: scrollBarPane
-          size: [400, 400]
-        children:
-          - uuid: 370cad4d-6003-4382-bd63-5e94d96238ab
-            proportion: 1
-            sizer:
-              columnProportions: []
-            widget:
-              class: list
-              id: systemList
-              options: []
-              size: [0, 0]
-      - uuid: 078f7fd5-0953-49f7-9b7b-ced57ca43fa7
+      - uuid: 370cad4d-6003-4382-bd63-5e94d96238ab
+        proportion: 1
         sizer:
           columnProportions: []
         widget:
-          class: button
-          id: exit
-          text: Exit
+          class: list
+          id: systemList
+          options: []
+          size: [0, 0]

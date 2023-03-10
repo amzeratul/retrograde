@@ -44,11 +44,6 @@ void ChooseGameWindow::onMakeUI()
 	{
 		close();
 	});
-
-	setHandle(UIEventType::ButtonClicked, "back", [=] (const UIEvent& event)
-	{
-		close();
-	});
 }
 
 void ChooseGameWindow::onAddedToRoot(UIRoot& root)
