@@ -61,17 +61,15 @@ void ChooseSystemWindow::close()
 
 void ChooseSystemWindow::populateSystems()
 {
-	auto systems = retrogradeEnvironment.getConfigDatabase().getValues<SystemConfig>();
-
 	// Sort systems by generation
 	std::map<int, Vector<const SystemConfig*>> systemsByGen;
-	for (const auto& s: systems) {
+	for (const auto& s: retrogradeEnvironment.getConfigDatabase().getValues<SystemConfig>()) {
 		if (!retrogradeEnvironment.getGameCollection(s->getId()).getEntries().empty()) {
 			systemsByGen[s->getGeneration()].push_back(s);
 		}
 	}
 
-	auto systemCategoryList = getWidgetAs<UIList>("systemCategoryList");
+	const auto systemCategoryList = getWidgetAs<UIList>("systemCategoryList");
 	for (auto& [gen, systems]: systemsByGen) {
 		auto title = factory.getI18N().get("gen" + toString(gen));
 		systemCategoryList->addItem("gen" + toString(gen), std::make_shared<SystemList>(factory, retrogradeEnvironment, std::move(title), std::move(systems)), 1);
@@ -102,7 +100,7 @@ void SystemList::onMakeUI()
 
 	const auto systemList = getWidgetAs<UIList>("systemList");
 	for (const auto& system: systems) {
-		systemList->addTextItem(system->getId(), LocalisedString::fromUserString(system->getRegion(region).getName()));
+		systemList->addItem(system->getId(), std::make_shared<SystemCapsule>(factory, retrogradeEnvironment, system, region));
 	}
 	systemList->setShowSelection(false);
 	systemList->setEnabled(false);
@@ -112,4 +110,23 @@ void SystemList::onMakeUI()
 		systemList->setShowSelection(event.getBoolData());
 		systemList->setEnabled(event.getBoolData());
 	});
+}
+
+SystemCapsule::SystemCapsule(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, const SystemConfig* systemConfig, String region)
+	: UIWidget("system_capsule", {}, UISizer())
+	, factory(factory)
+	, retrogradeEnvironment(retrogradeEnvironment)
+	, systemConfig(systemConfig)
+	, region(std::move(region))
+{
+	factory.loadUI(*this, "system_capsule");
+}
+
+void SystemCapsule::onMakeUI()
+{
+	const auto capsule = getWidgetAs<UIImage>("capsule");
+	// TODO
+
+	const auto name = getWidgetAs<UILabel>("name");
+	name->setText(LocalisedString::fromUserString(systemConfig->getRegion(region).getName()));
 }

@@ -39,3 +39,16 @@ private:
     LocalisedString title;
     Vector<const SystemConfig*> systems;
 };
+
+class SystemCapsule : public UIWidget {
+public:
+    SystemCapsule(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, const SystemConfig* systemConfig, String region);
+
+    void onMakeUI() override;
+
+private:
+    UIFactory& factory;
+    RetrogradeEnvironment& retrogradeEnvironment;
+    const SystemConfig* systemConfig = nullptr;
+    String region;
+};

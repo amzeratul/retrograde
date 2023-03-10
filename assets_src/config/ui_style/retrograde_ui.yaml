@@ -15,7 +15,7 @@ uiStyle:
     label: { font: Roboto Regular, size: 36, colour: "#FFFFFF" }
     selectedLabel: { font: Roboto Regular, size: 36, colour: "#FFFFFF" }
     disabledLabel: { font: Roboto Regular, size: 36, colour: "#FFFFFF" }
-    gap: 1
+    gap: 50
 
   gridList:
     classes: [list]
@@ -32,7 +32,7 @@ uiStyle:
     label: { font: Roboto Regular, size: 36, colour: "#FFFFFF" }
     selectedLabel: { font: Roboto Regular, size: 36, colour: "#FFFFFF" }
     disabledLabel: { font: Roboto Regular, size: 36, colour: "#FFFFFF" }
-    gap: 1
+    gap: 50
 
   labelHeader:
     classes: [label]

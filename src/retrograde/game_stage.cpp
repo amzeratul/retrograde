@@ -18,12 +18,19 @@ void GameStage::init()
 
 	std::optional<String> systemId;
 	std::optional<String> gamePath;
-	if (!game.getArgs().empty()) {
-		systemId = game.getArgs()[0];
+	for (const auto& arg: game.getArgs()) {
+		if (arg.startsWith("--")) {
+			continue;
+		}
+
+		if (!systemId) {
+			systemId = arg;
+		} else if (!gamePath) {
+			gamePath = arg;
+		} else {
+			*gamePath += " " + arg;
+		}
 	}
-	if (game.getArgs().size() >= 2) {
-		gamePath = String::concatList(gsl::span<const String>(game.getArgs()).subspan(1), " ");
- 	}
 
 	uiFactory = game.createUIFactory(getAPI(), getResources(), game.getI18N());
 	UIInputButtons buttons;
@@ -110,6 +117,8 @@ void GameStage::onRender(RenderContext& rc) const
 
 	rc.bind([&] (Painter& painter)
 	{
-		perfStats->paint(painter);
+		if (perfStats->isActive()) {
+			perfStats->paint(painter);
+		}
 	});
 }
