@@ -128,7 +128,15 @@ set (HEADERS
 set (GEN_DEFINITIONS
 	)
 
-halleyProject(retrograde "${SOURCES}" "${HEADERS}" "" "${GEN_DEFINITIONS}" ${CMAKE_CURRENT_SOURCE_DIR}/${HALLEY_GAME_BIN_DIR})
+if (MSVC)
+	set (RESOURCES
+		"res/retrograde.rc"
+		"res/resource.h"
+		"res/retrograde.ico"
+	)
+endif ()
+
+halleyProject(retrograde "${SOURCES}" "${HEADERS}" "${RESOURCES}" "${GEN_DEFINITIONS}" ${CMAKE_CURRENT_SOURCE_DIR}/${HALLEY_GAME_BIN_DIR})
 
 target_link_libraries(retrograde-game
 	optimized "${CMAKE_CURRENT_SOURCE_DIR}/lib/SPIRV-Tools-opt.lib"

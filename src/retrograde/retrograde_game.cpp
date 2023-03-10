@@ -69,6 +69,7 @@ std::unique_ptr<Stage> RetrogradeGame::startGame()
 	windowDefinition = WindowDefinition(WindowType::ResizableWindow, Vector2i(1280, 960), getName(), true, 0, glVersion);
 	fullscreenDefinition = WindowDefinition(WindowType::BorderlessWindow, screenSize, getName(), true, 0, glVersion);
 	getAPI().video->setWindow(WindowDefinition(windowDefinition));
+	getAPI().video->getWindow().setTitleColour(Colour4f(), Colour4f(1, 1, 1, 1));
 	getAPI().video->setVsync(vsync);
 	getAPI().audio->startPlayback();
 	getAPI().audio->setListener(AudioListenerData(Vector3f()));
