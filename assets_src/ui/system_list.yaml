@@ -10,6 +10,7 @@ children:
     widget:
       class: label
       id: title
+      style: labelRegular
       text: Systems
   - uuid: 67989b23-3f3b-4696-9d0e-390aa56d5524
     sizer:
@@ -29,4 +30,5 @@ children:
           class: list
           id: systemList
           options: []
+          style: gridList
           type: horizontal

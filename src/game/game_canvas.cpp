@@ -65,8 +65,9 @@ void GameCanvas::update(Time t, bool moved)
 	if (t > 0.00001 && pendingCloseState == 0) {
 		stepGame();
 	}
-
-	updateFilterChain(Vector2i(getSize()));
+	
+	const auto windowSize = environment.getHalleyAPI().video->getWindow().getWindowRect().getSize();
+	updateFilterChain(windowSize);
 }
 
 void GameCanvas::render(RenderContext& rc) const
@@ -81,22 +82,24 @@ void GameCanvas::render(RenderContext& rc) const
 	});
 
 	if (core) {
-		const auto windowRect = Rect4i(getRect());
+		const auto canvasRect = Rect4i(getRect());
+		const auto windowRect = environment.getHalleyAPI().video->getWindow().getWindowRect();
+		const float zoom = static_cast<float>(windowRect.getHeight()) / static_cast<float>(canvasRect.getHeight());
 
 		const auto coreOutScreen = core->getVideoOut();
 		if (coreOutScreen.hasMaterial() && coreOutScreen.getSize().x >= 32 && coreOutScreen.getSize().y >= 32) {
 			const auto origRotatedSpriteSize = coreOutScreen.getScaledSize().rotate(coreOutScreen.getRotation()).abs();
-			const auto scales = Vector2f(windowRect.getSize()) / origRotatedSpriteSize;
+			const auto scales = Vector2f(canvasRect.getSize()) / origRotatedSpriteSize;
 			auto scale = std::min(scales.x, scales.y) * coreOutScreen.getScale(); // The scale the original sprite would need to fit the view port
 
 			if (bezel) {
-				scale = bezel->update(windowRect, scale);
+				scale = bezel->update(canvasRect, scale);
 			}
 
 			const auto spriteSize = (coreOutScreen.getSize() * scale * 0.5f).round() * 2.0f; // Absolute sprite size
 
 			if (filterChain) {
-				screen = filterChain->run(coreOutScreen, rc, Vector2i(spriteSize.round()));
+				screen = filterChain->run(coreOutScreen, rc, Vector2i((spriteSize * zoom).round()));
 			} else {
 				screen = coreOutScreen;
 			}
@@ -105,7 +108,7 @@ void GameCanvas::render(RenderContext& rc) const
 				.scaleTo(spriteSize)
 				.setRotation(coreOutScreen.getRotation() + Angle1f::fromDegrees(coreOutScreen.isFlipped() ? -180.0f : 0.0f))
 				.setPivot(Vector2f(0.5f, 0.5f))
-				.setPosition(Vector2f(windowRect.getCenter()));
+				.setPosition(Vector2f(canvasRect.getCenter()));
 		} else {
 			screen = {};
 		}

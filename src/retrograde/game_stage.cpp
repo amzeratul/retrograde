@@ -74,9 +74,13 @@ void GameStage::onUpdate(Time t)
 		dynamic_cast<RetrogradeGame&>(getGame()).toggleFullscreen();
 	}
 
+	const auto windowSize = Vector2f(getVideoAPI().getWindow().getWindowRect().getSize());
+	zoomLevel = windowSize.y / 2160.0f;
+	const auto uiSize = windowSize / zoomLevel;
+	uiRoot->setRect(Rect4f(Vector2f(), uiSize));
+
 	auto uiInput = env->getUIInput();
 	uiInput->update(t);
-	uiRoot->setRect(Rect4f(Vector2f(), Vector2f(getVideoAPI().getWindow().getWindowRect().getSize())));
 	uiRoot->update(t, UIInputType::Mouse, getInputAPI().getMouse(), uiInput);
 
 	if (kb->isButtonPressed(KeyCode::F11)) {
@@ -89,7 +93,12 @@ void GameStage::onRender(RenderContext& rc) const
 {
 	uiRoot->render(rc);
 
-	rc.bind([&] (Painter& painter)
+	Camera camera;
+	camera.setZoom(zoomLevel);
+	camera.setViewPort(Rect4i(uiRoot->getRect()));
+	camera.setPosition(uiRoot->getRect().getCenter());
+
+	rc.with(camera).bind([&] (Painter& painter)
 	{
 		painter.clear(Colour4f(0.0f, 0.0f, 0.0f));
 		
@@ -97,7 +106,10 @@ void GameStage::onRender(RenderContext& rc) const
 		spritePainter.start();
 		uiRoot->draw(spritePainter, 1, 0);
 		spritePainter.draw(1, painter);
+	});
 
+	rc.bind([&] (Painter& painter)
+	{
 		perfStats->paint(painter);
 	});
 }

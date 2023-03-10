@@ -23,5 +23,7 @@ private:
 	std::unique_ptr<UIRoot> uiRoot;
 	std::unique_ptr<UIFactory> uiFactory;
 
+	float zoomLevel = 1;
+
 	void onUpdate(Time t);
 };

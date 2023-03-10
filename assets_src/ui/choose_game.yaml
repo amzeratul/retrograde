@@ -24,3 +24,4 @@ children:
           id: gameList
           options: []
           size: [0, 0]
+          style: gridList
