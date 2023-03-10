@@ -173,7 +173,7 @@ std::shared_ptr<InputVirtual> RetrogradeEnvironment::makeUIInput()
 		input->bindButton(1, kb, KeyCode::Esc);
 
 		input->bindAxisButton(0, kb, KeyCode::Left, KeyCode::Right);
-		input->bindAxisButton(1, joy, KeyCode::Up, KeyCode::Down);
+		input->bindAxisButton(1, kb, KeyCode::Up, KeyCode::Down);
 	}
 
 	return input;

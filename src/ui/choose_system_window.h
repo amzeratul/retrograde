@@ -19,4 +19,5 @@ private:
     std::optional<String> pendingGameId;
 
     void loadSystem(const String& systemId);
+    void close();
 };

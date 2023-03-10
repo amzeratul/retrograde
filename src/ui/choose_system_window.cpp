@@ -46,9 +46,14 @@ void ChooseSystemWindow::onMakeUI()
 		loadSystem(event.getStringData());
 	});
 
+	setHandle(UIEventType::ListCancel, "systemList", [=](const UIEvent& event)
+	{
+		close();
+	});
+
 	setHandle(UIEventType::ButtonClicked, "exit", [=] (const UIEvent& event)
 	{
-		retrogradeEnvironment.getHalleyAPI().core->quit();
+		close();
 	});
 }
 
@@ -58,4 +63,9 @@ void ChooseSystemWindow::loadSystem(const String& systemId)
 	const auto& systemConfig = retrogradeEnvironment.getConfigDatabase().get<SystemConfig>(systemId);
 	getRoot()->addChild(std::make_shared<ChooseGameWindow>(factory, retrogradeEnvironment, systemConfig, pendingGameId, *this));
 	pendingGameId = {};
+}
+
+void ChooseSystemWindow::close()
+{
+	retrogradeEnvironment.getHalleyAPI().core->quit();
 }

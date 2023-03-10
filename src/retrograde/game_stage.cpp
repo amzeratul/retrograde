@@ -70,12 +70,6 @@ void GameStage::onUpdate(Time t)
 	env->getConfigDatabase().update();
 
 	auto kb = getInputAPI().getKeyboard();
-	if (kb->isButtonPressed(KeyCode::Esc)) {
-		uiRoot.reset();
-		getCoreAPI().quit();
-		return;
-	}
-
 	if ((kb->isButtonDown(KeyCode::LCtrl) || kb->isButtonDown(KeyCode::RCtrl)) && kb->isButtonPressed(KeyCode::Enter)) {
 		dynamic_cast<RetrogradeGame&>(getGame()).toggleFullscreen();
 	}
