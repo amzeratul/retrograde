@@ -15,11 +15,15 @@ public:
 
     void update(Time t, bool moved) override;
 
+    void setSelectedSystem(const SystemConfig& systemConfig);
+    const String& getRegion() const;
+
 private:
     UIFactory& factory;
     RetrogradeEnvironment& retrogradeEnvironment;
     std::optional<String> pendingSystemId;
     std::optional<String> pendingGameId;
+    String region;
 
     void loadSystem(const String& systemId);
     void close();
@@ -29,7 +33,7 @@ private:
 
 class SystemList : public UIWidget {
 public:
-    SystemList(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, LocalisedString title, Vector<const SystemConfig*> systems);
+    SystemList(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, LocalisedString title, Vector<const SystemConfig*> systems, ChooseSystemWindow& parent);
 
     void onMakeUI() override;
 
@@ -38,6 +42,9 @@ private:
     RetrogradeEnvironment& retrogradeEnvironment;
     LocalisedString title;
     Vector<const SystemConfig*> systems;
+    ChooseSystemWindow& parent;
+
+    const SystemConfig* getSystemConfig(const String& id) const;
 };
 
 class SystemCapsule : public UIWidget {

@@ -86,3 +86,8 @@ int SystemConfig::getGeneration() const
 {
 	return generation;
 }
+
+String SystemConfig::getDescriptionKey() const
+{
+	return "system_description_" + id;
+}

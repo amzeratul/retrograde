@@ -31,6 +31,8 @@ public:
     const Vector<String>& getBezels() const;
     int getGeneration() const;
 
+	String getDescriptionKey() const;
+
 private:
     String id;
     String manufacturer;

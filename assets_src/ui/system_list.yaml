@@ -21,10 +21,13 @@ children:
       class: scrollPane
       id: pane
       scrollHorizontal: true
+      scrollSpeed: 5000
       scrollVertical: false
+      smoothGoTo: true
     children:
       - uuid: b4ac2109-4df4-418f-a30e-2ca17cc2b20f
         proportion: 1
+        border: [4, 4, 4, 4]
         sizer:
           columnProportions: []
         widget:

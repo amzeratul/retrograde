@@ -46,6 +46,20 @@ void ChooseSystemWindow::update(Time t, bool moved)
 	fitToRoot();
 }
 
+void ChooseSystemWindow::setSelectedSystem(const SystemConfig& systemConfig)
+{
+	auto& regionConfig = systemConfig.getRegion(region);
+
+	getWidgetAs<UILabel>("system_name")->setText(LocalisedString::fromUserString(regionConfig.getName()));
+	getWidgetAs<UILabel>("system_info")->setText(LocalisedString::fromUserString(systemConfig.getReleaseDate() + "  " + systemConfig.getManufacturer()));
+	getWidgetAs<UILabel>("system_description")->setText(factory.getI18N().get(systemConfig.getDescriptionKey()));
+}
+
+const String& ChooseSystemWindow::getRegion() const
+{
+	return region;
+}
+
 void ChooseSystemWindow::loadSystem(const String& systemId)
 {
 	setActive(false);
@@ -72,24 +86,25 @@ void ChooseSystemWindow::populateSystems()
 	const auto systemCategoryList = getWidgetAs<UIList>("systemCategoryList");
 	for (auto& [gen, systems]: systemsByGen) {
 		auto title = factory.getI18N().get("gen" + toString(gen));
-		systemCategoryList->addItem("gen" + toString(gen), std::make_shared<SystemList>(factory, retrogradeEnvironment, std::move(title), std::move(systems)), 1);
+		systemCategoryList->addItem("gen" + toString(gen), std::make_shared<SystemList>(factory, retrogradeEnvironment, std::move(title), std::move(systems), *this), 1);
 	}
 }
 
 
-SystemList::SystemList(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, LocalisedString title, Vector<const SystemConfig*> systems)
+SystemList::SystemList(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, LocalisedString title, Vector<const SystemConfig*> systems, ChooseSystemWindow& parent)
 	: UIWidget("system_list", {}, UISizer())
 	, factory(factory)
 	, retrogradeEnvironment(retrogradeEnvironment)
 	, title(std::move(title))
 	, systems(std::move(systems))
+	, parent(parent)
 {
 	factory.loadUI(*this, "system_list");
 }
 
 void SystemList::onMakeUI()
 {
-	const String region = "world";
+	const auto& region = parent.getRegion();
 
 	std::sort(systems.begin(), systems.end(), [&](const SystemConfig* a, const SystemConfig* b)
 	{
@@ -107,9 +122,27 @@ void SystemList::onMakeUI()
 
 	setHandle(UIEventType::SetSelected, [=](const UIEvent& event)
 	{
-		systemList->setShowSelection(event.getBoolData());
-		systemList->setEnabled(event.getBoolData());
+		const bool enabled = event.getBoolData();
+		systemList->setShowSelection(enabled);
+		systemList->setEnabled(enabled);
+		if (enabled) {
+			parent.setSelectedSystem(*getSystemConfig(systemList->getSelectedOptionId()));
+		}
 	});
+
+	setHandle(UIEventType::ListSelectionChanged, "systemList", [=](const UIEvent& event)
+	{
+		parent.setSelectedSystem(*getSystemConfig(event.getStringData()));
+	});
+}
+
+const SystemConfig* SystemList::getSystemConfig(const String& id) const
+{
+	const auto iter = std_ex::find_if(systems, [&](const SystemConfig* c) { return c->getId() == id; });
+	if (iter == systems.end()) {
+		return nullptr;
+	}
+	return *iter;
 }
 
 SystemCapsule::SystemCapsule(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, const SystemConfig* systemConfig, String region)

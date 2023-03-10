@@ -11,6 +11,7 @@ uiStyle:
       innerBorder: [ 0, 0, 0, 0 ]
     innerBorder: [ 0, 0, 0, 0 ]
     extraMouseBorder: [ 1, 1, 1, 1 ]
+    scrollBorder: [ 50, 50, 50, 50 ]
     selectionChangedSound: ""
     label: { font: Roboto Regular, size: 36, colour: "#FFFFFF" }
     selectedLabel: { font: Roboto Regular, size: 36, colour: "#FFFFFF" }
@@ -28,6 +29,7 @@ uiStyle:
       innerBorder: [ 28, 28, 28, 28 ]
     innerBorder: [ 2, 2, 2, 2 ]
     extraMouseBorder: [ 1, 1, 1, 1 ]
+    scrollBorder: [ 200, 100, 200, 100 ]
     selectionChangedSound: ""
     label: { font: Roboto Regular, size: 36, colour: "#FFFFFF" }
     selectedLabel: { font: Roboto Regular, size: 36, colour: "#FFFFFF" }

@@ -169,8 +169,9 @@ std::shared_ptr<InputVirtual> RetrogradeEnvironment::makeUIInput()
 
 	auto kb = halleyAPI.input->getKeyboard();
 	if (kb) {
-		input->bindButton(0, kb, KeyCode::Enter);
-		input->bindButton(1, kb, KeyCode::Esc);
+		input->bindButton(0, kb, KeyCode::Enter, KeyMods::None);
+		input->bindButton(1, kb, KeyCode::Esc, KeyMods::None);
+		input->bindButton(12, kb, KeyCode::F1, KeyMods::None);
 
 		input->bindAxisButton(0, kb, KeyCode::Left, KeyCode::Right);
 		input->bindAxisButton(1, kb, KeyCode::Up, KeyCode::Down);

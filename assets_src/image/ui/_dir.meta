@@ -1,5 +1,7 @@
 ---
 - data:
-    atlas: ui
     filtering: true
+    mipmap: true
+    powerOfTwo: false
+    trim: false
 ...

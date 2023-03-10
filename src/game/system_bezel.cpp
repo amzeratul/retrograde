@@ -82,6 +82,7 @@ SystemBezel::ImageData SystemBezel::makeImage(const BezelImageConfig& imgConfig)
 	TextureDescriptor desc(img->getSize(), TextureFormat::RGBA);
 	desc.pixelData = std::move(img);
 	desc.useFiltering = true;
+	desc.useMipMap = true;
 	tex->startLoading();
 	tex->load(std::move(desc));
 
