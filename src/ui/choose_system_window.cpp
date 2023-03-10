@@ -55,7 +55,7 @@ void ChooseSystemWindow::setSelectedSystem(const SystemConfig& systemConfig)
 	getWidgetAs<UILabel>("system_info")->setText(LocalisedString::fromUserString(systemConfig.getReleaseDate() + "  " + systemConfig.getManufacturer()));
 	getWidgetAs<UILabel>("system_description")->setText(factory.getI18N().get(systemConfig.getDescriptionKey()));
 
-	retrogradeEnvironment.getImageCache().loadInto(systemConfig.getInfoImage(), getWidgetAs<UIImage>("system_image"));
+	retrogradeEnvironment.getImageCache().loadIntoOr(getWidgetAs<UIImage>("system_image"), systemConfig.getInfoImage(), "systems/info_unknown.png");
 }
 
 const String& ChooseSystemWindow::getRegion() const
@@ -161,7 +161,7 @@ SystemCapsule::SystemCapsule(UIFactory& factory, RetrogradeEnvironment& retrogra
 void SystemCapsule::onMakeUI()
 {
 	const auto capsule = getWidgetAs<UIImage>("capsule");
-	// TODO
+	retrogradeEnvironment.getImageCache().loadIntoOr(capsule, systemConfig->getCapsuleImage(), "systems/capsule_unknown.png");
 
 	const auto name = getWidgetAs<UILabel>("name");
 	name->setText(LocalisedString::fromUserString(systemConfig->getRegion(region).getName()));

@@ -24,9 +24,19 @@ Sprite ImageCache::getSprite(std::string_view name, std::string_view materialNam
 	return toSprite(getTexture(name), materialName);
 }
 
-void ImageCache::loadInto(std::string_view name, std::shared_ptr<UIImage> uiImage, std::string_view materialName)
+void ImageCache::loadInto(std::shared_ptr<UIImage> uiImage, std::string_view name, std::string_view materialName)
+{
+	loadIntoOr(std::move(uiImage), name, "", materialName);
+}
+
+void ImageCache::loadIntoOr(std::shared_ptr<UIImage> uiImage, std::string_view name, std::string_view fallbackName, std::string_view materialName)
 {
 	auto tex = getTexture(name);
+
+	if (!tex && !fallbackName.empty()) {
+		tex = getTexture(fallbackName);
+	}
+
 	if (!tex) {
 		uiImage->setSprite(Sprite());
 		return;

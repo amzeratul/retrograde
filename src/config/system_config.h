@@ -33,6 +33,7 @@ public:
 
 	String getDescriptionKey() const;
     String getInfoImage() const;
+    String getCapsuleImage() const;
 
 private:
     String id;

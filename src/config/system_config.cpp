@@ -96,3 +96,8 @@ String SystemConfig::getInfoImage() const
 {
 	return "systems/info_" + id + ".png";
 }
+
+String SystemConfig::getCapsuleImage() const
+{
+	return "systems/capsule_" + id + ".png";
+}
