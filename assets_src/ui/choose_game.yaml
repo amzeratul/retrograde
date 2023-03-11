@@ -4,16 +4,74 @@ sizer:
   type: vertical
 widget:
   class: widget
+  id: ""
 children:
+  - uuid: 521a33fe-a5e6-4121-acb7-42cb2f3bed9f
+    border: [80, 80, 80, 0]
+    sizer:
+      columnProportions: []
+    widget:
+      class: widget
+    children:
+      - uuid: 0363abd3-8c63-469a-89e6-ea47caea735f
+        sizer:
+          columnProportions: []
+        widget:
+          class: widget
+          id: game_image_holder
+          size: [830, 500]
+        children:
+          - uuid: 08c0a3a1-26c1-4bdb-911d-0e1ef497b4b4
+            proportion: 1
+            sizer:
+              columnProportions: []
+            widget:
+              class: image
+              colour: "#282828"
+              id: game_image
+              image: whitebox.png
+              size: [0, 0]
+      - uuid: 773e8ffb-20c6-4b80-bd3c-244754abe268
+        border: [50, 0, 0, 0]
+        sizer:
+          columnProportions: []
+          type: vertical
+        children:
+          - uuid: 9860e3b9-f79b-4be1-bb2b-afba4039576b
+            border: [0, -5, 0, 0]
+            widget:
+              class: label
+              id: game_name
+              style: labelHeader
+              text: Game Name
+          - uuid: 45431537-7623-426a-b69d-c3a336558c3d
+            border: [0, 30, 0, 0]
+            widget:
+              class: label
+              id: game_info
+              style: labelRegular
+              text: 19xx Corporation
+          - uuid: 5b60d717-2b22-44d8-bea8-65fdfac849ef
+            border: [0, 45, 0, 0]
+            widget:
+              class: label
+              id: game_description
+              maxHeight: 260
+              maxWidth: 1600
+              style: labelDescription
+              text: Game description here
   - uuid: 26a873e6-7cb7-40ef-8c83-0a51bda64cca
     proportion: 1
+    border: [80, 80, 80, 40]
     sizer:
       columnProportions: []
       type: vertical
     widget:
       childLayerAdjustment: 0
       class: scrollBarPane
+      scrollSpeed: 5000
       size: [400, 400]
+      smoothGoTo: true
     children:
       - uuid: 370cad4d-6003-4382-bd63-5e94d96238ab
         proportion: 1
@@ -21,7 +79,13 @@ children:
           columnProportions: []
         widget:
           class: list
+          columns: 6
           id: gameList
           options: []
           size: [0, 0]
           style: gridList
+          type: grid
+  - uuid: 7c83b11b-3033-467b-bbe0-ef4396cbf853
+    widget:
+      class: widget
+      size: [0, 120]

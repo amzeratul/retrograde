@@ -1,0 +1,25 @@
+uuid: c10fd1f0-0570-49c3-99a4-4a179a5ba928
+sizer:
+  columnProportions: []
+  type: vertical
+widget:
+  class: widget
+children:
+  - uuid: 537ccc56-434f-488c-9675-9dfc23780758
+    sizer:
+      columnProportions: []
+    widget:
+      class: image
+      colour: "#212121"
+      id: capsule
+      image: whitebox.png
+      size: [512, 384]
+  - uuid: 373a303f-1e16-43e1-9ad2-456b55764948
+    border: [0, 10, 0, 0]
+    widget:
+      class: label
+      id: name
+      maxWidth: 510
+      style: labelListEntry
+      text: Game Name
+    fill: [centreHorizontal, fillVertical]

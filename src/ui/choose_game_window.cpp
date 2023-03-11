@@ -6,6 +6,7 @@
 #include "src/config/core_config.h"
 #include "src/metadata/game_collection.h"
 #include "src/retrograde/retrograde_environment.h"
+#include "src/util/image_cache.h"
 
 ChooseGameWindow::ChooseGameWindow(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, const SystemConfig& systemConfig, std::optional<String> gameId, UIWidget& parentMenu)
 	: UIWidget("choose_game", Vector2f(), UISizer())
@@ -32,7 +33,7 @@ void ChooseGameWindow::onMakeUI()
 
 	const auto& collection = retrogradeEnvironment.getGameCollection(systemConfig.getId());
 	for (const auto& entry: collection.getEntries()) {
-		gameList->addTextItem(entry.getBestFileToLoad(coreConfig).string(), LocalisedString::fromUserString(entry.displayName));
+		gameList->addItem(entry.getBestFileToLoad(coreConfig).string(), std::make_shared<GameCapsule>(factory, retrogradeEnvironment, entry));
 	}
 
 	setHandle(UIEventType::ListAccept, "gameList", [=] (const UIEvent& event)
@@ -82,4 +83,24 @@ void ChooseGameWindow::loadGame(const String& gameId)
 {
 	setActive(false);
 	getRoot()->addChild(std::make_shared<GameCanvas>(factory, retrogradeEnvironment, coreConfig, systemConfig, gameId, *this));
+}
+
+
+
+GameCapsule::GameCapsule(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, const GameCollection::Entry& entry)
+	: UIWidget("game_capsule", {}, UISizer())
+	, factory(factory)
+	, retrogradeEnvironment(retrogradeEnvironment)
+	, entry(entry)
+{
+	factory.loadUI(*this, "game_capsule");
+}
+
+void GameCapsule::onMakeUI()
+{
+	const auto capsule = getWidgetAs<UIImage>("capsule");
+	//retrogradeEnvironment.getImageCache().loadIntoOr(capsule, systemConfig->getCapsuleImage(), "systems/capsule_unknown.png");
+
+	const auto name = getWidgetAs<UILabel>("name");
+	name->setText(LocalisedString::fromUserString(entry.displayName));
 }

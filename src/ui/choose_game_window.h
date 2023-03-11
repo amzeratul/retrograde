@@ -1,6 +1,8 @@
 #pragma once
 
 #include <halley.hpp>
+
+#include "src/metadata/game_collection.h"
 class CoreConfig;
 class GameCollection;
 class SystemConfig;
@@ -29,4 +31,16 @@ private:
    
     void onGamepadInput(const UIInputResults& input, Time time) override;
     void loadGame(const String& gameId);
+};
+
+class GameCapsule : public UIWidget {
+public:
+    GameCapsule(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, const GameCollection::Entry& entry);
+
+    void onMakeUI() override;
+
+private:
+    UIFactory& factory;
+    RetrogradeEnvironment& retrogradeEnvironment;
+    const GameCollection::Entry& entry;
 };
