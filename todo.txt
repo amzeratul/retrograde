@@ -6,7 +6,6 @@ Profile selector:
 - Basic UI
 
 Console selector:
-- Better UI
 
 Game list UI:
 * Show screenshots
@@ -40,6 +39,8 @@ Game running features
 
 Core specific:
 - Stella is requesting analog controls??
+- DOSBox
+- ScummVM
 
 
 

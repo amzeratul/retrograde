@@ -4,6 +4,7 @@ sizer:
   type: vertical
 widget:
   class: widget
+  id: ""
 children:
   - uuid: 521a33fe-a5e6-4121-acb7-42cb2f3bed9f
     border: [80, 80, 80, 0]

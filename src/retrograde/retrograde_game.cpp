@@ -33,11 +33,11 @@ int RetrogradeGame::initPlugins(IPluginRegistry& registry)
 }
 
 ResourceOptions RetrogradeGame::initResourceLocator(const Path& gamePath, const Path& assetsPath, const Path& unpackedAssetsPath, ResourceLocator& locator) {
-	constexpr bool localAssets = true;
+	constexpr bool localAssets = false;
 	if (localAssets) {
 		locator.addFileSystem(unpackedAssetsPath);
 	} else {
-		const String packs[] = { "images.dat", "shaders.dat", "config.dat", "music.dat", "sfx.dat" };
+		const String packs[] = { "images.dat", "shaders.dat", "config.dat" };
 		for (auto& pack: packs) {
 			locator.addPack(Path(assetsPath) / pack);
 		}

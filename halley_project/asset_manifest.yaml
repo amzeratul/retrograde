@@ -19,6 +19,10 @@ packs:
       - ~:audioEvent
       - ~:variableTable
       - ~:binaryFile:lua
+      - ~:uiDefinition
+      - ~:gameProperties
+      - ~:prefab
+      - ~:scene
 
   - name: images
     matches:
