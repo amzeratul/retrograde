@@ -45,7 +45,11 @@ void ImageCache::loadIntoOr(std::shared_ptr<UIImage> uiImage, std::string_view n
 	if (tex->isLoaded()) {
 		uiImage->setSprite(toSprite(std::move(tex), materialName));
 	} else {
-		// TODO
+		String mat = materialName;
+		tex->onLoad().then(Executors::getMainUpdateThread(), [this, tex, uiImage, mat] ()
+		{
+			uiImage->setSprite(toSprite(tex, mat));
+		});
 	}
 }
 
@@ -67,28 +71,50 @@ std::shared_ptr<Texture> ImageCache::loadTexture(std::string_view name, bool tri
 		return {};
 	}
 
-	auto image = std::make_unique<Image>(bytes.byte_span(), Image::Format::RGBA);
-	const auto origRect = image->getRect();
-	auto trimRect = origRect;
+	auto load = [](std::shared_ptr<Texture> tex, std::unique_ptr<Image> image)
+	{
+		image->preMultiply();
+
+		TextureDescriptor desc(image->getSize(), TextureFormat::RGBA);
+		desc.pixelData = std::move(image);
+		desc.useFiltering = true;
+		desc.useMipMap = true;
+		tex->load(std::move(desc));
+		tex->doneLoading();
+	};
+
+	Rect4i origRect;
+	Rect4i trimRect;
+	std::shared_ptr<Texture> tex;
 
 	if (trim) {
+		auto image = std::make_unique<Image>(bytes.byte_span(), Image::Format::RGBA);
+		origRect = image->getRect();
 		trimRect = image->getTrimRect();
+
 		if (trimRect.getSize() != image->getSize()) {
 			auto image2 = std::make_unique<Image>(Image::Format::RGBA, trimRect.getSize());
 			image2->blitFrom(Vector2i(), *image, trimRect);
 			image = std::move(image2);
 		}
+	
+		tex = std::shared_ptr<Texture>(video.createTexture(image->getSize()));
+		load(tex, std::move(image));
+	} else {
+		const auto size = Image::getBufferImageSize(bytes.byte_span());
+		if (!size) {
+			return {};
+		}
+		origRect = Rect4i(0, 0, size->x, size->y);
+		trimRect = origRect;
+		tex = std::shared_ptr<Texture>(video.createTexture(*size));
+
+		Concurrent::execute(Executors::getVideoAux(), [=, bytes = std::move(bytes)] ()
+		{
+			auto image = std::make_unique<Image>(bytes.byte_span(), Image::Format::RGBA);
+			load(tex, std::move(image));
+		});
 	}
-
-	image->preMultiply();
-
-	auto tex = std::shared_ptr<Texture>(video.createTexture(image->getSize()));
-	TextureDescriptor desc(image->getSize(), TextureFormat::RGBA);
-	desc.pixelData = std::move(image);
-	desc.useFiltering = true;
-	desc.useMipMap = true;
-	tex->startLoading();
-	tex->load(std::move(desc));
 
 	Metadata meta;
 	meta.set("trimRect", ConfigNode(trimRect));

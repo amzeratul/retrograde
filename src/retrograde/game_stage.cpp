@@ -74,6 +74,8 @@ void GameStage::onFixedUpdate(Time t)
 
 void GameStage::onUpdate(Time t)
 {
+	Executor(Executors::getMainUpdateThread()).runPending();
+
 	env->getConfigDatabase().update();
 
 	auto kb = getInputAPI().getKeyboard();
