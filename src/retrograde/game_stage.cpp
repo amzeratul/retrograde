@@ -84,7 +84,8 @@ void GameStage::onUpdate(Time t)
 	}
 
 	const auto windowSize = Vector2f(getVideoAPI().getWindow().getWindowRect().getSize());
-	zoomLevel = windowSize.y / 2160.0f;
+	const auto windowAR = windowSize.x / windowSize.y;
+	zoomLevel = windowAR >= 16.0f / 9.0f ? windowSize.y / 2160.0f : windowSize.x / 3840.0f;
 	const auto uiSize = windowSize / zoomLevel;
 	uiRoot->setRect(Rect4f(Vector2f(), uiSize));
 

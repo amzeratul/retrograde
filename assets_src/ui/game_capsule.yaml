@@ -19,6 +19,7 @@ children:
     widget:
       class: label
       id: name
+      maxHeight: 50
       maxWidth: 510
       style: labelListEntry
       text: Game Name
