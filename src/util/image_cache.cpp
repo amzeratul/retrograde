@@ -66,61 +66,52 @@ Sprite ImageCache::toSprite(std::shared_ptr<const Texture> tex, std::string_view
 
 std::shared_ptr<Texture> ImageCache::loadTexture(std::string_view name, bool trim)
 {
-	auto bytes = Path::readFile(root / name);
-	if (bytes.empty()) {
+	const auto path = root / name;
+	if (!Path::exists(path)) {
 		return {};
 	}
 
-	auto load = [](std::shared_ptr<Texture> tex, std::unique_ptr<Image> image)
+	auto tex = std::shared_ptr<Texture>(video.createTexture(Vector2i()));
+
+	Concurrent::execute(Executors::getCPU(), [path, trim, tex] () -> std::unique_ptr<Image>
 	{
-		image->preMultiply();
-
-		TextureDescriptor desc(image->getSize(), TextureFormat::RGBA);
-		desc.pixelData = std::move(image);
-		desc.useFiltering = true;
-		desc.useMipMap = true;
-		tex->load(std::move(desc));
-		tex->doneLoading();
-	};
-
-	Rect4i origRect;
-	Rect4i trimRect;
-	std::shared_ptr<Texture> tex;
-
-	if (trim) {
-		auto image = std::make_unique<Image>(bytes.byte_span(), Image::Format::RGBA);
-		origRect = image->getRect();
-		trimRect = image->getTrimRect();
-
-		if (trimRect.getSize() != image->getSize()) {
-			auto image2 = std::make_unique<Image>(Image::Format::RGBA, trimRect.getSize());
-			image2->blitFrom(Vector2i(), *image, trimRect);
-			image = std::move(image2);
-		}
-	
-		tex = std::shared_ptr<Texture>(video.createTexture(image->getSize()));
-		load(tex, std::move(image));
-	} else {
-		const auto size = Image::getBufferImageSize(bytes.byte_span());
-		if (!size) {
+		auto bytes = Path::readFile(path);
+		if (bytes.empty()) {
 			return {};
 		}
-		origRect = Rect4i(0, 0, size->x, size->y);
-		trimRect = origRect;
-		tex = std::shared_ptr<Texture>(video.createTexture(*size));
 
-		Concurrent::execute(Executors::getCPU(), [bytes = std::move(bytes)] () -> std::unique_ptr<Image>
-		{
-			return std::make_unique<Image>(bytes.byte_span(), Image::Format::RGBA);
-		}).then(Executors::getVideoAux(), [=] (std::unique_ptr<Image> image) {
-			load(tex, std::move(image));
-		});
-	}
+		auto image = std::make_unique<Image>(bytes.byte_span(), Image::Format::RGBA);
+		const auto origRect = image->getRect();
+		auto trimRect = origRect;
 
-	Metadata meta;
-	meta.set("trimRect", ConfigNode(trimRect));
-	meta.set("origRect", ConfigNode(origRect));
-	tex->setMeta(meta);
+		if (trim) {
+			trimRect = image->getTrimRect();
+			if (trimRect.getSize() != image->getSize()) {
+				auto image2 = std::make_unique<Image>(Image::Format::RGBA, trimRect.getSize());
+				image2->blitFrom(Vector2i(), *image, trimRect);
+				image = std::move(image2);
+			}
+		}
+		image->preMultiply();
+
+		Metadata meta;
+		meta.set("trimRect", ConfigNode(trimRect));
+		meta.set("origRect", ConfigNode(origRect));
+		tex->setMeta(meta);
+
+		return image;
+	}).then(Executors::getVideoAux(), [=] (std::unique_ptr<Image> image) {
+		if (image) {
+			TextureDescriptor desc(image->getSize(), TextureFormat::RGBA);
+			desc.pixelData = std::move(image);
+			desc.useFiltering = true;
+			desc.useMipMap = true;
+			tex->load(std::move(desc));
+			tex->doneLoading();
+		} else {
+			tex->loadingFailed();
+		}
+	});
 
 	return tex;
 }
