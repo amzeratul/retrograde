@@ -7,21 +7,21 @@ ImageCache::ImageCache(VideoAPI& video, Resources& resources, Path root)
 {
 }
 
-std::shared_ptr<const Texture> ImageCache::getTexture(std::string_view name)
+std::shared_ptr<const Texture> ImageCache::getTexture(std::string_view name, bool trim)
 {
 	const auto iter = textures.find(name);
 	if (iter != textures.end()) {
 		return iter->second;
 	}
 
-	auto tex = loadTexture(name);
+	auto tex = loadTexture(name, trim);
 	textures[name] = tex;
 	return tex;
 }
 
-Sprite ImageCache::getSprite(std::string_view name, std::string_view materialName)
+Sprite ImageCache::getSprite(std::string_view name, std::string_view materialName, bool trim)
 {
-	return toSprite(getTexture(name), materialName);
+	return toSprite(getTexture(name, trim), materialName);
 }
 
 void ImageCache::loadInto(std::shared_ptr<UIImage> uiImage, std::string_view name, std::string_view materialName)
@@ -54,16 +54,32 @@ Sprite ImageCache::toSprite(std::shared_ptr<const Texture> tex, std::string_view
 	if (!tex) {
 		return Sprite();
 	}
-	return Sprite().setImage(std::move(tex), resources.get<MaterialDefinition>(materialName));
+	const auto trimRect = tex->getMeta().getValue("trimRect").asVector4f();
+	return Sprite()
+		.setImage(std::move(tex), resources.get<MaterialDefinition>(materialName))
+		.setAbsolutePivot(trimRect.xy());
 }
 
-std::shared_ptr<Texture> ImageCache::loadTexture(std::string_view name)
+std::shared_ptr<Texture> ImageCache::loadTexture(std::string_view name, bool trim)
 {
 	auto bytes = Path::readFile(root / name);
 	if (bytes.empty()) {
 		return {};
 	}
+
 	auto image = std::make_unique<Image>(bytes.byte_span(), Image::Format::RGBA);
+	const auto origRect = image->getRect();
+	auto trimRect = origRect;
+
+	if (trim) {
+		trimRect = image->getTrimRect();
+		if (trimRect.getSize() != image->getSize()) {
+			auto image2 = std::make_unique<Image>(Image::Format::RGBA, trimRect.getSize());
+			image2->blitFrom(Vector2i(), *image, trimRect);
+			image = std::move(image2);
+		}
+	}
+
 	image->preMultiply();
 
 	auto tex = std::shared_ptr<Texture>(video.createTexture(image->getSize()));
@@ -73,5 +89,11 @@ std::shared_ptr<Texture> ImageCache::loadTexture(std::string_view name)
 	desc.useMipMap = true;
 	tex->startLoading();
 	tex->load(std::move(desc));
+
+	Metadata meta;
+	meta.set("trimRect", ConfigNode(trimRect));
+	meta.set("origRect", ConfigNode(origRect));
+	tex->setMeta(meta);
+
 	return tex;
 }

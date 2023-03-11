@@ -2,6 +2,7 @@
 
 #include "src/config/bezel_config.h"
 #include "src/retrograde/retrograde_environment.h"
+#include "src/util/image_cache.h"
 
 SystemBezel::SystemBezel(const RetrogradeEnvironment& env)
 	: env(env)
@@ -52,45 +53,8 @@ void SystemBezel::draw(Painter& painter, BezelLayer layer) const
 
 SystemBezel::ImageData SystemBezel::makeImage(const BezelImageConfig& imgConfig)
 {
-	// Read
-	const auto bytes = Path::readFile(env.getImagesDir() / imgConfig.getImage());
-	if (bytes.empty()) {
-		Logger::logError("Bezel image not found: " + imgConfig.getImage());
-		return {};
-	}
-
-	// Load
-	auto img = std::make_shared<Image>(bytes.byte_span(), Image::Format::RGBA);
-	if (!img) {
-		Logger::logError("Unable to load bezel image: " + imgConfig.getImage());
-		return {};
-	}
-
-	// Trim
-	auto rect = img->getTrimRect();
-	if (rect.getSize() != img->getSize()) {
-		auto img2 = std::make_shared<Image>(Image::Format::RGBA, rect.getSize());
-		img2->blitFrom(Vector2i(), *img, rect);
-		img = std::move(img2);
-	}
-
-	// Premultiply
-	img->preMultiply();
-
-	// Load texture
-	auto tex = std::shared_ptr<Texture>(env.getHalleyAPI().video->createTexture(img->getSize()));
-	TextureDescriptor desc(img->getSize(), TextureFormat::RGBA);
-	desc.pixelData = std::move(img);
-	desc.useFiltering = true;
-	desc.useMipMap = true;
-	tex->startLoading();
-	tex->load(std::move(desc));
-
-	// Setup sprite
-	auto sprite = Sprite()
-		.setImage(tex, env.getResources().get<MaterialDefinition>("Halley/Sprite"))
-		.setImageData(*tex)
-		.setAbsolutePivot(Vector2f(imgConfig.getDisplayCentre() - rect.getTopLeft()));
-
+	auto sprite = env.getImageCache().getSprite(imgConfig.getImage());
+	sprite.setAbsolutePivot(Vector2f(imgConfig.getDisplayCentre()) - sprite.getAbsolutePivot());
+	
 	return ImageData{ std::move(sprite), imgConfig.getBaseScale(), imgConfig.getLayer() };
 }

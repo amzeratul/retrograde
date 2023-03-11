@@ -33,7 +33,7 @@ public:
 	GameCollection& getGameCollection(const String& systemId);
 
 	std::shared_ptr<InputVirtual> getUIInput();
-	ImageCache& getImageCache();
+	ImageCache& getImageCache() const;
 
 private:
 	RetrogradeGame& game;

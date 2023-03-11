@@ -139,7 +139,7 @@ std::shared_ptr<InputVirtual> RetrogradeEnvironment::getUIInput()
 	return uiInput;
 }
 
-ImageCache& RetrogradeEnvironment::getImageCache()
+ImageCache& RetrogradeEnvironment::getImageCache() const
 {
 	return *imageCache;
 }
