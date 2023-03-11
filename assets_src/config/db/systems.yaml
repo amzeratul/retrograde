@@ -1,66 +1,4 @@
 systems:
-  # Arcade
-  - id: neogeo
-    regions:
-      - name: Neo Geo
-        region: [world]
-    cores: [fbneo]
-    manufacturer: SNK
-    releaseDate: 1990-04-26
-    generation: 4
-    category: arcade
-    screenFilters: [crt-rgb]
-  - id: cps1
-    regions:
-      - name: CP System I
-        region: [world]
-    cores: [fbneo]
-    manufacturer: Capcom
-    releaseDate: 1988-05-13
-    generation: 4
-    category: arcade
-    screenFilters: [crt-rgb]
-  - id: cps2
-    regions:
-      - name: CP System II
-        region: [world]
-    cores: [fbneo]
-    manufacturer: Capcom
-    releaseDate: 1993-09-10
-    generation: 4
-    category: arcade
-    screenFilters: [crt-rgb]
-  - id: cps3
-    regions:
-      - name: CP System III
-        region: [world]
-    cores: [fbneo]
-    manufacturer: Capcom
-    releaseDate: 1996-10-23
-    generation: 4
-    category: arcade
-    screenFilters: [crt-rgb]
-  - id: naomi
-    regions:
-      - name: NAOMI
-        region: [world]
-    cores: []
-    manufacturer: Sega
-    releaseDate: 1998-11-20
-    generation: 6
-    category: arcade
-    screenFilters: [crt-rgb]
-  - id: atomiswave
-    regions:
-      - name: Atomiswave
-        region: [world]
-    cores: []
-    manufacturer: Sammy
-    releaseDate: 2003-04
-    generation: 6
-    category: arcade
-    screenFilters: [crt-rgb]
-
   # Computer
   - id: msdos
     regions:
@@ -323,6 +261,68 @@ systems:
     unitsSold: 1500000
     screenFilters: [lcd-grid]
 
+  # 4th Generation Arcade
+  - id: neogeo
+    regions:
+      - name: Neo Geo
+        region: [world]
+    cores: [fbneo]
+    manufacturer: SNK
+    releaseDate: 1990-04-26
+    generation: 4
+    category: arcade
+    screenFilters: [crt-rgb]
+  - id: cps1
+    regions:
+      - name: CP System I
+        region: [world]
+    cores: [fbneo]
+    manufacturer: Capcom
+    releaseDate: 1988-05-13
+    generation: 4
+    category: arcade
+    screenFilters: [crt-rgb]
+  - id: cps2
+    regions:
+      - name: CP System II
+        region: [world]
+    cores: [fbneo]
+    manufacturer: Capcom
+    releaseDate: 1993-09-10
+    generation: 4
+    category: arcade
+    screenFilters: [crt-rgb]
+  - id: cps3
+    regions:
+      - name: CP System III
+        region: [world]
+    cores: [fbneo]
+    manufacturer: Capcom
+    releaseDate: 1996-10-23
+    generation: 4
+    category: arcade
+    screenFilters: [crt-rgb]
+  - id: tunit
+    regions:
+      - name: T Unit
+        region: [world]
+    cores: []
+    manufacturer: Midway
+    releaseDate: 1992
+    generation: 4
+    category: arcade
+    screenFilters: [crt-rgb]
+  - id: wolfunit
+    regions:
+      - name: Wolf Unit
+        region: [world]
+    cores: []
+    manufacturer: Midway
+    releaseDate: 1994
+    generation: 4
+    category: arcade
+    screenFilters: [crt-rgb]
+
   # 5th Generation Consoles
   - id: n64
     regions:
@@ -449,6 +449,28 @@ systems:
     unitsSold: 2000000
     screenFilters: [lcd-grid]
 
+  # 5th Generation Arcade
+  - id: model2
+    regions:
+      - name: Model 2
+        region: [world]
+    cores: []
+    manufacturer: Sega
+    releaseDate: 1994-03
+    generation: 5
+    category: arcade
+    screenFilters: [crt-rgb]
+  - id: model3
+    regions:
+      - name: Model 3
+        region: [world]
+    cores: []
+    manufacturer: Sega
+    releaseDate: 1996-07-26
+    generation: 5
+    category: arcade
+    screenFilters: [crt-rgb]
+
   # 6th Generation Consoles
   - id: gamecube
     regions:
@@ -532,6 +554,28 @@ systems:
     unitsSold: 1100000
     screenFilters: [lcd-grid]
     bezels: []
+
+  # 6th Generation Arcade
+  - id: naomi
+    regions:
+      - name: NAOMI
+        region: [world]
+    cores: []
+    manufacturer: Sega
+    releaseDate: 1998-11-20
+    generation: 6
+    category: arcade
+    screenFilters: [crt-rgb]
+  - id: atomiswave
+    regions:
+      - name: Atomiswave
+        region: [world]
+    cores: []
+    manufacturer: Sammy
+    releaseDate: 2003-04
+    generation: 6
+    category: arcade
+    screenFilters: [crt-rgb]
 
   # 7th Generation Consoles
 

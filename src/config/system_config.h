@@ -25,6 +25,23 @@ namespace Halley {
 	};
 }
 
+class Date {
+public:
+    Date() = default;
+    Date(const ConfigNode& node);
+    Date(int year, int month, int day);
+
+    String toString() const;
+
+    bool operator<(const Date& other) const;
+    bool operator==(const Date& other) const;
+    bool operator!=(const Date& other) const;
+
+    int year;
+    int month;
+    int day;
+};
+
 class SystemRegionConfig {
 public:
     SystemRegionConfig() = default;
@@ -45,7 +62,7 @@ public:
 
     const String& getId() const;
     const String& getManufacturer() const;
-    const String& getReleaseDate() const;
+    const Date& getReleaseDate() const;
     const SystemRegionConfig& getRegion(const String& region) const;
 	const Vector<SystemRegionConfig>& getRegions() const;
 	const Vector<String>& getCores() const;
@@ -62,7 +79,7 @@ public:
 private:
     String id;
     String manufacturer;
-    String releaseDate;
+    Date releaseDate;
     SystemCategory category;
     Vector<SystemRegionConfig> regions;
     Vector<String> cores;

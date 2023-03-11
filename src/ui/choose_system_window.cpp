@@ -52,7 +52,7 @@ void ChooseSystemWindow::setSelectedSystem(const SystemConfig& systemConfig)
 	auto& regionConfig = systemConfig.getRegion(region);
 
 	getWidgetAs<UILabel>("system_name")->setText(LocalisedString::fromUserString(regionConfig.getName()));
-	getWidgetAs<UILabel>("system_info")->setText(LocalisedString::fromUserString(systemConfig.getReleaseDate() + "  " + systemConfig.getManufacturer()));
+	getWidgetAs<UILabel>("system_info")->setText(LocalisedString::fromUserString(toString(systemConfig.getReleaseDate().year) + "  " + systemConfig.getManufacturer()));
 	getWidgetAs<UILabel>("system_description")->setText(factory.getI18N().get(systemConfig.getDescriptionKey()));
 
 	retrogradeEnvironment.getImageCache().loadIntoOr(getWidgetAs<UIImage>("system_image"), systemConfig.getInfoImage(), "systems/info_unknown.png");
@@ -80,9 +80,7 @@ void ChooseSystemWindow::populateSystems()
 {
 	auto getCategoryId = [](const SystemConfig& s) -> String
 	{
-		if (s.getCategory() == SystemCategory::Arcade) {
-			return "arcade";
-		} else if (s.getCategory() == SystemCategory::Computer) {
+		if (s.getCategory() == SystemCategory::Computer) {
 			return "computer";
 		} else {
 			return "gen" + toString(s.getGeneration()) + toString(s.getCategory());

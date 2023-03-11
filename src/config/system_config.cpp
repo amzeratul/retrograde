@@ -1,5 +1,61 @@
 #include "system_config.h"
 
+Date::Date(const ConfigNode& node)
+{
+	year = 0;
+	month = 0;
+	day = 0;
+
+	const auto split = node.asString("").split('-');
+	if (split.size() >= 1) {
+		year = split[0].toInteger();
+	}
+	if (split.size() >= 2) {
+		month = split[1].toInteger();
+	}
+	if (split.size() >= 3) {
+		day = split[2].toInteger();
+	}
+}
+
+Date::Date(int year, int month, int day)
+	: year(year)
+	, month(month)
+	, day(day)
+{
+}
+
+String Date::toString() const
+{
+	if (year) {
+		if (month) {
+			if (day) {
+				return Halley::toString(year) + "-" + Halley::toString(month) + "-" + Halley::toString(day);
+			}
+			return Halley::toString(year) + "-" + Halley::toString(month);
+		}
+		return Halley::toString(year);
+	} else {
+		return "?";
+	}
+}
+
+bool Date::operator<(const Date& other) const
+{
+	return std::tuple(year, month, day) < std::tuple(other.year, other.month, other.day);
+}
+
+bool Date::operator==(const Date& other) const
+{
+	return std::tuple(year, month, day) == std::tuple(other.year, other.month, other.day);
+}
+
+bool Date::operator!=(const Date& other) const
+{
+	return std::tuple(year, month, day) != std::tuple(other.year, other.month, other.day);
+}
+
+
 SystemRegionConfig::SystemRegionConfig(const ConfigNode& node)
 {
 	name = node["name"].asString();
@@ -21,7 +77,7 @@ SystemConfig::SystemConfig(const ConfigNode& node)
 {
 	id = node["id"].asString();
 	manufacturer = node["manufacturer"].asString();
-	releaseDate = node["releaseDate"].asString();
+	releaseDate = Date(node["releaseDate"]);
 	generation = node["generation"].asInt(0);
 	unitsSold = node["unitsSold"].asInt(0);
 	category = node["category"].asEnum<SystemCategory>();
@@ -41,7 +97,7 @@ const String& SystemConfig::getManufacturer() const
 	return manufacturer;
 }
 
-const String& SystemConfig::getReleaseDate() const
+const Date& SystemConfig::getReleaseDate() const
 {
 	return releaseDate;
 }
