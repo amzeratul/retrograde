@@ -28,9 +28,12 @@ private:
     const CoreConfig& coreConfig;
     std::optional<String> pendingGameId;
     UIWidget& parentMenu;
+    GameCollection& collection;
    
     void onGamepadInput(const UIInputResults& input, Time time) override;
-    void loadGame(const String& gameId);
+    void loadGame(size_t gameIdx);
+    void loadGame(const String& gamePath);
+    void onGameSelected(size_t gameIdx);
 };
 
 class GameCapsule : public UIWidget {

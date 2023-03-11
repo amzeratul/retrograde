@@ -16,6 +16,7 @@ ChooseGameWindow::ChooseGameWindow(UIFactory& factory, RetrogradeEnvironment& re
 	, coreConfig(retrogradeEnvironment.getConfigDatabase().get<CoreConfig>(systemConfig.getCores().front()))
 	, pendingGameId(std::move(gameId))
 	, parentMenu(parentMenu)
+	, collection(retrogradeEnvironment.getGameCollection(systemConfig.getId()))
 {
 	factory.loadUI(*this, "choose_game");
 
@@ -29,22 +30,26 @@ ChooseGameWindow::ChooseGameWindow(UIFactory& factory, RetrogradeEnvironment& re
 
 void ChooseGameWindow::onMakeUI()
 {
-	auto gameList = getWidgetAs<UIList>("gameList");
-
-	const auto& collection = retrogradeEnvironment.getGameCollection(systemConfig.getId());
-	for (const auto& entry: collection.getEntries()) {
-		gameList->addItem(entry.getBestFileToLoad(coreConfig).string(), std::make_shared<GameCapsule>(factory, retrogradeEnvironment, entry));
-	}
-
 	setHandle(UIEventType::ListAccept, "gameList", [=] (const UIEvent& event)
 	{
-		loadGame(event.getStringData());
+		loadGame(event.getIntData());
 	});
 
 	setHandle(UIEventType::ListCancel, "gameList", [=](const UIEvent& event)
 	{
 		close();
 	});
+
+	setHandle(UIEventType::ListSelectionChanged, "gameList", [=] (const UIEvent& event)
+	{
+		onGameSelected(event.getIntData());
+	});
+
+	const auto gameList = getWidgetAs<UIList>("gameList");
+	for (size_t i = 0; i < collection.getEntries().size(); ++i) {
+		const auto& entry = collection.getEntries()[i];
+		gameList->addItem(toString(i), std::make_shared<GameCapsule>(factory, retrogradeEnvironment, entry));
+	}
 }
 
 void ChooseGameWindow::onAddedToRoot(UIRoot& root)
@@ -71,12 +76,17 @@ void ChooseGameWindow::close()
 void ChooseGameWindow::onGamepadInput(const UIInputResults& input, Time time)
 {
 	if (input.isButtonPressed(UIGamepadInput::Button::Accept)) {
-		loadGame(getWidgetAs<UIList>("gameList")->getSelectedOptionId());
+		loadGame(getWidgetAs<UIList>("gameList")->getSelectedOption());
 	}
 
 	if (input.isButtonPressed(UIGamepadInput::Button::Cancel)) {
 		close();
 	}
+}
+
+void ChooseGameWindow::loadGame(size_t gameIdx)
+{
+	loadGame(collection.getEntries()[gameIdx].getBestFileToLoad(coreConfig).string());
 }
 
 void ChooseGameWindow::loadGame(const String& gameId)
@@ -85,6 +95,16 @@ void ChooseGameWindow::loadGame(const String& gameId)
 	getRoot()->addChild(std::make_shared<GameCanvas>(factory, retrogradeEnvironment, coreConfig, systemConfig, gameId, *this));
 }
 
+void ChooseGameWindow::onGameSelected(size_t gameIdx)
+{
+	const auto& entry = collection.getEntries()[gameIdx];
+
+	getWidgetAs<UILabel>("game_name")->setText(LocalisedString::fromUserString(entry.displayName));
+	getWidgetAs<UILabel>("game_info")->setText(LocalisedString::fromUserString("?"));
+	getWidgetAs<UILabel>("game_description")->setText(LocalisedString::fromUserString("?"));
+
+	//retrogradeEnvironment.getImageCache().loadIntoOr(getWidgetAs<UIImage>("game_image"), systemConfig.getInfoImage(), "systems/info_unknown.png");
+}
 
 
 GameCapsule::GameCapsule(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, const GameCollection::Entry& entry)
