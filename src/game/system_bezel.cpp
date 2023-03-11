@@ -24,14 +24,15 @@ void SystemBezel::setBezel(const BezelConfig* config)
 	}
 }
 
-Vector2f SystemBezel::update(Rect4i windowSize, Vector2f maxScale)
+Vector2f SystemBezel::update(Rect4i windowSize, Rect4i canvasSize, Vector2f canvasScale, float zoom)
 {
 	if (!curConfig) {
-		return maxScale;
+		return canvasScale;
 	}
 
-	const auto pos = Vector2f(windowSize.getCenter());
-	const auto scale = std::ceil(maxScale.y * curConfig->getDefaultZoom());
+	const auto pos = Vector2f(canvasSize.getCenter());
+
+	const auto scale = std::ceil(canvasScale.y * zoom * curConfig->getDefaultZoom()) / zoom;
 
 	for (auto& image: images) {
 		image.sprite
@@ -39,7 +40,7 @@ Vector2f SystemBezel::update(Rect4i windowSize, Vector2f maxScale)
 			.setScale(scale / image.baseScale);
 	}
 	
-	return maxScale * (scale / maxScale.y);
+	return canvasScale * (scale / canvasScale.y);
 }
 
 void SystemBezel::draw(Painter& painter, BezelLayer layer) const
@@ -53,7 +54,7 @@ void SystemBezel::draw(Painter& painter, BezelLayer layer) const
 
 SystemBezel::ImageData SystemBezel::makeImage(const BezelImageConfig& imgConfig)
 {
-	auto sprite = env.getImageCache().getSprite(imgConfig.getImage());
+	auto sprite = env.getImageCache().getSprite(imgConfig.getImage(), "Halley/Sprite", true);
 	sprite.setAbsolutePivot(Vector2f(imgConfig.getDisplayCentre()) - sprite.getAbsolutePivot());
 	
 	return ImageData{ std::move(sprite), imgConfig.getBaseScale(), imgConfig.getLayer() };

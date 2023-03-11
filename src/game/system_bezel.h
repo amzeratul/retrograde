@@ -13,7 +13,7 @@ public:
 
     void setBezel(const BezelConfig* config);
 
-	Vector2f update(Rect4i windowSize, Vector2f maxScale);
+	Vector2f update(Rect4i windowSize, Rect4i canvasSize, Vector2f canvasScale, float zoom);
     void draw(Painter& painter, BezelLayer layer) const;
 
 private:

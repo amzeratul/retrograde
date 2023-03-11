@@ -93,7 +93,7 @@ void GameCanvas::render(RenderContext& rc) const
 			auto scale = std::min(scales.x, scales.y) * coreOutScreen.getScale(); // The scale the original sprite would need to fit the view port
 
 			if (bezel) {
-				scale = bezel->update(canvasRect, scale);
+				scale = bezel->update(windowRect, canvasRect, scale, zoom);
 			}
 
 			const auto spriteSize = (coreOutScreen.getSize() * scale * 0.5f).round() * 2.0f; // Absolute sprite size
