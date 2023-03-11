@@ -109,9 +109,10 @@ std::shared_ptr<Texture> ImageCache::loadTexture(std::string_view name, bool tri
 		trimRect = origRect;
 		tex = std::shared_ptr<Texture>(video.createTexture(*size));
 
-		Concurrent::execute(Executors::getVideoAux(), [=, bytes = std::move(bytes)] ()
+		Concurrent::execute(Executors::getCPU(), [bytes = std::move(bytes)] () -> std::unique_ptr<Image>
 		{
-			auto image = std::make_unique<Image>(bytes.byte_span(), Image::Format::RGBA);
+			return std::make_unique<Image>(bytes.byte_span(), Image::Format::RGBA);
+		}).then(Executors::getVideoAux(), [=] (std::unique_ptr<Image> image) {
 			load(tex, std::move(image));
 		});
 	}
