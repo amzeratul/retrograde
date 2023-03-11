@@ -25,7 +25,7 @@ private:
     UIFactory& factory;
     RetrogradeEnvironment& retrogradeEnvironment;
     const SystemConfig& systemConfig;
-    const CoreConfig& coreConfig;
+    const CoreConfig* coreConfig = nullptr;
     std::optional<String> pendingGameId;
     UIWidget& parentMenu;
     GameCollection& collection;
@@ -34,6 +34,7 @@ private:
     void loadGame(size_t gameIdx);
     void loadGame(const String& gamePath);
     void onGameSelected(size_t gameIdx);
+    void onErrorDueToNoCoreAvailable();
 };
 
 class GameCapsule : public UIWidget {

@@ -1,0 +1,5 @@
+minimap: true
+slice_bottom: 10
+slice_left: 10
+slice_right: 10
+slice_top: 10

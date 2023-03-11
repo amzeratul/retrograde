@@ -72,6 +72,7 @@ children:
       scrollSpeed: 5000
       size: [400, 400]
       smoothGoTo: true
+      style: rgScrollbar
     children:
       - uuid: 370cad4d-6003-4382-bd63-5e94d96238ab
         proportion: 1

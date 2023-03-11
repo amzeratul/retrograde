@@ -13,11 +13,13 @@ ChooseGameWindow::ChooseGameWindow(UIFactory& factory, RetrogradeEnvironment& re
 	, factory(factory)
 	, retrogradeEnvironment(retrogradeEnvironment)
 	, systemConfig(systemConfig)
-	, coreConfig(retrogradeEnvironment.getConfigDatabase().get<CoreConfig>(systemConfig.getCores().front()))
 	, pendingGameId(std::move(gameId))
 	, parentMenu(parentMenu)
 	, collection(retrogradeEnvironment.getGameCollection(systemConfig.getId()))
 {
+	const auto coreId = systemConfig.getCores().empty() ? "" : systemConfig.getCores().front();
+	coreConfig = coreId.isEmpty() ? nullptr : &retrogradeEnvironment.getConfigDatabase().get<CoreConfig>(coreId);
+
 	factory.loadUI(*this, "choose_game");
 
 	setAnchor(UIAnchor());
@@ -86,13 +88,21 @@ void ChooseGameWindow::onGamepadInput(const UIInputResults& input, Time time)
 
 void ChooseGameWindow::loadGame(size_t gameIdx)
 {
-	loadGame(collection.getEntries()[gameIdx].getBestFileToLoad(coreConfig).string());
+	if (coreConfig) {
+		loadGame(collection.getEntries()[gameIdx].getBestFileToLoad(*coreConfig).string());
+	} else {
+		onErrorDueToNoCoreAvailable();
+	}
 }
 
 void ChooseGameWindow::loadGame(const String& gameId)
 {
-	setActive(false);
-	getRoot()->addChild(std::make_shared<GameCanvas>(factory, retrogradeEnvironment, coreConfig, systemConfig, gameId, *this));
+	if (coreConfig) {
+		setActive(false);
+		getRoot()->addChild(std::make_shared<GameCanvas>(factory, retrogradeEnvironment, *coreConfig, systemConfig, gameId, *this));
+	} else {
+		onErrorDueToNoCoreAvailable();
+	}
 }
 
 void ChooseGameWindow::onGameSelected(size_t gameIdx)
@@ -104,6 +114,11 @@ void ChooseGameWindow::onGameSelected(size_t gameIdx)
 	getWidgetAs<UILabel>("game_description")->setText(LocalisedString::fromUserString("?"));
 
 	//retrogradeEnvironment.getImageCache().loadIntoOr(getWidgetAs<UIImage>("game_image"), systemConfig.getInfoImage(), "systems/info_unknown.png");
+}
+
+void ChooseGameWindow::onErrorDueToNoCoreAvailable()
+{
+	// TODO
 }
 
 
