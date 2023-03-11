@@ -43,6 +43,12 @@ void GameCanvas::onAddedToRoot(UIRoot& root)
 
 void GameCanvas::update(Time t, bool moved)
 {
+	fitToRoot();
+
+	if (frames++ < 2) {
+		return;
+	}
+
 	bool needToLoadGame = false;
 	if (!loaded) {
 		core = environment.loadCore(coreConfig, systemConfig);
@@ -53,8 +59,6 @@ void GameCanvas::update(Time t, bool moved)
 	if (pendingCloseState == 2) {
 		doClose();
 	}
-
-	fitToRoot();
 
 	updateBezels();
 

@@ -100,6 +100,7 @@ void ChooseSystemWindow::populateSystems()
 	}
 
 	const auto systemCategoryList = getWidgetAs<UIList>("systemCategoryList");
+	systemCategoryList->setFocusable(false);
 	for (auto& [categoryId, systems]: systemsByCategory) {
 		auto title = factory.getI18N().get(categoryId);
 		systemCategoryList->addItem(categoryId, std::make_shared<SystemList>(factory, retrogradeEnvironment, std::move(title), std::move(systems), *this), 1);
@@ -135,6 +136,7 @@ void SystemList::onMakeUI()
 	}
 	systemList->setShowSelection(false);
 	systemList->setEnabled(false);
+	systemList->setFocusable(false);
 
 	setHandle(UIEventType::SetSelected, [=](const UIEvent& event)
 	{

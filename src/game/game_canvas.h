@@ -39,6 +39,7 @@ private:
     std::unique_ptr<FilterChain> filterChain;
     std::unique_ptr<SystemBezel> bezel;
 
+    int frames = 0;
     int pauseFrames = 0;
     mutable int pendingCloseState = 0;
     bool loaded = false;
