@@ -1,4 +1,8 @@
-== Credits ==
+# About
+
+Retrograde is a libretro front-end in early stages of development.
+
+# Credits
 
 * Bezels (images/bezels) from Tatsuya79's handheld border shader pack: https://forums.libretro.com/t/handheld-border-shaders/2551
 * Guest.r's shader and Sonkun presets from https://forums.libretro.com/t/sonkun-s-crt-guest-advanced-slot-mask-presets-thread/39091
