@@ -14,6 +14,7 @@ public:
     void onMakeUI() override;
 
     void update(Time t, bool moved) override;
+    void draw(UIPainter& painter) const override;
 
     void setSelectedSystem(const SystemConfig& systemConfig);
     const String& getRegion() const;
@@ -24,6 +25,7 @@ private:
     std::optional<String> pendingSystemId;
     std::optional<String> pendingGameId;
     String region;
+    Sprite bg;
 
     void loadSystem(const String& systemId);
     void close();

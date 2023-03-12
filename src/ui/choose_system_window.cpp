@@ -15,6 +15,8 @@ ChooseSystemWindow::ChooseSystemWindow(UIFactory& factory, RetrogradeEnvironment
 {
 	factory.loadUI(*this, "choose_system");
 
+	//bg = Sprite().setImage(retrogradeEnvironment.getResources(), "ui/background.jpg");
+
 	setAnchor(UIAnchor());
 }
 
@@ -45,6 +47,14 @@ void ChooseSystemWindow::onMakeUI()
 void ChooseSystemWindow::update(Time t, bool moved)
 {
 	fitToRoot();
+	const auto scales = getSize() / bg.getSize();
+	const auto scale = std::max(scales.x, scales.y);
+	//bg.setPivot(Vector2f(0.5f, 0.5f)).setPosition(getRect().getCenter()).setScale(scale);
+}
+
+void ChooseSystemWindow::draw(UIPainter& painter) const
+{
+	//painter.draw(bg);
 }
 
 void ChooseSystemWindow::setSelectedSystem(const SystemConfig& systemConfig)
