@@ -1,2 +1,2 @@
-src/contrib/* linguist-vendored
-shaders/* linguist-vendored
+src/contrib/** linguist-vendored
+shaders/** linguist-vendored
