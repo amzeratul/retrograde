@@ -12,7 +12,6 @@
 #include "src/util/cpu_update_texture.h"
 #include "src/util/c_string_cache.h"
 #include "src/util/opengl_interop.h"
-#include "src/zip/zip_file.h"
 
 #ifdef _WIN32
 #define UUID_DEFINED
@@ -379,7 +378,7 @@ bool LibretroCore::loadGame(const Path& path)
 		// Fullpath cores can still read zipped files if they support VFS
 		// In those cases, we'll extract the zip into VFS and load that instead
 		if (vfs && canExtract) {
-			zip.extractAll("_zip", *vfs);
+			vfs->extractAll(zip, "_zip");
 			gameInfoEx.full_path = cache(targetPath.getString()); // VFS requires unix style path
 		}
 	} else {

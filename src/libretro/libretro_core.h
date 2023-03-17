@@ -14,7 +14,6 @@ namespace Halley {
 }
 
 class OpenGLInteropObject;
-class ZipFile;
 class LibretroVFS;
 class CPUUpdateTexture;
 class RetrogradeEnvironment;

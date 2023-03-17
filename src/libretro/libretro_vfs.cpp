@@ -489,3 +489,11 @@ bool LibretroVFSDirHandle::dirEntIsDir() const
 {
 	return entries[pos - 1].isDir;
 }
+
+void LibretroVFS::extractAll(const ZipFile& zip, const Path& prefix)
+{
+	const size_t n = zip.getNumFiles();
+	for (size_t i = 0; i < n; ++i) {
+		setVirtualFile(prefix / zip.getFileName(i), zip.extractFile(i));
+	}
+}

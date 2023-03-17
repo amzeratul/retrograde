@@ -103,6 +103,8 @@ public:
 	int stat(std::string_view path, int32_t* size);
 	int mkdir(std::string_view dir);
 
+	void extractAll(const ZipFile& zip, const Path& prefix);
+
 private:
 	HashMap<String, Bytes> virtualFiles;
 

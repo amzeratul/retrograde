@@ -51,9 +51,6 @@ set (SOURCES
 	"src/util/dx11_state.cpp"
 	"src/util/image_cache.cpp"
 	"src/util/opengl_interop.cpp"
-
-	"src/zip/zip_file.cpp"
-	"src/zip/miniz.c"
 	)
 
 set (HEADERS
@@ -120,9 +117,6 @@ set (HEADERS
 	"src/util/dx11_state.h"
 	"src/util/image_cache.h"
 	"src/util/opengl_interop.h"
-
-	"src/zip/zip_file.h"
-	"src/zip/miniz.h"
 	)
 
 set (GEN_DEFINITIONS
