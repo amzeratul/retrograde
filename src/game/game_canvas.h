@@ -25,6 +25,7 @@ public:
     void close();
 
 	void resetGame();
+    void setReady();
 
 private:
     UIFactory& factory;
@@ -44,7 +45,9 @@ private:
     int frames = 0;
     int pauseFrames = 0;
     mutable int pendingCloseState = 0;
-    bool loaded = false;
+    bool coreLoaded = false;
+    bool gameLoaded = false;
+    bool readyToLoadGame = false;
 
     void doClose();
 

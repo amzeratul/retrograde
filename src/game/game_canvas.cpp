@@ -39,6 +39,7 @@ GameCanvas::~GameCanvas()
 void GameCanvas::onAddedToRoot(UIRoot& root)
 {
 	fitToRoot();
+	getRoot()->addChild(std::make_shared<InGameMenu>(factory, environment, *this, InGameMenu::Mode::PreStart));
 }
 
 void GameCanvas::update(Time t, bool moved)
@@ -49,11 +50,9 @@ void GameCanvas::update(Time t, bool moved)
 		return;
 	}
 
-	bool needToLoadGame = false;
-	if (!loaded) {
+	if (!coreLoaded) {
 		core = environment.loadCore(coreConfig, systemConfig);
-		needToLoadGame = true;
-		loaded = true;
+		coreLoaded = true;
 	}
 
 	if (pendingCloseState == 2) {
@@ -62,8 +61,9 @@ void GameCanvas::update(Time t, bool moved)
 
 	updateBezels();
 
-	if (needToLoadGame && !gameId.isEmpty()) {
+	if (!gameLoaded && readyToLoadGame && !gameId.isEmpty()) {
 		core->loadGame(environment.getRomsDir(systemConfig.getId()) / gameId);
+		gameLoaded = true;
 	}
 
 	if (t > 0.00001 && pendingCloseState == 0) {
@@ -215,6 +215,11 @@ void GameCanvas::resetGame()
 	core->resetGame();
 }
 
+void GameCanvas::setReady()
+{
+	readyToLoadGame = true;
+}
+
 void GameCanvas::doClose()
 {
 	parentMenu.setActive(true);
@@ -225,7 +230,7 @@ void GameCanvas::doClose()
 void GameCanvas::onGamepadInput(const UIInputResults& input, Time time)
 {
 	if (input.isButtonPressed(UIGamepadInput::Button::Cancel)) {
-		getRoot()->addChild(std::make_shared<InGameMenu>(factory, environment, *this));
+		getRoot()->addChild(std::make_shared<InGameMenu>(factory, environment, *this, InGameMenu::Mode::InGame));
 	}
 }
 
