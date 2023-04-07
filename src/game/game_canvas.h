@@ -24,6 +24,8 @@ public:
 
     void close();
 
+	void resetGame();
+
 private:
     UIFactory& factory;
     RetrogradeEnvironment& environment;

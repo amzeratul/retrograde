@@ -1,0 +1,12 @@
+---
+name: Retrograde/RadialGradient
+base: sprite_base.yaml
+textures:
+  - image: sampler2D
+passes:
+  - blend: Alpha Premultiplied
+    shader:
+    - language: hlsl
+      vertex: sprite.vertex.hlsl
+      pixel: radial_gradient.pixel.hlsl
+...

@@ -471,6 +471,13 @@ void LibretroCore::unloadGame()
 	}
 }
 
+void LibretroCore::resetGame()
+{
+	auto guard = ScopedGuard([=]() { popInstance(); });
+	pushInstance();
+	DLL_FUNC(dll, retro_reset)();
+}
+
 void LibretroCore::runFrame()
 {
 	auto guard = ScopedGuard([=]() { popInstance(); });

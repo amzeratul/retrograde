@@ -11,11 +11,16 @@ public:
     InGameMenu(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, GameCanvas& gameCanvas);
 
     void onMakeUI() override;
+    void onAddedToRoot(UIRoot& root) override;
+
+    void update(Time t, bool moved) override;
 
 private:
     UIFactory& factory;
     RetrogradeEnvironment& retrogradeEnvironment;
     GameCanvas& gameCanvas;
+
+    void setupMenu();
 
     void onChooseOption(const String& optionId);
     void onGamepadInput(const UIInputResults& input, Time time) override;

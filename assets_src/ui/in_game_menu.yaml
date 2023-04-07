@@ -5,18 +5,30 @@ sizer:
 widget:
   class: widget
 children:
-  - uuid: 4eb96e13-c19a-4890-a741-3c67a3cc2b2b
+  - uuid: 09242190-e085-40ae-9505-153ecaa327ca
+    proportion: 1
     sizer:
       columnProportions: []
       type: vertical
     widget:
       class: image
-      colour: "#381922"
-      image: halley_ui/ui_float_solid_window.png
-      innerBorder: [20, 20, 20, 20]
+      colour: "#110404"
+      id: bg
+      image: whitebox.png
+      material: Retrograde/RadialGradient
+      size: [0, 0]
     children:
+      - uuid: 4ad5dfa4-1581-4213-9bce-6a430992ccae
+        border: [50, 50, 50, 50]
+        sizer:
+          columnProportions: []
+        widget:
+          class: image
+          id: header
+          image: ui/header.png
       - uuid: 370cad4d-6003-4382-bd63-5e94d96238ab
         proportion: 1
+        border: [50, 50, 50, 50]
         sizer:
           columnProportions: []
         widget:
@@ -27,4 +39,15 @@ children:
               text: Resume
             - id: exit
               text: Exit
-          size: [200, 0]
+          size: [614, 0]
+          style: textMenu
+        fill: [left, top]
+      - uuid: e0403a87-5059-4fc9-8af9-e7cef4eb1ed9
+        sizer:
+          columnProportions: []
+        widget:
+          class: image
+          colour: "#00000066"
+          image: whitebox.png
+          size: [0, 125]
+        fill: [fillHorizontal, bottom]

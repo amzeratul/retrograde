@@ -109,6 +109,8 @@ public:
 
 	bool loadGame(const Path& path);
 	void unloadGame();
+	void resetGame();
+
 	bool hasGameLoaded() const;
 	const String& getGameName() const;
 	const String& getSystemId() const;

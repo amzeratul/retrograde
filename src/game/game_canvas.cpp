@@ -210,6 +210,11 @@ void GameCanvas::close()
 	core.reset();
 }
 
+void GameCanvas::resetGame()
+{
+	core->resetGame();
+}
+
 void GameCanvas::doClose()
 {
 	parentMenu.setActive(true);

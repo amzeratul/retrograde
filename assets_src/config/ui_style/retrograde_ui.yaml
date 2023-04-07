@@ -24,7 +24,7 @@ uiStyle:
     item:
       normal: { img: "ui/grid_item.png", colour: "#FFFFFF" }
       hover: { img: "ui/grid_item.png", colour: "#FFFFFF" }
-      selected: { img: "ui/grid_item_selected.png", colour: "#EE595A" }
+      selected: { img: "ui/grid_item_selected.png", colour: "#FF5353" }
       drag: ""
       innerBorder: [ 24, 24, 24, 24 ]
     innerBorder: [ 2, 2, 2, 2 ]
@@ -35,6 +35,24 @@ uiStyle:
     selectedLabel: { font: Roboto Regular, size: 36, colour: "#FFFFFF" }
     disabledLabel: { font: Roboto Regular, size: 36, colour: "#FFFFFF" }
     gap: 50
+
+  textMenu:
+    classes: [list]
+    background: ""
+    item:
+      normal: { img: "ui/text_menu_item.png", colour: "#747474" }
+      hover: { img: "ui/text_menu_item.png", colour: "#747474" }
+      selected: { img: "ui/text_menu_item_selected.png", colour: "#FF5353" }
+      drag: ""
+      innerBorder: [ 40, 24, 40, 24 ]
+    innerBorder: [ 2, 2, 2, 2 ]
+    extraMouseBorder: [ 1, 1, 1, 1 ]
+    scrollBorder: [ 0, 0, 0, 0 ]
+    selectionChangedSound: ""
+    label: { font: Roboto Regular, size: 70, colour: "#FFFFFF" }
+    selectedLabel: { font: Roboto Regular, size: 70, colour: "#FFFFFF" }
+    disabledLabel: { font: Roboto Regular, size: 70, colour: "#747474" }
+    gap: 22
 
   labelHeader:
     classes: [label]
