@@ -48,6 +48,8 @@ children:
             widget:
               class: label
               id: game_name
+              marquee: 150
+              maxWidth: 1800
               style: labelHeader
               text: Game Name
           - uuid: 45431537-7623-426a-b69d-c3a336558c3d

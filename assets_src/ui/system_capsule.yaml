@@ -18,16 +18,26 @@ children:
       innerBorder: [17, 17, 17, 17]
       layerAdjustment: 1
     children:
-      - uuid: 537ccc56-434f-488c-9675-9dfc23780758
+      - uuid: bf54e187-6058-4435-ab6b-8260b8b071f0
+        proportion: 1
         sizer:
           columnProportions: []
         widget:
-          class: image
-          colour: "#212121"
-          id: capsule
-          image: whitebox.png
-          size: [600, 448]
-        children: []
+          class: widget
+          id: imgContainer
+          size: [598, 448]
+        children:
+          - uuid: 537ccc56-434f-488c-9675-9dfc23780758
+            proportion: 1
+            sizer:
+              columnProportions: []
+            widget:
+              class: image
+              colour: "#212121"
+              id: capsule
+              image: whitebox.png
+              size: [0, 0]
+            children: []
     fill: [centreHorizontal, centreVertical]
   - uuid: 373a303f-1e16-43e1-9ad2-456b55764948
     border: [0, 10, 0, 0]

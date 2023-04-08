@@ -134,7 +134,7 @@ GameCapsule::GameCapsule(UIFactory& factory, RetrogradeEnvironment& retrogradeEn
 void GameCapsule::onMakeUI()
 {
 	const auto capsule = getWidgetAs<UIImage>("capsule");
-	//retrogradeEnvironment.getImageCache().loadIntoOr(capsule, systemConfig->getCapsuleImage(), "systems/capsule_unknown.png");
+	retrogradeEnvironment.getImageCache().loadIntoOr(capsule, entry.getMedia(GameCollection::MediaType::Screenshot).toString(), "systems/capsule_unknown.png");
 
 	const auto name = getWidgetAs<UILabel>("name");
 	name->setText(LocalisedString::fromUserString(entry.displayName));

@@ -25,17 +25,26 @@ children:
           image: ui/shadow.png
           innerBorder: [6, 0, 6, 21]
         children:
-          - uuid: 537ccc56-434f-488c-9675-9dfc23780758
+          - uuid: aafd0a50-964a-491e-ad77-491c0d3f596e
             proportion: 1
             sizer:
               columnProportions: []
             widget:
-              class: image
-              colour: "#212121"
-              id: capsule
-              image: whitebox.png
-              size: [600, 448]
-            fill: [fillHorizontal, fillVertical]
+              class: widget
+              id: imgContainer
+              size: [598, 448]
+            children:
+              - uuid: 537ccc56-434f-488c-9675-9dfc23780758
+                proportion: 1
+                sizer:
+                  columnProportions: []
+                widget:
+                  class: image
+                  colour: "#212121"
+                  id: capsule
+                  image: whitebox.png
+                  size: [0, 0]
+                fill: [fillHorizontal, fillVertical]
     fill: [centreHorizontal, centreVertical]
   - uuid: 373a303f-1e16-43e1-9ad2-456b55764948
     border: [0, 10, 0, 0]

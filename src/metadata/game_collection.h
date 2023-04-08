@@ -6,13 +6,22 @@ using namespace Halley;
 
 class GameCollection {
 public:
+    enum class MediaType {
+	    Screenshot,
+        BoxFront,
+        BoxBack,
+        Logo
+    };
+
     struct Entry {
         String displayName;
         Vector<Path> files;
         Vector<String> tags;
+        HashMap<MediaType, Path> media;
 
         void sortFiles();
         const Path& getBestFileToLoad(const CoreConfig& coreConfig) const;
+        const Path& getMedia(MediaType type) const;
     };
 
     GameCollection(Path dir);
@@ -27,4 +36,5 @@ private:
 
     void makeEntry(const Path& path);
     std::pair<String, Vector<String>> parseName(const String& name) const;
+    void collectMediaData(Entry& entry);
 };

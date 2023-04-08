@@ -37,6 +37,16 @@ const Path& GameCollection::Entry::getBestFileToLoad(const CoreConfig& coreConfi
 	return files.front();
 }
 
+const Path& GameCollection::Entry::getMedia(MediaType type) const
+{
+	const auto iter = media.find(type);
+	if (iter == media.end()) {
+		static Path empty;
+		return empty;
+	}
+	return iter->second;
+}
+
 GameCollection::GameCollection(Path dir)
 	: dir(std::move(dir))
 {
@@ -76,6 +86,7 @@ void GameCollection::makeEntry(const Path& path)
 		result.displayName = displayName;
 		result.tags = std::move(tags);
 		index[result.displayName] = entries.size();
+		collectMediaData(result);
 		entries.push_back(std::move(result));
 	}
 }
@@ -112,4 +123,24 @@ std::pair<String, Vector<String>> GameCollection::parseName(const String& name) 
 	displayNameStr.trimBoth();
 
 	return { displayNameStr, tags };
+}
+
+void GameCollection::collectMediaData(Entry& entry)
+{
+	if (entry.files.empty()) {
+		return;
+	}
+
+	const auto gameName = entry.files[0].getFilename().replaceExtension("").toString();
+	const auto gameDir = dir / entry.files[0].parentPath();
+	const auto imageDir = gameDir / "images";
+
+	auto tryAdd = [&](MediaType type, const Path& path)
+	{
+		if (entry.media.find(type) == entry.media.end() && Path::exists(path)) {
+			entry.media[type] = path;
+		}
+	};
+
+	tryAdd(MediaType::Screenshot, imageDir / (gameName + "-image.png"));
 }

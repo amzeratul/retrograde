@@ -9,6 +9,10 @@ ImageCache::ImageCache(VideoAPI& video, Resources& resources, Path root)
 
 std::shared_ptr<const Texture> ImageCache::getTexture(std::string_view name, bool trim)
 {
+	if (name.empty()) {
+		return {};
+	}
+
 	const auto iter = textures.find(name);
 	if (iter != textures.end()) {
 		return iter->second;
@@ -44,11 +48,13 @@ void ImageCache::loadIntoOr(std::shared_ptr<UIImage> uiImage, std::string_view n
 
 	if (tex->isLoaded()) {
 		uiImage->setSprite(toSprite(std::move(tex), materialName));
+		uiImage->setMinSize(Vector2f{});
 	} else {
 		String mat = materialName;
 		tex->onLoad().then(Executors::getMainUpdateThread(), [this, tex, uiImage, mat] ()
 		{
 			uiImage->setSprite(toSprite(tex, mat));
+			uiImage->setMinSize(Vector2f{});
 		});
 	}
 }
@@ -66,7 +72,7 @@ Sprite ImageCache::toSprite(std::shared_ptr<const Texture> tex, std::string_view
 
 std::shared_ptr<Texture> ImageCache::loadTexture(std::string_view name, bool trim)
 {
-	const auto path = root / name;
+	const auto path = Path(name).isAbsolute() ? Path(name) : root / name;
 	if (!Path::exists(path)) {
 		return {};
 	}
