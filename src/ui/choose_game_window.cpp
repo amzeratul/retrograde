@@ -47,15 +47,6 @@ void ChooseGameWindow::onMakeUI()
 		onGameSelected(event.getIntData());
 	});
 
-	setHandle(UIEventType::ImageUpdated, "game_image", [=] (const UIEvent& event)
-	{
-		const auto size = event.getConfigData().asVector2f({});
-		const auto dstSize = Vector2f(550.0f, 550.0f);
-		const auto scale = size / dstSize;
-		const auto finalSize = size / std::max(scale.x, scale.y);
-		getWidgetAs<UIImage>("game_image")->setMinSize(finalSize);
-	});
-
 	const auto gameList = getWidgetAs<UIList>("gameList");
 	for (size_t i = 0; i < collection.getEntries().size(); ++i) {
 		const auto& entry = collection.getEntries()[i];
@@ -133,7 +124,7 @@ void ChooseGameWindow::onGameSelected(size_t gameIdx)
 
 	getWidgetAs<UILabel>("game_description")->setText(LocalisedString::fromUserString(entry.description));
 
-	retrogradeEnvironment.getImageCache().loadIntoOr(getWidgetAs<UIImage>("game_image"), entry.getMedia(GameCollection::MediaType::BoxFront).toString(), "systems/info_unknown.png");
+	retrogradeEnvironment.getImageCache().loadIntoOr(getWidgetAs<UIImage>("game_image"), entry.getMedia(GameCollection::MediaType::BoxFront).toString(), "systems/info_unknown.png", "Halley/Sprite", Vector2f(550.0f, 550.0f));
 }
 
 void ChooseGameWindow::onErrorDueToNoCoreAvailable()

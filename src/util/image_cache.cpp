@@ -52,7 +52,10 @@ void ImageCache::loadIntoOr(std::shared_ptr<UIImage> uiImage, std::string_view n
 	{
 		uiImage->setSprite(toSprite(tex, mat));
 		if (maxSize) {
-			uiImage->setMinSize(Vector2f::min(*maxSize, uiImage->getMinimumSize()));
+			const auto size = uiImage->getMinimumSize();
+			const auto scale = size / *maxSize;
+			const auto finalSize = size / std::max(scale.x, scale.y);
+			uiImage->setMinSize(finalSize);
 		}
 		uiImage->sendEvent(UIEvent(UIEventType::ImageUpdated, uiImage->getId(), ConfigNode(uiImage->getMinimumSize())));
 	};

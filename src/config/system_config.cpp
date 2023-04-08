@@ -59,6 +59,7 @@ bool Date::operator!=(const Date& other) const
 SystemRegionConfig::SystemRegionConfig(const ConfigNode& node)
 {
 	name = node["name"].asString();
+	logo = node["logo"].asString("");
 	regions = node["regions"].asVector<String>();
 }
 
@@ -67,9 +68,23 @@ const String& SystemRegionConfig::getName() const
 	return name;
 }
 
+const String& SystemRegionConfig::getLogo() const
+{
+	return logo;
+}
+
 const Vector<String>& SystemRegionConfig::getRegions() const
 {
 	return regions;
+}
+
+String SystemRegionConfig::getLogoImage() const
+{
+	if (logo.isEmpty()) {
+		return "";
+	} else {
+		return "systems/logos/" + logo;
+	}
 }
 
 
@@ -163,9 +178,4 @@ String SystemConfig::getDescriptionKey() const
 String SystemConfig::getInfoImage() const
 {
 	return "systems/info_" + id + ".png";
-}
-
-String SystemConfig::getCapsuleImage() const
-{
-	return "systems/capsule_" + id + ".png";
 }

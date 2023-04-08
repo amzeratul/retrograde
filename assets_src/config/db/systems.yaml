@@ -4,6 +4,7 @@ systems:
     regions:
       - name: MS-DOS
         region: [world]
+        logo: "MS-DOS.png"
     cores: [dosbox]
     manufacturer: Microsoft
     releaseDate: 1981
@@ -14,6 +15,7 @@ systems:
     regions:
       - name: ZX Spectrum
         region: [world]
+        logo: "Sinclair ZX Spectrum.png"
     cores: []
     manufacturer: Sinclair
     releaseDate: 1982-04-23
@@ -24,6 +26,7 @@ systems:
     regions:
       - name: Commodore 64
         region: [world]
+        logo: "Commodore 64.png"
     cores: []
     manufacturer: Commodore
     releaseDate: 1982-08
@@ -34,6 +37,7 @@ systems:
     regions:
       - name: Amiga
         region: [world]
+        logo: "Commodore Amiga.png"
     cores: []
     manufacturer: Commodore
     releaseDate: 1985
@@ -44,6 +48,7 @@ systems:
     regions:
       - name: MSX
         region: [world]
+        logo: "Microsoft MSX.png"
     cores: []
     manufacturer: ASCII
     releaseDate: 1983-10-21
@@ -58,6 +63,7 @@ systems:
     regions: 
       - name: Atari 2600
         region: [world]
+        logo: "Atari 2600.png"
     cores: [stella]
     manufacturer: Atari
     releaseDate: 1977-09-11
@@ -69,6 +75,7 @@ systems:
     regions: 
       - name: Atari 5200
         region: [world]
+        logo: "Atari 5200.png"
     cores: []
     manufacturer: Atari
     releaseDate: 1982-05-21
@@ -80,6 +87,7 @@ systems:
     regions: 
       - name: ColecoVision
         region: [world]
+        logo: "ColecoVision.png"
     cores: []
     manufacturer: Coleco
     releaseDate: 1982-08
@@ -91,6 +99,7 @@ systems:
     regions: 
       - name: Intellivision
         region: [world]
+        logo: "Mattel IntelliVision.png"
     cores: []
     manufacturer: Mattel
     releaseDate: 1979
@@ -102,6 +111,7 @@ systems:
     regions: 
       - name: Odyssey 2
         region: [world]
+        logo: "Magnavox Odyssey 2.png"
     cores: []
     manufacturer: Magnavox
     releaseDate: 1978-09
@@ -115,8 +125,10 @@ systems:
     regions: 
       - name: Nintendo Entertainment System
         region: [world]
+        logo: "Nintendo Entertainment System.png"
       - name: Famicom
         region: [jp]
+        logo: "Nintendo Famicom.png"
     cores: [nestopia, mesen]
     manufacturer: Nintendo
     releaseDate: 1983-07-15
@@ -126,8 +138,9 @@ systems:
     screenFilters: [crt-composite-ntsc-3phase]
   - id: mastersystem
     regions:
-      - name: Master System
+      - name: Sega Master System
         region: [world]
+        logo: "Sega Master System.png"
     cores: [genesis_plus_gx]
     manufacturer: Sega
     releaseDate: 1985-10-20
@@ -139,6 +152,7 @@ systems:
     regions:
       - name: Atari 7800
         region: [world]
+        logo: "Atari 7800.png"
     cores: []
     manufacturer: Atari
     releaseDate: 1986-05-01
@@ -152,8 +166,10 @@ systems:
     regions: 
       - name: Super Nintendo Entertainment System
         region: [world]
+        logo: "Super Nintendo Entertainment System.png"
       - name: Super Famicom
         region: [jp]
+        logo: "Nintendo Super Famicom.png"
     cores: [snes9x, bsnes]
     manufacturer: Nintendo
     releaseDate: 1990-11-21
@@ -163,10 +179,12 @@ systems:
     screenFilters: [crt-composite-ntsc-3phase]
   - id: megadrive
     regions:
-      - name: Mega Drive
+      - name: Sega Mega Drive
         region: [world]
+        logo: "Sega Mega Drive.png"
       - name: Sega Genesis
         region: [us]
+        logo: "Sega Genesis.png"
     cores: [genesis_plus_gx]
     manufacturer: Sega
     releaseDate: 1988-10-29
@@ -176,10 +194,12 @@ systems:
     screenFilters: [crt-composite-ntsc-2phase-megadrive, crt-composite-ntsc-2phase]
   - id: megacd
     regions:
-      - name: Mega CD
+      - name: Sega Mega CD
         region: [world]
+        logo: "Sega Mega-CD.png"
       - name: Sega CD
         region: [us, br]
+        logo: "Sega CD.png"
     cores: [genesis_plus_gx]
     manufacturer: Sega
     releaseDate: 1991-12-12
@@ -191,8 +211,10 @@ systems:
     regions:
       - name: PC Engine
         region: [world]
+        logo: "NEC PC Engine.png"
       - name: TurboGrafx-16
         region: [us]
+        logo: "NEC TurboGrafx-16.png"
     cores: []
     manufacturer: NEC
     releaseDate: 1987-10-30
@@ -202,8 +224,9 @@ systems:
     screenFilters: [crt-composite-ntsc-2phase]
   - id: cdi
     regions:
-      - name: CD-i
+      - name: Philips CD-i
         region: [world]
+        logo: "Philips CD-i.png"
     cores: []
     manufacturer: Philips
     releaseDate: 1991-10-03
@@ -217,6 +240,7 @@ systems:
     regions:
       - name: Game Boy
         region: [world]
+        logo: "Nintendo Game Boy.png"
     cores: [gambatte]
     manufacturer: Nintendo
     releaseDate: 1989-04-21
@@ -227,8 +251,9 @@ systems:
     bezels: [gameboy-pocket, gameboy]
   - id: gamegear
     regions:
-      - name: Game Gear
+      - name: Sega Game Gear
         region: [world]
+        logo: "Sega Game Gear.png"
     cores: [genesis_plus_gx]
     manufacturer: Sega
     releaseDate: 1990-10-06
@@ -238,8 +263,9 @@ systems:
     screenFilters: [lcd-grid]
   - id: lynx
     regions:
-      - name: Lynx
+      - name: Atari Lynx
         region: [world]
+        logo: "Atari Lynx.png"
     cores: []
     manufacturer: Atari
     releaseDate: 1989-09-01
@@ -247,25 +273,13 @@ systems:
     category: handheld
     unitsSold: 2000000
     screenFilters: [lcd-grid]
-  - id: pcenginegt
-    regions:
-      - name: PC Engine GT
-        region: [world]
-      - name: TurboExpress
-        region: [us]
-    cores: []
-    manufacturer: NEC
-    releaseDate: 1990-12-01
-    generation: 4
-    category: handheld
-    unitsSold: 1500000
-    screenFilters: [lcd-grid]
 
   # 4th Generation Arcade
   - id: neogeo
     regions:
       - name: Neo Geo
         region: [world]
+        logo: "SNK Neo Geo MVS.png"
     cores: [fbneo]
     manufacturer: SNK
     releaseDate: 1990-04-26
@@ -274,8 +288,9 @@ systems:
     screenFilters: [crt-rgb]
   - id: cps1
     regions:
-      - name: CP System I
+      - name: Capcom Play System I
         region: [world]
+        logo: "Capcom Play System.png"
     cores: [fbneo]
     manufacturer: Capcom
     releaseDate: 1988-05-13
@@ -284,8 +299,9 @@ systems:
     screenFilters: [crt-rgb]
   - id: cps2
     regions:
-      - name: CP System II
+      - name: Capcom Play System II
         region: [world]
+        logo: "Capcom Play System II.png"
     cores: [fbneo]
     manufacturer: Capcom
     releaseDate: 1993-09-10
@@ -294,8 +310,9 @@ systems:
     screenFilters: [crt-rgb]
   - id: cps3
     regions:
-      - name: CP System III
+      - name: Capcom Play System III
         region: [world]
+        logo: "Capcom Play System III.png"
     cores: [fbneo]
     manufacturer: Capcom
     releaseDate: 1996-10-23
@@ -304,8 +321,9 @@ systems:
     screenFilters: [crt-rgb]
   - id: tunit
     regions:
-      - name: T Unit
+      - name: Midway T Unit
         region: [world]
+        logo: "Midway Classics.png"
     cores: []
     manufacturer: Midway
     releaseDate: 1992
@@ -314,8 +332,9 @@ systems:
     screenFilters: [crt-rgb]
   - id: wolfunit
     regions:
-      - name: Wolf Unit
+      - name: Midway Wolf Unit
         region: [world]
+        logo: "Midway Classics.png"
     cores: []
     manufacturer: Midway
     releaseDate: 1994
@@ -328,6 +347,7 @@ systems:
     regions:
       - name: Nintendo 64
         region: [world]
+        logo: "Nintendo 64.png"
     cores: [mupen64plus_next, parallel_n64]
     manufacturer: Nintendo
     releaseDate: 1996-06-23
@@ -337,8 +357,9 @@ systems:
     screenFilters: [crt-svideo]
   - id: 32x
     regions:
-      - name: 32X
+      - name: Sega 32X
         region: [world]
+        logo: "Sega 32X.png"
     cores: []
     manufacturer: Sega
     releaseDate: 1994-11-21
@@ -348,8 +369,9 @@ systems:
     screenFilters: [crt-composite-ntsc-2phase-megadrive, crt-composite-ntsc-2phase]
   - id: saturn
     regions:
-      - name: Saturn
+      - name: Sega Saturn
         region: [world]
+        logo: "Sega Saturn.png"
     cores: [mednafen_saturn]
     manufacturer: Sega
     releaseDate: 1994-11-22
@@ -359,8 +381,9 @@ systems:
     screenFilters: [crt-svideo]
   - id: jaguar
     regions: 
-      - name: Jaguar
+      - name: Atari Jaguar
         region: [world]
+        logo: "Atari Jaguar.png"
     cores: []
     manufacturer: Atari
     releaseDate: 1993-11-23
@@ -372,6 +395,7 @@ systems:
     regions:
       - name: PlayStation
         region: [world]
+        logo: "Sony Playstation.png"
     cores: [swanstation]
     manufacturer: Sony
     releaseDate: 1994-12-03
@@ -383,6 +407,7 @@ systems:
     regions:
       - name: 3DO
         region: [world]
+        logo: "3DO Interactive Multiplayer.png"
     cores: []
     manufacturer: 3DO
     releaseDate: 1993-10-04
@@ -396,6 +421,7 @@ systems:
     regions:
       - name: Game Boy Color
         region: [world]
+        logo: "Nintendo Game Boy Color.png"
     cores: [gambatte]
     manufacturer: Nintendo
     releaseDate: 1998-10-21
@@ -408,6 +434,7 @@ systems:
     regions:
       - name: Virtual Boy
         region: [world]
+        logo: "Nintendo Virtual Boy.png"
     cores: []
     manufacturer: Nintendo
     releaseDate: 1995-07-21
@@ -415,21 +442,11 @@ systems:
     category: handheld
     unitsSold: 770000
     screenFilters: [lcd-grid]
-  - id: nomad
-    regions:
-      - name: Nomad
-        region: [world]
-    cores: [genesis_plus_gx]
-    manufacturer: Sega
-    releaseDate: 1995-10-01
-    generation: 5
-    category: handheld
-    unitsSold: 1000000
-    screenFilters: [lcd-grid]
   - id: ngp
     regions:
       - name: Neo Geo Pocket
         region: [world]
+        logo: "SNK Neo Geo Pocket.png"
     cores: []
     manufacturer: SNK
     releaseDate: 1998-10-28
@@ -441,6 +458,7 @@ systems:
     regions:
       - name: Neo Geo Pocket Color
         region: [world]
+        logo: "SNK Neo Geo Pocket Color.png"
     cores: []
     manufacturer: SNK
     releaseDate: 1999-03-16
@@ -452,8 +470,9 @@ systems:
   # 5th Generation Arcade
   - id: model2
     regions:
-      - name: Model 2
+      - name: Sega Model 2
         region: [world]
+        logo: "Sega Model 2.png"
     cores: []
     manufacturer: Sega
     releaseDate: 1994-03
@@ -462,8 +481,9 @@ systems:
     screenFilters: [crt-rgb]
   - id: model3
     regions:
-      - name: Model 3
+      - name: Sega Model 3
         region: [world]
+        logo: "Sega Model 3.png"
     cores: []
     manufacturer: Sega
     releaseDate: 1996-07-26
@@ -474,8 +494,9 @@ systems:
   # 6th Generation Consoles
   - id: gamecube
     regions:
-      - name: GameCube
+      - name: Nintendo GameCube
         region: [world]
+        logo: "Nintendo GameCube.png"
     cores: [dolphin]
     manufacturer: Nintendo
     releaseDate: 2001-09-14
@@ -485,8 +506,9 @@ systems:
     screenFilters: [crt-svideo]
   - id: dreamcast
     regions:
-      - name: Dreamcast
+      - name: Sega Dreamcast
         region: [world]
+        logo: "Sega Dreamcast.png"
     cores: []
     manufacturer: Sega
     releaseDate: 1998-11-27
@@ -498,6 +520,7 @@ systems:
     regions:
       - name: PlayStation 2
         region: [world]
+        logo: "Sony Playstation 2.png"
     cores: [pcsx2]
     manufacturer: Sony
     releaseDate: 2000-03-04
@@ -509,6 +532,7 @@ systems:
     regions:
       - name: Xbox
         region: [world]
+        logo: "Microsoft Xbox.png"
     cores: []
     manufacturer: Microsoft
     releaseDate: 2001-11-15
@@ -522,6 +546,7 @@ systems:
     regions:
       - name: Game Boy Advance
         region: [world]
+        logo: "Nintendo Game Boy Advance.png"
     cores: [mgba, mednafen_gba]
     manufacturer: Nintendo
     releaseDate: 2001-03-21
@@ -534,6 +559,7 @@ systems:
     regions:
       - name: WonderSwan
         region: [world]
+        logo: "WonderSwan.png"
     cores: []
     manufacturer: Bandai
     releaseDate: 1999-03-04
@@ -546,6 +572,7 @@ systems:
     regions:
       - name: WonderSwan Color
         region: [world]
+        logo: "WonderSwan Color.png"
     cores: []
     manufacturer: Bandai
     releaseDate: 2000-12-09
@@ -560,6 +587,7 @@ systems:
     regions:
       - name: NAOMI
         region: [world]
+        logo: "Sega Naomi.png"
     cores: []
     manufacturer: Sega
     releaseDate: 1998-11-20
@@ -570,6 +598,7 @@ systems:
     regions:
       - name: Atomiswave
         region: [world]
+        logo: "Sammy Atomiswave.png"
     cores: []
     manufacturer: Sammy
     releaseDate: 2003-04
@@ -584,6 +613,7 @@ systems:
     regions:
       - name: Nintendo DS
         region: [world]
+        logo: "Nintendo DS.png"
     cores: [melonds, desmume]
     manufacturer: Nintendo
     releaseDate: 2004-11-21
@@ -596,6 +626,7 @@ systems:
     regions:
       - name: PlayStation Portable
         region: [world]
+        logo: "Sony PSP.png"
     cores: []
     manufacturer: Sony
     releaseDate: 2004-12-12

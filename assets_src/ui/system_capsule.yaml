@@ -15,17 +15,18 @@ children:
       colour: "#ff535300"
       id: selBorder
       image: ui/grid_item_selected.png
-      innerBorder: [17, 17, 17, 17]
+      innerBorder: [0, 0, 0, 0]
       layerAdjustment: 1
     children:
-      - uuid: bf54e187-6058-4435-ab6b-8260b8b071f0
-        proportion: 1
+      - uuid: 70af571e-aa45-4e05-84c3-9b90ef67742e
+        border: [2, 6, 2, -13]
         sizer:
           columnProportions: []
         widget:
-          class: widget
-          id: imgContainer
-          size: [598, 448]
+          class: image
+          image: ui/system_capsule.png
+          innerBorder: [10, 4, 10, 25]
+          rotation: 0
         children:
           - uuid: 537ccc56-434f-488c-9675-9dfc23780758
             proportion: 1
@@ -38,6 +39,7 @@ children:
               image: whitebox.png
               size: [0, 0]
             children: []
+            fill: [centreHorizontal, centreVertical]
     fill: [centreHorizontal, centreVertical]
   - uuid: 373a303f-1e16-43e1-9ad2-456b55764948
     border: [0, 10, 0, 0]

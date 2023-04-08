@@ -5,21 +5,23 @@ Profile selector:
 - Basic UI
 
 Console selector:
+- New UI
 
 Game list UI:
-- Scrape online data (!)
-- Show videos (!)
-- Show metadata
-- Render PDF manual (!!) (Try PDFium?)
-- Filter
+* Load metadata from EmulationStation
+* Show videos (!)
 - Quick browse
+- Filter
+- Scrape online data (!)
+- Render PDF manual (!!) (Try PDFium?)
 
 Input chooser UI
 - Basic UI
 
 In-game UI:
+* Savestates
+* Browse media
 - Swap disc
-- Savestates
 - Configure core
 
 General settings UI:

@@ -183,11 +183,14 @@ SystemCapsule::SystemCapsule(UIFactory& factory, RetrogradeEnvironment& retrogra
 
 void SystemCapsule::onMakeUI()
 {
+	const auto& regionConfig = systemConfig->getRegion(region);
+
+	const auto maxSize = Vector2f(500, 300);
 	const auto capsule = getWidgetAs<UIImage>("capsule");
-	retrogradeEnvironment.getImageCache().loadIntoOr(capsule, systemConfig->getCapsuleImage(), "systems/capsule_unknown.png");
+	retrogradeEnvironment.getImageCache().loadIntoOr(capsule, regionConfig.getLogoImage(), "", "Halley/Sprite", maxSize);
 
 	const auto name = getWidgetAs<UILabel>("name");
-	name->setText(LocalisedString::fromUserString(systemConfig->getRegion(region).getName()));
+	name->setText(LocalisedString::fromUserString(regionConfig.getName()));
 
 	const auto selBorder = getWidgetAs<UIImage>("selBorder");
 	const auto col = selBorder->getSprite().getColour();

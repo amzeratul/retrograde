@@ -48,10 +48,13 @@ public:
     SystemRegionConfig(const ConfigNode& node);
 
     const String& getName() const;
+    const String& getLogo() const;
     const Vector<String>& getRegions() const;
+    String getLogoImage() const;
 
 private:
     String name;
+    String logo;
     Vector<String> regions;
 };
 
@@ -74,7 +77,6 @@ public:
 
 	String getDescriptionKey() const;
     String getInfoImage() const;
-    String getCapsuleImage() const;
 
 private:
     String id;
