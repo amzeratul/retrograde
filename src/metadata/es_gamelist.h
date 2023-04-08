@@ -7,6 +7,7 @@ using namespace Halley;
 class ESGameList {
 public:
 	struct Entry {
+		int id;
 		String path;
 		String name;
 		String desc;
@@ -23,9 +24,10 @@ public:
 		String publisher;
 		String genre;
 		String family;
-		int minPlayers = 0;
-		int maxPlayers = 0;
+		Range<int> players;
 		bool hidden = false;
+		bool kidGame = false;
+		Date lastPlayed;
 		String md5;
 		String lang;
 		String region;

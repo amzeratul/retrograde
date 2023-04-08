@@ -62,7 +62,7 @@ void GameCollection::scanGames()
 {
 	const auto gameListPath = dir / "gamelist.xml";
 	if (Path::exists(gameListPath)) {
-		//esGameList = std::make_shared<ESGameList>(gameListPath);
+		esGameList = std::make_shared<ESGameList>(gameListPath);
 	}
 
 	entries.clear();
@@ -131,7 +131,7 @@ GameCollection::Entry GameCollection::makeEntryForFile(const Path& path, const S
 
 	// Try reading from EmulationStation gamelist.xml
 	if (esGameList) {
-		if (const auto* gameListData = esGameList->findData(path.makeRelativeTo(dir).toString())) {
+		if (const auto* gameListData = esGameList->findData(path.toString())) {
 			result.sortName = gameListData->name;
 			result.displayName = postProcessName(gameListData->name);
 			result.date = gameListData->releaseDate;
@@ -139,12 +139,12 @@ GameCollection::Entry GameCollection::makeEntryForFile(const Path& path, const S
 			result.developer = gameListData->developer;
 			result.publisher = gameListData->publisher;
 			result.genre = gameListData->genre;
-			result.nPlayers = Range<int>(gameListData->minPlayers, gameListData->maxPlayers);
+			result.nPlayers = gameListData->players;
 
 			auto tryAdd = [&](MediaType type, const String& str)
 			{
 				if (!str.isEmpty()) {
-					result.media[type] = str;
+					result.media[type] = (dir / str).getString();
 				}
 			};
 
