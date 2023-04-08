@@ -34,6 +34,7 @@ set (SOURCES
 	"src/libretro/libretro_core.cpp"
 	"src/libretro/libretro_vfs.cpp"
 
+	"src/metadata/es_gamelist.cpp"
 	"src/metadata/game_collection.cpp"
 
 	"src/retrograde/game_stage.cpp"
@@ -100,6 +101,7 @@ set (HEADERS
 	"src/libretro/libretro_d3d.h"
 	"src/libretro/libretro_vulkan.h"
 
+	"src/metadata/es_gamelist.h"
 	"src/metadata/game_collection.h"
 
 	"src/retrograde/game_stage.h"

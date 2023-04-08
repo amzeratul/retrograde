@@ -2,6 +2,7 @@
 
 #include <filesystem>
 
+#include "es_gamelist.h"
 #include "src/config/core_config.h"
 
 void GameCollection::Entry::sortFiles()
@@ -59,6 +60,11 @@ GameCollection::GameCollection(Path dir)
 
 void GameCollection::scanGames()
 {
+	const auto gameListPath = dir / "gamelist.xml";
+	if (Path::exists(gameListPath)) {
+		//esGameList = std::make_shared<ESGameList>(gameListPath);
+	}
+
 	entries.clear();
 	fileIndex.clear();
 	nameIndex.clear();
@@ -110,15 +116,55 @@ void GameCollection::makeEntry(const Path& path)
 		entry.files.push_back(path);
 		entry.sortFiles();
 	} else {
-		Entry result;
-		result.files.push_back(path);
-		result.sortName = cleanName;
-		result.displayName = postProcessName(cleanName);
+		Entry result = makeEntryForFile(path, cleanName);
 		result.tags = std::move(tags);
+
 		nameIndex[cleanName] = entries.size();
-		collectMediaData(result);
 		entries.push_back(std::move(result));
 	}
+}
+
+GameCollection::Entry GameCollection::makeEntryForFile(const Path& path, const String& cleanName)
+{
+	Entry result;
+	result.files.push_back(path);
+
+	// Try reading from EmulationStation gamelist.xml
+	if (esGameList) {
+		if (const auto* gameListData = esGameList->findData(path.makeRelativeTo(dir).toString())) {
+			result.sortName = gameListData->name;
+			result.displayName = postProcessName(gameListData->name);
+			result.date = gameListData->releaseDate;
+			result.description = gameListData->desc;
+			result.developer = gameListData->developer;
+			result.publisher = gameListData->publisher;
+			result.genre = gameListData->genre;
+			result.nPlayers = Range<int>(gameListData->minPlayers, gameListData->maxPlayers);
+
+			auto tryAdd = [&](MediaType type, const String& str)
+			{
+				if (!str.isEmpty()) {
+					result.media[type] = str;
+				}
+			};
+
+			tryAdd(MediaType::Screenshot, gameListData->image);
+			tryAdd(MediaType::BoxFront, gameListData->thumbnail);
+			tryAdd(MediaType::BoxBack, gameListData->boxback);
+			tryAdd(MediaType::Logo, gameListData->marquee);
+			tryAdd(MediaType::Manual, gameListData->manual);
+			tryAdd(MediaType::Video, gameListData->video);
+
+			return result;
+		}
+	}
+
+	// Fallback
+	result.nPlayers = Range<int>(0, 0);
+	result.sortName = cleanName;
+	result.displayName = postProcessName(cleanName);
+	collectMediaData(result);
+	return result;
 }
 
 std::pair<String, Vector<String>> GameCollection::parseName(const String& name)

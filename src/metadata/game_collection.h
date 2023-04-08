@@ -5,15 +5,19 @@
 #include "src/config/system_config.h"
 
 class CoreConfig;
+class ESGameList;
 using namespace Halley;
 
 class GameCollection {
 public:
     enum class MediaType {
 	    Screenshot,
+        TitleScreen,
         BoxFront,
         BoxBack,
-        Logo
+        Logo,
+        Video,
+        Manual
     };
 
     struct Entry {
@@ -27,7 +31,7 @@ public:
         String publisher;
         String genre;
         Date date;
-        int nPlayers = 0;
+        Range<int> nPlayers;
 
         void sortFiles();
         const Path& getBestFileToLoad(const CoreConfig& coreConfig) const;
@@ -47,8 +51,10 @@ private:
     Vector<Entry> entries;
     HashMap<String, size_t> nameIndex;
     HashMap<String, size_t> fileIndex;
+    std::shared_ptr<ESGameList> esGameList;
 
     void makeEntry(const Path& path);
+    Entry makeEntryForFile(const Path& path, const String& cleanName);
     void collectMediaData(Entry& entry);
 
 	static std::pair<String, Vector<String>> parseName(const String& name);

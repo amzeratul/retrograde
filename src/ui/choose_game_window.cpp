@@ -122,7 +122,7 @@ void ChooseGameWindow::onGameSelected(size_t gameIdx)
 	loadCapsuleInfo("game_capsule_date", "game_info_date", entry.date.toString());
 	loadCapsuleInfo("game_capsule_developer", "game_info_developer", entry.developer);
 	loadCapsuleInfo("game_capsule_genre", "game_info_genre", entry.genre);
-	loadCapsuleInfo("game_capsule_nPlayers", "game_info_nPlayers", toString(entry.nPlayers));
+	loadCapsuleInfo("game_capsule_nPlayers", "game_info_nPlayers", toString(entry.nPlayers.end));
 
 	getWidgetAs<UILabel>("game_description")->setText(LocalisedString::fromUserString(entry.description));
 
