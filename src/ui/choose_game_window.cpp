@@ -52,6 +52,8 @@ void ChooseGameWindow::onMakeUI()
 		const auto& entry = collection.getEntries()[i];
 		gameList->addItem(toString(i), std::make_shared<GameCapsule>(factory, retrogradeEnvironment, entry));
 	}
+
+	retrogradeEnvironment.getImageCache().loadIntoOr(getWidgetAs<UIImage>("system_logo"), systemConfig.getRegion("world").getLogoImage(), "", "Halley/Sprite", Vector2f(780.0f, 400.0f));
 }
 
 void ChooseGameWindow::onAddedToRoot(UIRoot& root)
