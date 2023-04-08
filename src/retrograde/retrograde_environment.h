@@ -2,6 +2,7 @@
 
 #include <halley.hpp>
 
+#include "settings.h"
 #include "src/filter_chain/filter_chain.h"
 #include "src/ui/choose_game_window.h"
 
@@ -35,14 +36,22 @@ public:
 	std::shared_ptr<InputVirtual> getUIInput();
 	ImageCache& getImageCache() const;
 
+	void setProfileId(String id);
+	const String& getProfileId();
+
+	Settings& getSettings();
+
 private:
 	RetrogradeGame& game;
 	Resources& resources;
 	const HalleyAPI& halleyAPI;
 
 	ConfigDatabase configDatabase;
+	Settings settings;
 	
 	Path rootDir;
+	Path profilesDir;
+	Path curProfileDir;
 	Path systemDir;
 	Path saveDir;
 	Path coresDir;
@@ -50,6 +59,8 @@ private:
 	Path shadersDir;
 	Path imagesDir;
 	Path coreAssetsDir;
+
+	String profileId;
 
 	std::shared_ptr<InputVirtual> uiInput;
 

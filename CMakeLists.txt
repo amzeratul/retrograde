@@ -39,6 +39,7 @@ set (SOURCES
 	"src/retrograde/game_stage.cpp"
 	"src/retrograde/retrograde_environment.cpp"
 	"src/retrograde/retrograde_game.cpp"
+	"src/retrograde/settings.cpp"
 
 	"src/savestate/rewind_data.cpp"
 
@@ -104,6 +105,7 @@ set (HEADERS
 	"src/retrograde/game_stage.h"
 	"src/retrograde/retrograde_environment.h"
 	"src/retrograde/retrograde_game.h"
+	"src/retrograde/settings.h"
 
 	"src/savestate/rewind_data.h"
 

@@ -5,22 +5,46 @@ sizer:
 widget:
   class: widget
 children:
-  - uuid: 537ccc56-434f-488c-9675-9dfc23780758
+  - uuid: ba1b2788-9229-4634-b634-6a9587934dbb
     sizer:
       columnProportions: []
     widget:
       class: image
-      colour: "#212121"
-      id: capsule
-      image: whitebox.png
-      size: [512, 384]
+      colour: "#ff535300"
+      id: selBorder
+      image: ui/grid_item_selected.png
+      innerBorder: [11, 17, 11, -4]
+      layerAdjustment: 1
+    children:
+      - uuid: a2612c06-165d-47e0-8b67-95a7acb99272
+        sizer:
+          columnProportions: []
+        widget:
+          class: image
+          id: shadow
+          image: ui/shadow.png
+          innerBorder: [6, 0, 6, 21]
+        children:
+          - uuid: 537ccc56-434f-488c-9675-9dfc23780758
+            proportion: 1
+            sizer:
+              columnProportions: []
+            widget:
+              class: image
+              colour: "#212121"
+              id: capsule
+              image: whitebox.png
+              size: [600, 448]
+            fill: [fillHorizontal, fillVertical]
+    fill: [centreHorizontal, centreVertical]
   - uuid: 373a303f-1e16-43e1-9ad2-456b55764948
     border: [0, 10, 0, 0]
     widget:
       class: label
       id: name
-      maxHeight: 50
-      maxWidth: 510
+      marquee: 0
+      maxHeight: 60
+      maxWidth: 630
       style: labelListEntry
       text: Game Name
     fill: [centreHorizontal, fillVertical]

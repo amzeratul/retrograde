@@ -138,4 +138,8 @@ void GameCapsule::onMakeUI()
 
 	const auto name = getWidgetAs<UILabel>("name");
 	name->setText(LocalisedString::fromUserString(entry.displayName));
+
+	const auto selBorder = getWidgetAs<UIImage>("selBorder");
+	const auto col = selBorder->getSprite().getColour();
+	selBorder->setSelectable(col.withAlpha(0.0f), col.withAlpha(1.0f));
 }

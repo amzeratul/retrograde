@@ -17,15 +17,13 @@ RetrogradeEnvironment::RetrogradeEnvironment(RetrogradeGame& game, Path _rootDir
 	, rootDir(std::move(_rootDir))
 {
 	systemDir = rootDir / "system";
+	profilesDir = rootDir / "profiles";
 	coresDir = rootDir / "cores";
-	saveDir = rootDir / "save";
-	romsDir = rootDir / "roms";
 	shadersDir = rootDir / "shaders";
 	imagesDir = rootDir / "images";
 	coreAssetsDir = rootDir / "coreAssets";
 
 	std::error_code ec;
-	std::filesystem::create_directories(saveDir.getNativeString().cppStr(), ec);
 	std::filesystem::create_directories(coreAssetsDir.getNativeString().cppStr(), ec);
 
 	configDatabase.init<BezelConfig>("bezels");
@@ -35,6 +33,9 @@ RetrogradeEnvironment::RetrogradeEnvironment(RetrogradeGame& game, Path _rootDir
 	configDatabase.load(resources, "db/");
 
 	imageCache = std::make_shared<ImageCache>(*halleyAPI.video, resources, imagesDir);
+
+	settings.load(rootDir / "config" / "settings.yaml");
+	romsDir = settings.getRomsDir().isAbsolute() ? settings.getRomsDir() : (rootDir / settings.getRomsDir());
 }
 
 const Path& RetrogradeEnvironment::getSystemDir() const
@@ -142,6 +143,26 @@ std::shared_ptr<InputVirtual> RetrogradeEnvironment::getUIInput()
 ImageCache& RetrogradeEnvironment::getImageCache() const
 {
 	return *imageCache;
+}
+
+void RetrogradeEnvironment::setProfileId(String id)
+{
+	profileId = std::move(id);
+	curProfileDir = profilesDir / profileId;
+	saveDir = curProfileDir / "save";
+	std::error_code ec;
+	std::filesystem::create_directories(curProfileDir.getNativeString().cppStr(), ec);
+	std::filesystem::create_directories(saveDir.getNativeString().cppStr(), ec);
+}
+
+const String& RetrogradeEnvironment::getProfileId()
+{
+	return profileId;
+}
+
+Settings& RetrogradeEnvironment::getSettings()
+{
+	return settings;
 }
 
 std::shared_ptr<InputVirtual> RetrogradeEnvironment::makeUIInput()

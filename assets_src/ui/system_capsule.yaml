@@ -5,20 +5,37 @@ sizer:
 widget:
   class: widget
 children:
-  - uuid: 537ccc56-434f-488c-9675-9dfc23780758
+  - uuid: b1cf690d-b622-4d06-b98c-4430bbebfe69
+    proportion: 1
+    border: [0, 0, 0, 0]
     sizer:
       columnProportions: []
     widget:
       class: image
-      colour: "#212121"
-      id: capsule
-      image: whitebox.png
-      size: [612, 532]
+      colour: "#ff535300"
+      id: selBorder
+      image: ui/grid_item_selected.png
+      innerBorder: [17, 17, 17, 17]
+      layerAdjustment: 1
+    children:
+      - uuid: 537ccc56-434f-488c-9675-9dfc23780758
+        sizer:
+          columnProportions: []
+        widget:
+          class: image
+          colour: "#212121"
+          id: capsule
+          image: whitebox.png
+          size: [600, 448]
+        children: []
+    fill: [centreHorizontal, centreVertical]
   - uuid: 373a303f-1e16-43e1-9ad2-456b55764948
     border: [0, 10, 0, 0]
     widget:
       class: label
       id: name
+      marquee: 0
+      maxWidth: 630
       style: labelListEntry
       text: System Name
     fill: [centreHorizontal, fillVertical]

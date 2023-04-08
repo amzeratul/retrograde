@@ -22,18 +22,18 @@ uiStyle:
     classes: [list]
     background: ""
     item:
-      normal: { img: "ui/grid_item.png", colour: "#FFFFFF" }
-      hover: { img: "ui/grid_item.png", colour: "#FFFFFF" }
-      selected: { img: "ui/grid_item_selected.png", colour: "#FF5353" }
+      normal: ""
+      hover: ""
+      selected: ""
       drag: ""
       innerBorder: [ 24, 24, 24, 24 ]
     innerBorder: [ 2, 2, 2, 2 ]
     extraMouseBorder: [ 1, 1, 1, 1 ]
     scrollBorder: [ 200, 100, 200, 100 ]
     selectionChangedSound: ""
-    label: { font: Roboto Regular, size: 36, colour: "#FFFFFF" }
-    selectedLabel: { font: Roboto Regular, size: 36, colour: "#FFFFFF" }
-    disabledLabel: { font: Roboto Regular, size: 36, colour: "#FFFFFF" }
+    label: { font: Roboto Regular, size: 48, colour: "#FFFFFF" }
+    selectedLabel: { font: Roboto Regular, size: 48, colour: "#FFFFFF" }
+    disabledLabel: { font: Roboto Regular, size: 48, colour: "#FFFFFF" }
     gap: 50
 
   textMenu:
@@ -56,7 +56,7 @@ uiStyle:
 
   labelHeader:
     classes: [label]
-    label: { font: Roboto Regular, size: 96, colour: "#FFFFFF" }
+    label: { font: Roboto Regular, size: 90, colour: "#FFFFFF" }
 
   labelRegular:
     classes: [label]
@@ -64,11 +64,11 @@ uiStyle:
     
   labelDescription:
     classes: [label]
-    label: { font: Roboto Regular, size: 44, colour: "#FFFFFF" }
+    label: { font: Roboto Regular, size: 48, colour: "#FFFFFF" }
     
   labelListEntry:
     classes: [label]
-    label: { font: Roboto Regular, size: 35, colour: "#FFFFFF" }
+    label: { font: Roboto Regular, size: 48, colour: "#FFFFFF", shadowDistance: 5, shadowSmoothness: 10, shadowColour: "#000000" }
 
   rgScrollbar:
     classes: [scrollbar]

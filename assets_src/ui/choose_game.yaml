@@ -9,12 +9,15 @@ widget:
   image: whitebox.png
   material: Retrograde/RadialGradient
 children:
-  - uuid: 521a33fe-a5e6-4121-acb7-42cb2f3bed9f
-    border: [80, 80, 80, 0]
+  - uuid: 14016273-4fcc-4a86-892a-31c19539db5a
+    border: [50, 50, 50, 50]
     sizer:
       columnProportions: []
     widget:
-      class: widget
+      class: image
+      id: header_bg
+      image: ui/header.png
+      innerBorder: [50, 50, 50, 50]
     children:
       - uuid: 0363abd3-8c63-469a-89e6-ea47caea735f
         sizer:
@@ -83,13 +86,17 @@ children:
           columnProportions: []
         widget:
           class: list
-          columns: 6
+          columns: 5
           id: gameList
           options: []
           size: [0, 0]
           style: gridList
           type: grid
-  - uuid: 7c83b11b-3033-467b-bbe0-ef4396cbf853
+  - uuid: eef201be-caec-4c6e-87c8-5058d241d63a
+    sizer:
+      columnProportions: []
     widget:
-      class: widget
-      size: [0, 120]
+      class: image
+      colour: "#00000066"
+      image: whitebox.png
+      size: [0, 125]
