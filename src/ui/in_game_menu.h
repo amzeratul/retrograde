@@ -28,10 +28,12 @@ private:
 
     void setupMenu();
     void showSaveStates(bool canSave);
+    void showSwapDisc();
     void showMedia();
     void showAchievements();
 
     void onChooseOption(const String& optionId);
     void onGamepadInput(const UIInputResults& input, Time time) override;
     void close();
+    void hide();
 };

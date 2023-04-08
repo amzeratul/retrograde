@@ -230,7 +230,7 @@ void GameCanvas::doClose()
 void GameCanvas::onGamepadInput(const UIInputResults& input, Time time)
 {
 	if (input.isButtonPressed(UIGamepadInput::Button::Cancel)) {
-		getRoot()->addChild(std::make_shared<InGameMenu>(factory, environment, *this, InGameMenu::Mode::InGame));
+		openMenu();
 	}
 }
 
@@ -279,5 +279,15 @@ void GameCanvas::updateFilterChain(Vector2i screenSize)
 
 	if (!filterChain || filterChain->getId() != shader) {
 		filterChain = environment.makeFilterChain(shader);
+	}
+}
+
+void GameCanvas::openMenu()
+{
+	if (!menu || !menu->isAlive()) {
+		menu = std::make_shared<InGameMenu>(factory, environment, *this, InGameMenu::Mode::InGame);
+		getRoot()->addChild(menu);
+	} else {
+		menu->setActive(true);
 	}
 }

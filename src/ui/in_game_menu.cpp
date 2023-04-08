@@ -62,6 +62,7 @@ void InGameMenu::setupMenu()
 		options->addTextItem("resume", LocalisedString::fromHardcodedString("Resume"));
 		options->addTextItem("reset", LocalisedString::fromHardcodedString("Reset"));
 		options->addTextItem("savestate", LocalisedString::fromHardcodedString("Save/Load"));
+		options->addTextItem("swapdisc", LocalisedString::fromHardcodedString("Swap Disc"));
 		options->add(std::make_shared<UIWidget>("", Vector2f(0, 100)));
 		options->addTextItem("media", LocalisedString::fromHardcodedString("View Media"));
 		options->addTextItem("achievements", LocalisedString::fromHardcodedString("Achievements"));
@@ -72,6 +73,7 @@ void InGameMenu::setupMenu()
 	options->setItemEnabled("continue", false);
 	options->setItemEnabled("load", false);
 	options->setItemEnabled("savestate", false);
+	options->setItemEnabled("swapdisc", false);
 	options->setItemEnabled("media", false);
 	options->setItemEnabled("achievements", false);
 
@@ -87,10 +89,11 @@ void InGameMenu::setupMenu()
 void InGameMenu::onChooseOption(const String& optionId)
 {
 	if (optionId == "resume") {
-		close();
+		hide();
 	} else if (optionId == "reset") {
 		gameCanvas.resetGame();
-		close();
+		getWidgetAs<UIList>("options")->setSelectedOptionId("resume");
+		hide();
 	} else if (optionId == "new") {
 		gameCanvas.setReady();
 		close();
@@ -102,6 +105,8 @@ void InGameMenu::onChooseOption(const String& optionId)
 		showSaveStates(false);
 	} else if (optionId == "savestates") {
 		showSaveStates(true);
+	} else if (optionId == "swapdisc") {
+		showSwapDisc();
 	} else if (optionId == "media") {
 		showMedia();
 	} else if (optionId == "achievements") {
@@ -113,6 +118,11 @@ void InGameMenu::onChooseOption(const String& optionId)
 }
 
 void InGameMenu::showSaveStates(bool canSave)
+{
+	// TODO
+}
+
+void InGameMenu::showSwapDisc()
 {
 	// TODO
 }
@@ -132,12 +142,19 @@ void InGameMenu::onGamepadInput(const UIInputResults& input, Time time)
 	if (input.isButtonPressed(UIGamepadInput::Button::Cancel) || input.isButtonPressed(UIGamepadInput::Button::Secondary)) {
 		if (mode == Mode::PreStart) {
 			gameCanvas.close();
+			close();
+		} else {
+			hide();
 		}
-		close();
 	}
 }
 
 void InGameMenu::close()
 {
 	destroy();
+}
+
+void InGameMenu::hide()
+{
+	setActive(false);
 }

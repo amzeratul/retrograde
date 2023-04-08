@@ -1,6 +1,8 @@
 #pragma once
 
 #include <halley.hpp>
+
+#include "src/ui/in_game_menu.h"
 class CoreConfig;
 class SystemBezel;
 class SystemConfig;
@@ -49,6 +51,8 @@ private:
     bool gameLoaded = false;
     bool readyToLoadGame = false;
 
+	std::shared_ptr<InGameMenu> menu;
+
     void doClose();
 
 	void paint(Painter& painter) const;
@@ -59,4 +63,6 @@ private:
 
 	void updateBezels();
     void updateFilterChain(Vector2i screenSize);
+
+    void openMenu();
 };
