@@ -39,7 +39,7 @@ ResourceOptions RetrogradeGame::initResourceLocator(const Path& gamePath, const 
 	} else {
 		const String packs[] = { "images.dat", "shaders.dat", "config.dat" };
 		for (auto& pack: packs) {
-			locator.addPack(Path(assetsPath) / pack);
+			locator.addPack(Path(assetsPath) / pack, "", true);
 		}
 	}
 	return {};

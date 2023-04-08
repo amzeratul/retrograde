@@ -65,6 +65,10 @@ uiStyle:
   labelDescription:
     classes: [label]
     label: { font: Roboto Regular, size: 48, colour: "#FFFFFF" }
+
+  labelTag:
+    classes: [label]
+    label: { font: Roboto Regular, size: 48, colour: "#000000" }
     
   labelListEntry:
     classes: [label]

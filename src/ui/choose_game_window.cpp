@@ -47,6 +47,15 @@ void ChooseGameWindow::onMakeUI()
 		onGameSelected(event.getIntData());
 	});
 
+	setHandle(UIEventType::ImageUpdated, "game_image", [=] (const UIEvent& event)
+	{
+		const auto size = event.getConfigData().asVector2f({});
+		const auto dstSize = Vector2f(550.0f, 550.0f);
+		const auto scale = size / dstSize;
+		const auto finalSize = size / std::max(scale.x, scale.y);
+		getWidgetAs<UIImage>("game_image")->setMinSize(finalSize);
+	});
+
 	const auto gameList = getWidgetAs<UIList>("gameList");
 	for (size_t i = 0; i < collection.getEntries().size(); ++i) {
 		const auto& entry = collection.getEntries()[i];
@@ -110,10 +119,13 @@ void ChooseGameWindow::onGameSelected(size_t gameIdx)
 	const auto& entry = collection.getEntries()[gameIdx];
 
 	getWidgetAs<UILabel>("game_name")->setText(LocalisedString::fromUserString(entry.displayName));
-	getWidgetAs<UILabel>("game_info")->setText(LocalisedString::fromUserString("?"));
+	getWidgetAs<UILabel>("game_info_year")->setText(LocalisedString::fromUserString("?"));
+	getWidgetAs<UILabel>("game_info_developer")->setText(LocalisedString::fromUserString("?"));
+	getWidgetAs<UILabel>("game_info_nPlayers")->setText(LocalisedString::fromUserString("?"));
+	getWidgetAs<UILabel>("game_info_genre")->setText(LocalisedString::fromUserString("?"));
 	getWidgetAs<UILabel>("game_description")->setText(LocalisedString::fromUserString("?"));
 
-	//retrogradeEnvironment.getImageCache().loadIntoOr(getWidgetAs<UIImage>("game_image"), systemConfig.getInfoImage(), "systems/info_unknown.png");
+	retrogradeEnvironment.getImageCache().loadIntoOr(getWidgetAs<UIImage>("game_image"), entry.getMedia(GameCollection::MediaType::BoxFront).toString(), "systems/info_unknown.png");
 }
 
 void ChooseGameWindow::onErrorDueToNoCoreAvailable()
@@ -142,4 +154,15 @@ void GameCapsule::onMakeUI()
 	const auto selBorder = getWidgetAs<UIImage>("selBorder");
 	const auto col = selBorder->getSprite().getColour();
 	selBorder->setSelectable(col.withAlpha(0.0f), col.withAlpha(1.0f));
+
+	setHandle(UIEventType::ImageUpdated, "capsule", [=] (const UIEvent& event)
+	{
+		const auto size = event.getConfigData().asVector2f({});
+		const auto ar = 4.0f / 3.0f;
+		const auto arSize = Vector2f(size.y * ar, size.y);
+		const auto dstSize = Vector2f(598.0f, 448.0f);
+		const auto scale = arSize / dstSize;
+		const auto finalSize = arSize / std::max(scale.x, scale.y);
+		getWidgetAs<UIImage>("capsule")->setMinSize(finalSize);
+	});
 }

@@ -1,5 +1,4 @@
 General
-* User config
 * Input device properties
 
 Profile selector:
@@ -8,7 +7,6 @@ Profile selector:
 Console selector:
 
 Game list UI:
-* Show screenshots
 - Scrape online data (!)
 - Show videos (!)
 - Show metadata

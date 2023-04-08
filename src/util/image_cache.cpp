@@ -43,18 +43,19 @@ void ImageCache::loadIntoOr(std::shared_ptr<UIImage> uiImage, std::string_view n
 
 	if (!tex) {
 		uiImage->setSprite(Sprite());
+		uiImage->sendEvent(UIEvent(UIEventType::ImageUpdated, uiImage->getId(), ConfigNode(Vector2f())));
 		return;
 	}
 
 	if (tex->isLoaded()) {
 		uiImage->setSprite(toSprite(std::move(tex), materialName));
-		uiImage->setMinSize(Vector2f{});
+		uiImage->sendEvent(UIEvent(UIEventType::ImageUpdated, uiImage->getId(), ConfigNode(uiImage->getSprite().getSize())));
 	} else {
 		String mat = materialName;
 		tex->onLoad().then(Executors::getMainUpdateThread(), [this, tex, uiImage, mat] ()
 		{
 			uiImage->setSprite(toSprite(tex, mat));
-			uiImage->setMinSize(Vector2f{});
+			uiImage->sendEvent(UIEvent(UIEventType::ImageUpdated, uiImage->getId(), ConfigNode(uiImage->getSprite().getSize())));
 		});
 	}
 }
