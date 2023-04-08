@@ -47,6 +47,11 @@ const Path& GameCollection::Entry::getMedia(MediaType type) const
 	return iter->second;
 }
 
+bool GameCollection::Entry::operator<(const Entry& other) const
+{
+	return sortName < other.sortName;
+}
+
 GameCollection::GameCollection(Path dir)
 	: dir(std::move(dir))
 {
@@ -63,6 +68,7 @@ void GameCollection::scanGames()
 			makeEntry(e.path().filename().string());
 		}
 	}
+	std::sort(entries.begin(), entries.end());
 }
 
 gsl::span<const GameCollection::Entry> GameCollection::getEntries() const
@@ -72,9 +78,9 @@ gsl::span<const GameCollection::Entry> GameCollection::getEntries() const
 
 void GameCollection::makeEntry(const Path& path)
 {
-	auto [displayName, tags] = parseName(path.replaceExtension("").getFilename().getString());
+	auto [cleanName, tags] = parseName(path.replaceExtension("").getFilename().getString());
 
-	const auto iter = index.find(displayName);
+	const auto iter = index.find(cleanName);
 	if (iter != index.end()) {
 		// Game already listed, merge
 		auto& entry = entries[iter->second];
@@ -83,15 +89,16 @@ void GameCollection::makeEntry(const Path& path)
 	} else {
 		Entry result;
 		result.files.push_back(path);
-		result.displayName = displayName;
+		result.sortName = cleanName;
+		result.displayName = postProcessName(cleanName);
 		result.tags = std::move(tags);
-		index[result.displayName] = entries.size();
+		index[cleanName] = entries.size();
 		collectMediaData(result);
 		entries.push_back(std::move(result));
 	}
 }
 
-std::pair<String, Vector<String>> GameCollection::parseName(const String& name) const
+std::pair<String, Vector<String>> GameCollection::parseName(const String& name)
 {
 	Vector<char> displayName;
 	Vector<String> tags;
@@ -125,6 +132,14 @@ std::pair<String, Vector<String>> GameCollection::parseName(const String& name) 
 	return { displayNameStr, tags };
 }
 
+String GameCollection::postProcessName(const String& name)
+{
+	if (name.contains(", The")) {
+		return "The " + name.replaceOne(", The", "");
+	}
+	return name;
+}
+
 void GameCollection::collectMediaData(Entry& entry)
 {
 	if (entry.files.empty()) {
@@ -143,4 +158,10 @@ void GameCollection::collectMediaData(Entry& entry)
 	};
 
 	tryAdd(MediaType::Screenshot, imageDir / (gameName + "-image.png"));
+	tryAdd(MediaType::Screenshot, imageDir / (gameName + "-image.jpg"));
+	tryAdd(MediaType::BoxFront, imageDir / (gameName + "-thumb.png"));
+	tryAdd(MediaType::BoxFront, imageDir / (gameName + "-thumb.jpg"));
+	tryAdd(MediaType::BoxBack, imageDir / (gameName + "-boxback.png"));
+	tryAdd(MediaType::BoxBack, imageDir / (gameName + "-boxback.jpg"));
+	tryAdd(MediaType::Logo, imageDir / (gameName + "-marquee.png"));
 }

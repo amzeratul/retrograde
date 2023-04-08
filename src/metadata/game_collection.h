@@ -14,6 +14,7 @@ public:
     };
 
     struct Entry {
+        String sortName;
         String displayName;
         Vector<Path> files;
         Vector<String> tags;
@@ -22,6 +23,8 @@ public:
         void sortFiles();
         const Path& getBestFileToLoad(const CoreConfig& coreConfig) const;
         const Path& getMedia(MediaType type) const;
+
+        bool operator<(const Entry& other) const;
     };
 
     GameCollection(Path dir);
@@ -35,6 +38,8 @@ private:
     HashMap<String, size_t> index;
 
     void makeEntry(const Path& path);
-    std::pair<String, Vector<String>> parseName(const String& name) const;
     void collectMediaData(Entry& entry);
+
+	static std::pair<String, Vector<String>> parseName(const String& name);
+    static String postProcessName(const String& name);
 };
