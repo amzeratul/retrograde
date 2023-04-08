@@ -11,14 +11,14 @@ uiStyle:
       innerBorder: [ 0, 0, 0, 0 ]
     innerBorder: [ 0, 0, 0, 0 ]
     extraMouseBorder: [ 1, 1, 1, 1 ]
-    scrollBorder: [ 50, 50, 50, 50 ]
+    scrollBorder: [ 50, 55, 50, 50 ]
     selectionChangedSound: ""
     label: { font: Roboto Regular, size: 36, colour: "#FFFFFF" }
     selectedLabel: { font: Roboto Regular, size: 36, colour: "#FFFFFF" }
     disabledLabel: { font: Roboto Regular, size: 36, colour: "#FFFFFF" }
     gap: 50
 
-  gridList:
+  systemList:
     classes: [list]
     background: ""
     item:
@@ -29,7 +29,25 @@ uiStyle:
       innerBorder: [ 24, 24, 24, 24 ]
     innerBorder: [ 2, 2, 2, 2 ]
     extraMouseBorder: [ 1, 1, 1, 1 ]
-    scrollBorder: [ 200, 100, 200, 100 ]
+    scrollBorder: [ 50, 55, 50, 50 ]
+    selectionChangedSound: ""
+    label: { font: Roboto Regular, size: 48, colour: "#FFFFFF" }
+    selectedLabel: { font: Roboto Regular, size: 48, colour: "#FFFFFF" }
+    disabledLabel: { font: Roboto Regular, size: 48, colour: "#FFFFFF" }
+    gap: 50
+
+  gameList:
+    classes: [list]
+    background: ""
+    item:
+      normal: ""
+      hover: ""
+      selected: ""
+      drag: ""
+      innerBorder: [ 24, 0, 24, 0 ]
+    innerBorder: [ 2, 2, 2, 2 ]
+    extraMouseBorder: [ 1, 1, 1, 1 ]
+    scrollBorder: [ 0, 0, 0, 0 ]
     selectionChangedSound: ""
     label: { font: Roboto Regular, size: 48, colour: "#FFFFFF" }
     selectedLabel: { font: Roboto Regular, size: 48, colour: "#FFFFFF" }

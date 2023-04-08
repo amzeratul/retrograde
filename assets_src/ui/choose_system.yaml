@@ -69,7 +69,7 @@ children:
               text: System description here
   - uuid: 26a873e6-7cb7-40ef-8c83-0a51bda64cca
     proportion: 1
-    border: [80, 80, 80, 40]
+    border: [80, 0, 80, 40]
     sizer:
       columnProportions: []
       type: vertical

@@ -34,5 +34,5 @@ children:
           class: list
           id: systemList
           options: []
-          style: gridList
+          style: systemList
           type: horizontal

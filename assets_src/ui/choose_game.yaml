@@ -160,7 +160,7 @@ children:
         fill: [right, top]
   - uuid: 26a873e6-7cb7-40ef-8c83-0a51bda64cca
     proportion: 1
-    border: [80, 80, 80, 40]
+    border: [80, 0, 80, 40]
     sizer:
       columnProportions: []
       type: vertical
@@ -182,7 +182,7 @@ children:
           id: gameList
           options: []
           size: [0, 0]
-          style: gridList
+          style: gameList
           type: grid
   - uuid: eef201be-caec-4c6e-87c8-5058d241d63a
     sizer:
