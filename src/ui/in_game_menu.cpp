@@ -1,13 +1,16 @@
 #include "in_game_menu.h"
 
 #include "src/game/game_canvas.h"
+#include "src/retrograde/retrograde_environment.h"
+#include "src/util/image_cache.h"
 
-InGameMenu::InGameMenu(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, GameCanvas& gameCanvas, Mode mode)
+InGameMenu::InGameMenu(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, GameCanvas& gameCanvas, Mode mode, const GameCollection::Entry* metadata)
 	: UIWidget("in_game_menu", Vector2f(), UISizer())
 	, factory(factory)
 	, retrogradeEnvironment(retrogradeEnvironment)
 	, gameCanvas(gameCanvas)
 	, mode(mode)
+	, metadata(metadata)
 {
 	factory.loadUI(*this, "in_game_menu");
 
@@ -34,6 +37,22 @@ void InGameMenu::onMakeUI()
 	{
 		onChooseOption(event.getStringData());
 	});
+
+	setHandle(UIEventType::ImageUpdated, "logo", [=] (const UIEvent& event)
+	{
+		const auto size = event.getConfigData().asVector2f({});
+		const auto dstSize = Vector2f(2000.0f, 600.0f);
+		const auto scale = size / dstSize;
+		const auto finalSize = size / std::max(scale.x, scale.y);
+		getWidgetAs<UIImage>("logo")->setMinSize(finalSize);
+	});
+
+	if (metadata) {
+		const auto logo = getWidgetAs<UIImage>("logo");
+		retrogradeEnvironment.getImageCache().loadIntoOr(logo, metadata->getMedia(GameCollection::MediaType::Logo).toString(), "");
+	} else {
+		Logger::logWarning("Couldn't find metadata for game!");
+	}
 }
 
 void InGameMenu::onAddedToRoot(UIRoot& root)

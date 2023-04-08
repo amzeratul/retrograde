@@ -2,6 +2,7 @@
 
 #include <halley.hpp>
 
+#include "src/metadata/game_collection.h"
 #include "src/ui/in_game_menu.h"
 class CoreConfig;
 class SystemBezel;
@@ -65,4 +66,5 @@ private:
     void updateFilterChain(Vector2i screenSize);
 
     void openMenu();
+    const GameCollection::Entry* getGameMetadata();
 };

@@ -28,6 +28,15 @@ children:
           id: header
           image: ui/header.png
           rotation: 0
+        children:
+          - uuid: 7bc3c320-f589-419c-b6b0-16651769b470
+            border: [120, 0, 0, 0]
+            sizer:
+              columnProportions: []
+            widget:
+              class: image
+              id: logo
+            fill: [left, centreVertical]
       - uuid: 98732ed1-2122-467e-a12a-83bc79fa23fd
         proportion: 1
         border: [50, 50, 50, 50]

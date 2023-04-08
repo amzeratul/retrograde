@@ -1,6 +1,9 @@
 #pragma once
 
 #include <halley.hpp>
+
+#include "src/config/system_config.h"
+
 class CoreConfig;
 using namespace Halley;
 
@@ -19,6 +22,12 @@ public:
         Vector<Path> files;
         Vector<String> tags;
         HashMap<MediaType, Path> media;
+        String description;
+        String developer;
+        String publisher;
+        String genre;
+        Date date;
+        int nPlayers = 0;
 
         void sortFiles();
         const Path& getBestFileToLoad(const CoreConfig& coreConfig) const;
@@ -31,11 +40,13 @@ public:
 
     void scanGames();
     gsl::span<const Entry> getEntries() const;
+    const Entry* findEntry(const String& file) const;
 
 private:
     Path dir;
     Vector<Entry> entries;
-    HashMap<String, size_t> index;
+    HashMap<String, size_t> nameIndex;
+    HashMap<String, size_t> fileIndex;
 
     void makeEntry(const Path& path);
     void collectMediaData(Entry& entry);

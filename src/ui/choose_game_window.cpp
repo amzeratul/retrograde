@@ -119,11 +119,19 @@ void ChooseGameWindow::onGameSelected(size_t gameIdx)
 	const auto& entry = collection.getEntries()[gameIdx];
 
 	getWidgetAs<UILabel>("game_name")->setText(LocalisedString::fromUserString(entry.displayName));
-	getWidgetAs<UILabel>("game_info_year")->setText(LocalisedString::fromUserString("?"));
-	getWidgetAs<UILabel>("game_info_developer")->setText(LocalisedString::fromUserString("?"));
-	getWidgetAs<UILabel>("game_info_nPlayers")->setText(LocalisedString::fromUserString("?"));
-	getWidgetAs<UILabel>("game_info_genre")->setText(LocalisedString::fromUserString("?"));
-	getWidgetAs<UILabel>("game_description")->setText(LocalisedString::fromUserString("?"));
+
+	auto loadCapsuleInfo = [&] (std::string_view capsuleName, std::string_view labelName, const String& data)
+	{
+		getWidget(capsuleName)->setActive(!data.isEmpty() && data != "?" && data != "0");
+		getWidgetAs<UILabel>(labelName)->setText(LocalisedString::fromUserString(data));
+	};
+
+	loadCapsuleInfo("game_capsule_date", "game_info_date", entry.date.toString());
+	loadCapsuleInfo("game_capsule_developer", "game_info_developer", entry.developer);
+	loadCapsuleInfo("game_capsule_genre", "game_info_genre", entry.genre);
+	loadCapsuleInfo("game_capsule_nPlayers", "game_info_nPlayers", toString(entry.nPlayers));
+
+	getWidgetAs<UILabel>("game_description")->setText(LocalisedString::fromUserString(entry.description));
 
 	retrogradeEnvironment.getImageCache().loadIntoOr(getWidgetAs<UIImage>("game_image"), entry.getMedia(GameCollection::MediaType::BoxFront).toString(), "systems/info_unknown.png");
 }
@@ -145,8 +153,10 @@ GameCapsule::GameCapsule(UIFactory& factory, RetrogradeEnvironment& retrogradeEn
 
 void GameCapsule::onMakeUI()
 {
+	const auto maxSize = Vector2f(598.0f, 448.0f);
+
 	const auto capsule = getWidgetAs<UIImage>("capsule");
-	retrogradeEnvironment.getImageCache().loadIntoOr(capsule, entry.getMedia(GameCollection::MediaType::Screenshot).toString(), "systems/capsule_unknown.png");
+	retrogradeEnvironment.getImageCache().loadIntoOr(capsule, entry.getMedia(GameCollection::MediaType::Screenshot).toString(), "games/game_unknown.png", "Halley/Sprite", maxSize);
 
 	const auto name = getWidgetAs<UILabel>("name");
 	name->setText(LocalisedString::fromUserString(entry.displayName));
@@ -160,8 +170,7 @@ void GameCapsule::onMakeUI()
 		const auto size = event.getConfigData().asVector2f({});
 		const auto ar = 4.0f / 3.0f;
 		const auto arSize = Vector2f(size.y * ar, size.y);
-		const auto dstSize = Vector2f(598.0f, 448.0f);
-		const auto scale = arSize / dstSize;
+		const auto scale = arSize / maxSize;
 		const auto finalSize = arSize / std::max(scale.x, scale.y);
 		getWidgetAs<UIImage>("capsule")->setMinSize(finalSize);
 	});

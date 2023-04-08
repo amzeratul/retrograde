@@ -66,7 +66,7 @@ children:
                   columnProportions: []
                 widget:
                   class: image
-                  id: game_capsule_year
+                  id: game_capsule_date
                   image: ui/description_capsule.png
                   innerBorder: [10, 3, 10, 3]
                 children:
@@ -74,7 +74,7 @@ children:
                     proportion: 1
                     widget:
                       class: label
-                      id: game_info_year
+                      id: game_info_date
                       style: labelTag
                       text: 19xx
                     fill: [centreHorizontal, centreVertical]

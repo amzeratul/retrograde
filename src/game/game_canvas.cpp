@@ -39,7 +39,7 @@ GameCanvas::~GameCanvas()
 void GameCanvas::onAddedToRoot(UIRoot& root)
 {
 	fitToRoot();
-	getRoot()->addChild(std::make_shared<InGameMenu>(factory, environment, *this, InGameMenu::Mode::PreStart));
+	getRoot()->addChild(std::make_shared<InGameMenu>(factory, environment, *this, InGameMenu::Mode::PreStart, getGameMetadata()));
 }
 
 void GameCanvas::update(Time t, bool moved)
@@ -285,9 +285,15 @@ void GameCanvas::updateFilterChain(Vector2i screenSize)
 void GameCanvas::openMenu()
 {
 	if (!menu || !menu->isAlive()) {
-		menu = std::make_shared<InGameMenu>(factory, environment, *this, InGameMenu::Mode::InGame);
+		menu = std::make_shared<InGameMenu>(factory, environment, *this, InGameMenu::Mode::InGame, getGameMetadata());
 		getRoot()->addChild(menu);
 	} else {
 		menu->setActive(true);
 	}
+}
+
+const GameCollection::Entry* GameCanvas::getGameMetadata()
+{
+	const auto& collection = environment.getGameCollection(systemConfig.getId());
+	return collection.findEntry(gameId);
 }

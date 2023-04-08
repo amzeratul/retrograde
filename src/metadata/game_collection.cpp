@@ -60,7 +60,8 @@ GameCollection::GameCollection(Path dir)
 void GameCollection::scanGames()
 {
 	entries.clear();
-	index.clear();
+	fileIndex.clear();
+	nameIndex.clear();
 
 	std::error_code ec;
 	for (const auto& e: std::filesystem::directory_iterator(dir.getNativeString().cppStr(), ec)) {
@@ -69,6 +70,15 @@ void GameCollection::scanGames()
 		}
 	}
 	std::sort(entries.begin(), entries.end());
+	nameIndex.clear();
+
+	for (size_t i = 0; i < entries.size(); ++i) {
+		const auto& e = entries[i];
+		for (auto& file: e.files) {
+			fileIndex[file.toString()] = i;
+		}
+		nameIndex[e.sortName] = i;
+	}
 }
 
 gsl::span<const GameCollection::Entry> GameCollection::getEntries() const
@@ -76,12 +86,25 @@ gsl::span<const GameCollection::Entry> GameCollection::getEntries() const
 	return entries;
 }
 
+const GameCollection::Entry* GameCollection::findEntry(const String& file) const
+{
+	const auto iter = fileIndex.find(file);
+	if (iter != fileIndex.end()) {
+		return &entries[iter->second];
+	}
+	return nullptr;
+}
+
 void GameCollection::makeEntry(const Path& path)
 {
+	if (path.getExtension() == ".xml") {
+		return;
+	}
+
 	auto [cleanName, tags] = parseName(path.replaceExtension("").getFilename().getString());
 
-	const auto iter = index.find(cleanName);
-	if (iter != index.end()) {
+	const auto iter = nameIndex.find(cleanName);
+	if (iter != nameIndex.end()) {
 		// Game already listed, merge
 		auto& entry = entries[iter->second];
 		entry.files.push_back(path);
@@ -92,7 +115,7 @@ void GameCollection::makeEntry(const Path& path)
 		result.sortName = cleanName;
 		result.displayName = postProcessName(cleanName);
 		result.tags = std::move(tags);
-		index[cleanName] = entries.size();
+		nameIndex[cleanName] = entries.size();
 		collectMediaData(result);
 		entries.push_back(std::move(result));
 	}

@@ -1,6 +1,8 @@
 #pragma once
 
 #include <halley.hpp>
+
+#include "src/metadata/game_collection.h"
 class GameCanvas;
 using namespace Halley;
 
@@ -13,7 +15,7 @@ public:
         InGame
     };
 
-    InGameMenu(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, GameCanvas& gameCanvas, Mode mode);
+    InGameMenu(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, GameCanvas& gameCanvas, Mode mode, const GameCollection::Entry* metadata);
 
     void onMakeUI() override;
     void onAddedToRoot(UIRoot& root) override;
@@ -25,6 +27,7 @@ private:
     RetrogradeEnvironment& retrogradeEnvironment;
     GameCanvas& gameCanvas;
     const Mode mode;
+    const GameCollection::Entry* metadata;
 
     void setupMenu();
     void showSaveStates(bool canSave);

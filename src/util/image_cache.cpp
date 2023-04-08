@@ -28,12 +28,12 @@ Sprite ImageCache::getSprite(std::string_view name, std::string_view materialNam
 	return toSprite(getTexture(name, trim), materialName);
 }
 
-void ImageCache::loadInto(std::shared_ptr<UIImage> uiImage, std::string_view name, std::string_view materialName)
+void ImageCache::loadInto(std::shared_ptr<UIImage> uiImage, std::string_view name, std::string_view materialName, std::optional<Vector2f> maxSize)
 {
-	loadIntoOr(std::move(uiImage), name, "", materialName);
+	loadIntoOr(std::move(uiImage), name, "", materialName, maxSize);
 }
 
-void ImageCache::loadIntoOr(std::shared_ptr<UIImage> uiImage, std::string_view name, std::string_view fallbackName, std::string_view materialName)
+void ImageCache::loadIntoOr(std::shared_ptr<UIImage> uiImage, std::string_view name, std::string_view fallbackName, std::string_view materialName, std::optional<Vector2f> maxSize)
 {
 	auto tex = getTexture(name);
 
@@ -47,16 +47,20 @@ void ImageCache::loadIntoOr(std::shared_ptr<UIImage> uiImage, std::string_view n
 		return;
 	}
 
+	String mat = materialName;
+	auto doUpdate = [this, tex, uiImage, mat, maxSize]()
+	{
+		uiImage->setSprite(toSprite(tex, mat));
+		if (maxSize) {
+			uiImage->setMinSize(Vector2f::min(*maxSize, uiImage->getMinimumSize()));
+		}
+		uiImage->sendEvent(UIEvent(UIEventType::ImageUpdated, uiImage->getId(), ConfigNode(uiImage->getMinimumSize())));
+	};
+
 	if (tex->isLoaded()) {
-		uiImage->setSprite(toSprite(std::move(tex), materialName));
-		uiImage->sendEvent(UIEvent(UIEventType::ImageUpdated, uiImage->getId(), ConfigNode(uiImage->getSprite().getSize())));
+		doUpdate();
 	} else {
-		String mat = materialName;
-		tex->onLoad().then(Executors::getMainUpdateThread(), [this, tex, uiImage, mat] ()
-		{
-			uiImage->setSprite(toSprite(tex, mat));
-			uiImage->sendEvent(UIEvent(UIEventType::ImageUpdated, uiImage->getId(), ConfigNode(uiImage->getSprite().getSize())));
-		});
+		tex->onLoad().then(Executors::getMainUpdateThread(), doUpdate);
 	}
 }
 
