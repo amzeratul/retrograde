@@ -38,18 +38,9 @@ void InGameMenu::onMakeUI()
 		onChooseOption(event.getStringData());
 	});
 
-	setHandle(UIEventType::ImageUpdated, "logo", [=] (const UIEvent& event)
-	{
-		const auto size = event.getConfigData().asVector2f({});
-		const auto dstSize = Vector2f(2000.0f, 600.0f);
-		const auto scale = size / dstSize;
-		const auto finalSize = size / std::max(scale.x, scale.y);
-		getWidgetAs<UIImage>("logo")->setMinSize(finalSize);
-	});
-
 	if (metadata) {
 		const auto logo = getWidgetAs<UIImage>("logo");
-		retrogradeEnvironment.getImageCache().loadIntoOr(logo, metadata->getMedia(GameCollection::MediaType::Logo).toString(), "");
+		retrogradeEnvironment.getImageCache().loadIntoOr(logo, metadata->getMedia(GameCollection::MediaType::Logo).toString(), "", "Halley/Sprite", Vector2f(2000.0f, 600.0f));
 	} else {
 		Logger::logWarning("Couldn't find metadata for game!");
 	}

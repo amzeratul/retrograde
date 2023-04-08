@@ -63,8 +63,8 @@ children:
             widget:
               class: label
               id: system_description
-              maxHeight: 260
-              maxWidth: 1600
+              maxHeight: 300
+              maxWidth: 2400
               style: labelDescription
               text: System description here
   - uuid: 26a873e6-7cb7-40ef-8c83-0a51bda64cca
