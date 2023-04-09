@@ -15,6 +15,14 @@ void SaveStateCollection::setCore(LibretroCore& core)
 	this->core = &core;
 }
 
+namespace {
+	static uint64_t getCurrentTimestamp() {
+	    const auto now = std::chrono::system_clock::now();
+	    const auto duration = now.time_since_epoch();
+	    return std::chrono::duration_cast<std::chrono::seconds>(duration).count();
+	}
+}
+
 Future<SaveState> SaveStateCollection::saveGameState(SaveStateType type)
 {
 	if (!core) {
@@ -39,13 +47,18 @@ Future<SaveState> SaveStateCollection::saveGameState(SaveStateType type)
 
 	const auto path = dir / getFileName(type, idx);
 
-	return Concurrent::execute(Executors::getCPU(), [data = std::move(data), screenshot = std::move(screenshot), path] () -> SaveState
+	uint64_t timestamp = getCurrentTimestamp();
+	uint32_t timePlayed = 0; // TODO
+
+	return Concurrent::execute(Executors::getCPU(), [data = std::move(data), screenshot = std::move(screenshot), path, timestamp, timePlayed] () -> SaveState
 	{
 		SaveState saveState;
 		saveState.setSaveData(data);
 		if (screenshot) {
 			saveState.setScreenShot(*screenshot);
 		}
+		saveState.setTimePlayed(timePlayed);
+		saveState.setTimeStamp(timestamp);
 		Path::writeFile(path, saveState.toBytes());
 		return saveState;
 	});

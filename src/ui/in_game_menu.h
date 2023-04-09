@@ -54,4 +54,6 @@ public:
 
 private:
     RetrogradeEnvironment& retrogradeEnvironment;
+
+    String getDate(uint64_t timestamp) const;
 };

@@ -248,7 +248,38 @@ void SaveStateCapsule::loadData(SaveStateCollection& ssc, SaveStateType type, si
 		getWidgetAs<UIImage>("image")->setSprite(sprite);
 		getWidgetAs<UIImage>("image")->setMinSize(maxSize);
 
-		String label = toString(type) + ":" + toString(idx);
+		String label;
+		switch (type) {
+		case SaveStateType::Suspend:
+			label = "Suspended";
+			break;
+		case SaveStateType::QuickSave:
+			label = "Quicksave";
+			break;
+		case SaveStateType::Permanent:
+			label = "Save " + toString(idx + 1);
+			break;
+		}
+
+		label += "      " + getDate(ss->getTimeStamp());
+
 		getWidgetAs<UILabel>("label")->setText(LocalisedString::fromUserString(label));
 	}
+}
+
+String SaveStateCapsule::getDate(uint64_t timestamp) const
+{
+    std::time_t t = static_cast<std::time_t>(timestamp);
+    std::tm tm;
+    
+#if defined(_WIN32) || defined(_WIN64)
+    localtime_s(&tm, &t);
+#else
+    localtime_r(&t, &tm);
+#endif
+
+    std::stringstream ss;
+    ss << std::put_time(&tm, "%Y-%m-%d  %H:%M");
+
+    return ss.str();
 }

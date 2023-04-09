@@ -18,7 +18,6 @@ Input chooser UI
 - Basic UI
 
 In-game UI:
-* Savestates
 * Browse media
 - Swap disc
 - Configure core
