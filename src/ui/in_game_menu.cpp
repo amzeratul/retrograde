@@ -127,9 +127,42 @@ void InGameMenu::onChooseOption(const String& optionId)
 	}
 }
 
+void InGameMenu::showRoot()
+{
+	getWidget("optionsPane")->setActive(true);
+	getWidget("savestatePane")->setActive(false);
+}
+
 void InGameMenu::showSaveStates(bool canSave)
 {
-	// TODO
+	getWidget("optionsPane")->setActive(false);
+	getWidget("savestatePane")->setActive(true);
+
+	const auto& ssc = gameCanvas.getSaveStateCollection();
+
+	const auto savestatesList = getWidgetAs<UIList>("savestates");
+	savestatesList->clear();
+
+	if (canSave) {
+		const auto id = "save";
+		auto label = savestatesList->makeLabel(id, LocalisedString::fromUserString(id));
+		savestatesList->addItem(id, label, 1, Vector4f(400, 400, 400, 400), UISizerAlignFlags::Centre);
+	}
+
+	for (const auto& e: ssc.enumerate()) {
+		const auto id = toString(e.first) + ":" + toString(e.second);
+		auto label = savestatesList->makeLabel(id, LocalisedString::fromUserString(id));
+		savestatesList->addItem(id, label, 1, Vector4f(400, 400, 400, 400), UISizerAlignFlags::Centre);
+	}
+
+	setHandle(UIEventType::ListAccept, "savestates", [=] (const UIEvent& event)
+	{
+		const auto split = event.getStringData().split(':');
+		const auto type = fromString<SaveStateType>(split[0]);
+		const auto idx = split[1].toInteger();
+		gameCanvas.startGame(std::pair(type, idx));
+		close();
+	});
 }
 
 void InGameMenu::showSwapDisc()
@@ -149,13 +182,26 @@ void InGameMenu::showAchievements()
 
 void InGameMenu::onGamepadInput(const UIInputResults& input, Time time)
 {
-	if (input.isButtonPressed(UIGamepadInput::Button::Cancel) || input.isButtonPressed(UIGamepadInput::Button::Secondary)) {
+	if (input.isButtonPressed(UIGamepadInput::Button::Cancel)) {
+		back();
+	}
+
+	if (input.isButtonPressed(UIGamepadInput::Button::Secondary)) {
+		hide();
+	}
+}
+
+void InGameMenu::back()
+{
+	if (getWidget("optionsPane")->isActive()) {
 		if (mode == Mode::PreStart) {
 			gameCanvas.close();
 			close();
 		} else {
 			hide();
 		}
+	} else {
+		showRoot();
 	}
 }
 

@@ -30,6 +30,7 @@ private:
     const GameCollection::Entry* metadata;
 
     void setupMenu();
+    void showRoot();
     void showSaveStates(bool canSave);
     void showSwapDisc();
     void showMedia();
@@ -37,6 +38,7 @@ private:
 
     void onChooseOption(const String& optionId);
     void onGamepadInput(const UIInputResults& input, Time time) override;
+    void back();
     void close();
     void hide();
 };

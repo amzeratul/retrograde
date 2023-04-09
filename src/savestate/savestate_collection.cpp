@@ -34,6 +34,7 @@ void SaveStateCollection::saveGameState(SaveStateType type)
 	}
 	if (!std_ex::contains(existingSaves, std::pair(type, idx))) {
 		existingSaves.emplace_back(type, idx);
+		sortExisting();
 	}
 
 	const auto path = dir / getFileName(type, idx);
@@ -116,7 +117,15 @@ void SaveStateCollection::scanFileSystem()
 			}
 		}
 	}
+	sortExisting();
+}
 
+void SaveStateCollection::sortExisting()
+{
+	std::sort(existingSaves.begin(), existingSaves.end(), [&] (const auto& a, const auto& b)
+	{
+		return std::pair(a.first, -static_cast<int>(a.second)) < std::pair(b.first, -static_cast<int>(b.second));
+	});
 }
 
 String SaveStateCollection::getFileName(SaveStateType type, size_t idx) const

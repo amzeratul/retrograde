@@ -44,22 +44,78 @@ children:
           columnProportions: []
           gap: 50
         children:
-          - uuid: 370cad4d-6003-4382-bd63-5e94d96238ab
-            proportion: 0
-            border: [0, 0, 0, 0]
+          - uuid: a09333b3-7428-4b95-9ba2-0e82beb84a04
             sizer:
               columnProportions: []
             widget:
-              class: list
-              id: options
-              options:
-                - id: resume
-                  text: Resume
-                - id: exit
-                  text: Exit
-              size: [614, 0]
-              style: textMenu
+              class: widget
+              id: optionsPane
+            children:
+              - uuid: 370cad4d-6003-4382-bd63-5e94d96238ab
+                proportion: 1
+                border: [0, 0, 0, 0]
+                sizer:
+                  columnProportions: []
+                widget:
+                  active: true
+                  class: list
+                  id: options
+                  options:
+                    - id: resume
+                      text: Resume
+                    - id: exit
+                      text: Exit
+                  size: [614, 0]
+                  style: textMenu
+                fill: [fillHorizontal, fillVertical]
             fill: [left, fillVertical]
+          - uuid: 2aa1ddfa-0424-4014-8f2e-93d96cc7bf64
+            proportion: 1
+            sizer:
+              columnProportions: []
+              columns: 1
+              gap: 50
+              type: vertical
+            widget:
+              active: false
+              class: widget
+              id: savestatePane
+            children:
+              - uuid: ba8e3d1e-c4be-40e3-8ed6-6cce519c8077
+                border: [50, 0, 0, 0]
+                widget:
+                  class: label
+                  style: labelHeader
+                  text: Savestates
+              - uuid: 1124af72-6779-40a8-a4ba-80b03d5e6647
+                sizer:
+                  columnProportions: []
+                widget:
+                  class: horizontalDiv
+                  style: horizontalDiv
+              - uuid: bb9e99c1-67d2-4cb4-9974-a3b28da46ec3
+                proportion: 1
+                border: [50, 0, 50, 0]
+                sizer:
+                  columnProportions: []
+                widget:
+                  class: scrollBarPane
+                  scrollHorizontal: true
+                  scrollVertical: false
+                  style: rgScrollbar
+                children:
+                  - uuid: b1cc98cb-ea92-4aa5-98a3-8f5cf8a1ae3a
+                    proportion: 0
+                    sizer:
+                      columnProportions: []
+                    widget:
+                      class: list
+                      id: savestates
+                      options: []
+                      style: savestateList
+                      type: horizontal
+                      uniformSizedItems: true
+                    fill: [fillHorizontal, centreVertical]
       - uuid: e0403a87-5059-4fc9-8af9-e7cef4eb1ed9
         sizer:
           columnProportions: []

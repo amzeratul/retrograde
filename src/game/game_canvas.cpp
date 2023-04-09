@@ -50,9 +50,13 @@ void GameCanvas::onAddedToRoot(UIRoot& root)
 
 void GameCanvas::startGame(std::optional<std::pair<SaveStateType, size_t>> loadState)
 {
-	loadCore();
-	core->loadGame(environment.getRomsDir(systemConfig.getId()) / gameId);
-	gameLoaded = true;
+	if (!coreLoaded) {
+		loadCore();
+	}
+	if (!gameLoaded) {
+		core->loadGame(environment.getRomsDir(systemConfig.getId()) / gameId);
+		gameLoaded = true;
+	}
 
 	if (loadState) {
 		saveStateCollection->loadGameState(loadState->first, loadState->second);

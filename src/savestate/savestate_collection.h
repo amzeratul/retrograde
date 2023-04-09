@@ -11,6 +11,19 @@ enum class SaveStateType {
     Permanent
 };
 
+namespace Halley {
+	template <>
+	struct EnumNames<SaveStateType> {
+		constexpr std::array<const char*, 3> operator()() const {
+			return{{
+				"suspend",
+				"quicksave",
+				"permanent"
+			}};
+		}
+	};
+}
+
 class SaveStateCollection {
 public:
     SaveStateCollection(Path dir, String gameId);
@@ -35,5 +48,6 @@ private:
     Vector<std::pair<SaveStateType, size_t>> existingSaves;
 
     void scanFileSystem();
+    void sortExisting();
     String getFileName(SaveStateType type, size_t idx) const;
 };

@@ -54,6 +54,24 @@ uiStyle:
     disabledLabel: { font: Roboto Regular, size: 48, colour: "#FFFFFF" }
     gap: 50
 
+  savestateList:
+    classes: [list]
+    background: ""
+    item:
+      normal: { img: "ui/savestate_item.png" }
+      hover: { img: "ui/savestate_item.png" }
+      selected: { img: "ui/savestate_item_selected.png" }
+      drag: ""
+      innerBorder: [ 24, 0, 24, 0 ]
+    innerBorder: [ 36, 36, 36, 20 ]
+    extraMouseBorder: [ 1, 1, 1, 1 ]
+    scrollBorder: [ 80, 0, 80, 0 ]
+    selectionChangedSound: ""
+    label: { font: Roboto Regular, size: 48, colour: "#FFFFFF" }
+    selectedLabel: { font: Roboto Regular, size: 48, colour: "#FFFFFF" }
+    disabledLabel: { font: Roboto Regular, size: 48, colour: "#FFFFFF" }
+    gap: 80
+
   textMenu:
     classes: [list]
     background: ""
@@ -108,3 +126,8 @@ uiStyle:
       upSound: ""
       downSound: ""
       hoverSound: ""
+
+  horizontalDiv:
+    classes: [horizontalDiv]
+    image: ui/hdivider.png
+    gap: 2
