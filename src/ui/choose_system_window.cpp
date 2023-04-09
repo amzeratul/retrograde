@@ -62,8 +62,18 @@ void ChooseSystemWindow::setSelectedSystem(const SystemConfig& systemConfig)
 	auto& regionConfig = systemConfig.getRegion(region);
 
 	getWidgetAs<UILabel>("system_name")->setText(LocalisedString::fromUserString(regionConfig.getName()));
-	getWidgetAs<UILabel>("system_info")->setText(LocalisedString::fromUserString(toString(systemConfig.getReleaseDate().year) + "  " + systemConfig.getManufacturer()));
 	getWidgetAs<UILabel>("system_description")->setText(factory.getI18N().get(systemConfig.getDescriptionKey()));
+
+	auto loadCapsuleInfo = [&] (std::string_view capsuleName, std::string_view labelName, const String& data)
+	{
+		getWidget(capsuleName)->setActive(!data.isEmpty() && data != "?" && data != "0" && !data.startsWith("#MISSING:"));
+		getWidgetAs<UILabel>(labelName)->setText(LocalisedString::fromUserString(data));
+	};
+
+	loadCapsuleInfo("game_capsule_date", "game_info_date", toString(systemConfig.getReleaseDate().year));
+	loadCapsuleInfo("game_capsule_developer", "game_info_developer", systemConfig.getManufacturer());
+	loadCapsuleInfo("game_capsule_generation", "game_info_generation", factory.getI18N().get("gen" + toString(systemConfig.getGeneration())).getString());
+	loadCapsuleInfo("game_capsule_games", "game_info_games", ""); // TODO
 
 	retrogradeEnvironment.getImageCache().loadIntoOr(getWidgetAs<UIImage>("system_image"), systemConfig.getInfoImage(), "systems/info_unknown.png");
 }

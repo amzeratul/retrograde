@@ -132,8 +132,8 @@ GameCollection::Entry GameCollection::makeEntryForFile(const Path& path, const S
 	// Try reading from EmulationStation gamelist.xml
 	if (esGameList) {
 		if (const auto* gameListData = esGameList->findData(path.toString())) {
-			result.sortName = gameListData->name;
-			result.displayName = postProcessName(gameListData->name);
+			result.sortName = postProcessSortName(gameListData->name);
+			result.displayName = postProcessDisplayName(gameListData->name);
 			result.date = gameListData->releaseDate;
 			result.description = gameListData->desc;
 			result.developer = gameListData->developer;
@@ -162,7 +162,7 @@ GameCollection::Entry GameCollection::makeEntryForFile(const Path& path, const S
 	// Fallback
 	result.nPlayers = Range<int>(0, 0);
 	result.sortName = cleanName;
-	result.displayName = postProcessName(cleanName);
+	result.displayName = postProcessDisplayName(cleanName);
 	collectMediaData(result);
 	return result;
 }
@@ -201,7 +201,15 @@ std::pair<String, Vector<String>> GameCollection::parseName(const String& name)
 	return { displayNameStr, tags };
 }
 
-String GameCollection::postProcessName(const String& name)
+String GameCollection::postProcessSortName(const String& name)
+{
+	if (name.startsWith("The ")) {
+		return name.substr(4);
+	}
+	return name;
+}
+
+String GameCollection::postProcessDisplayName(const String& name)
 {
 	if (name.contains(", The")) {
 		return "The " + name.replaceOne(", The", "");

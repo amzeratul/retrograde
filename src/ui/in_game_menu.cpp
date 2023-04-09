@@ -62,22 +62,22 @@ void InGameMenu::setupMenu()
 	options->clear();
 
 	if (mode == Mode::PreStart) {
-		options->addTextItem("continue", LocalisedString::fromHardcodedString("Continue"));
-		options->addTextItem("new", LocalisedString::fromHardcodedString("New Game"));
-		options->addTextItem("load", LocalisedString::fromHardcodedString("Load Game"));
-		options->add(std::make_shared<UIWidget>("", Vector2f(0, 100)));
-		options->addTextItem("media", LocalisedString::fromHardcodedString("View Media"));
-		options->addTextItem("achievements", LocalisedString::fromHardcodedString("Achievements"));
+		options->addTextItem("continue", LocalisedString::fromHardcodedString("Continue"), -1, true);
+		options->addTextItem("new", LocalisedString::fromHardcodedString("New Game"), -1, true);
+		options->addTextItem("load", LocalisedString::fromHardcodedString("Load Game"), -1, true);
+		options->add(std::make_shared<UIWidget>("", Vector2f(0, 80)));
+		options->addTextItem("media", LocalisedString::fromHardcodedString("View Media"), -1, true);
+		options->addTextItem("achievements", LocalisedString::fromHardcodedString("Achievements"), -1, true);
 	} else if (mode == Mode::InGame) {
-		options->addTextItem("resume", LocalisedString::fromHardcodedString("Resume"));
-		options->addTextItem("reset", LocalisedString::fromHardcodedString("Reset"));
-		options->addTextItem("savestate", LocalisedString::fromHardcodedString("Save/Load"));
-		options->addTextItem("swapdisc", LocalisedString::fromHardcodedString("Swap Disc"));
-		options->add(std::make_shared<UIWidget>("", Vector2f(0, 100)));
-		options->addTextItem("media", LocalisedString::fromHardcodedString("View Media"));
-		options->addTextItem("achievements", LocalisedString::fromHardcodedString("Achievements"));
-		options->add(std::make_shared<UIWidget>("", Vector2f(0, 100)), 1);
-		options->addTextItem("exit", LocalisedString::fromHardcodedString("Exit Game"));
+		options->addTextItem("resume", LocalisedString::fromHardcodedString("Resume"), -1, true);
+		options->addTextItem("reset", LocalisedString::fromHardcodedString("Reset"), -1, true);
+		options->addTextItem("savestate", LocalisedString::fromHardcodedString("Save/Load"), -1, true);
+		options->addTextItem("swapdisc", LocalisedString::fromHardcodedString("Swap Disc"), -1, true);
+		//options->add(std::make_shared<UIWidget>("", Vector2f(0, 100)));
+		options->addTextItem("media", LocalisedString::fromHardcodedString("View Media"), -1, true);
+		options->addTextItem("achievements", LocalisedString::fromHardcodedString("Achievements"), -1, true);
+		options->add(std::make_shared<UIWidget>("", Vector2f(0, 50)), 1);
+		options->addTextItem("exit", LocalisedString::fromHardcodedString("Exit Game"), -1, true);
 	}
 
 	options->setItemEnabled("continue", false);

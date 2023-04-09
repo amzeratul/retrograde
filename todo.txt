@@ -8,7 +8,6 @@ Console selector:
 - New UI
 
 Game list UI:
-* Load metadata from EmulationStation
 * Show videos (!)
 - Quick browse
 - Filter

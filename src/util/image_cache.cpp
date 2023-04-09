@@ -25,7 +25,9 @@ std::shared_ptr<const Texture> ImageCache::getTexture(std::string_view name, boo
 
 Sprite ImageCache::getSprite(std::string_view name, std::string_view materialName, bool trim)
 {
-	return toSprite(getTexture(name, trim), materialName);
+	auto tex = getTexture(name, trim);
+	tex->waitForLoad();
+	return toSprite(tex, materialName);
 }
 
 void ImageCache::loadInto(std::shared_ptr<UIImage> uiImage, std::string_view name, std::string_view materialName, std::optional<Vector2f> maxSize)

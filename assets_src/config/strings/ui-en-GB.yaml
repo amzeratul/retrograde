@@ -26,5 +26,13 @@ en-GB:
   console: Console
   handheld: Handheld
   computer: Computer
+  gen1: 1st Gen
+  gen2: 2nd Gen
+  gen3: 3rd Gen
+  gen4: 4th Gen
+  gen5: 5th Gen
+  gen6: 6th Gen
+  gen7: 7th Gen
+  gen8: 8th Gen
 
 ...

@@ -39,7 +39,7 @@ children:
             fill: [left, centreVertical]
       - uuid: 98732ed1-2122-467e-a12a-83bc79fa23fd
         proportion: 1
-        border: [50, 50, 50, 50]
+        border: [50, 0, 50, 50]
         sizer:
           columnProportions: []
           gap: 50

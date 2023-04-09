@@ -38,11 +38,14 @@ children:
               image: whitebox.png
               size: [0, 0]
             fill: [centreHorizontal, centreVertical]
-      - uuid: 773e8ffb-20c6-4b80-bd3c-244754abe268
+      - uuid: b4b425c5-b0ab-4921-8d6c-13c19e239d27
         border: [50, 0, 0, 0]
         sizer:
           columnProportions: []
           type: vertical
+        widget:
+          class: widget
+          size: [2400, 400]
         children:
           - uuid: 9860e3b9-f79b-4be1-bb2b-afba4039576b
             border: [0, -5, 0, 0]
@@ -51,22 +54,93 @@ children:
               id: system_name
               style: labelHeader
               text: System Name
-          - uuid: 45431537-7623-426a-b69d-c3a336558c3d
-            border: [0, 30, 0, 0]
-            widget:
-              class: label
-              id: system_info
-              style: labelRegular
-              text: 19xx Corporation
           - uuid: 5b60d717-2b22-44d8-bea8-65fdfac849ef
-            border: [0, 45, 0, 0]
+            proportion: 1
+            border: [0, 45, 0, 20]
             widget:
               class: label
               id: system_description
-              maxHeight: 300
+              maxHeight: 385
               maxWidth: 2400
+              size: [2400, 0]
               style: labelDescription
               text: System description here
+          - uuid: fc841630-3286-4641-ae93-ea1c851a324c
+            sizer:
+              columnProportions: []
+              gap: 20
+            children:
+              - uuid: 5bf4e1f8-ab49-4448-9cd8-69219f98c7fa
+                sizer:
+                  columnProportions: []
+                widget:
+                  class: image
+                  id: game_capsule_developer
+                  image: ui/description_capsule.png
+                  innerBorder: [10, 3, 10, 3]
+                children:
+                  - uuid: 87e200ce-e1cc-4cfb-b6d1-2e8890c6d486
+                    proportion: 1
+                    widget:
+                      class: label
+                      id: game_info_developer
+                      style: labelTag
+                      text: Developer
+                    fill: [centreHorizontal, centreVertical]
+              - uuid: 6cff0f48-38c5-4467-9b49-f4e70fb45079
+                sizer:
+                  columnProportions: []
+                widget:
+                  class: image
+                  id: game_capsule_date
+                  image: ui/description_capsule.png
+                  innerBorder: [10, 3, 10, 3]
+                children:
+                  - uuid: 965b3a98-deda-46f0-a9d3-fb9be5fd1e9c
+                    proportion: 1
+                    widget:
+                      class: label
+                      id: game_info_date
+                      style: labelTag
+                      text: 19xx
+                    fill: [centreHorizontal, centreVertical]
+              - uuid: e061475a-f56f-4340-9489-d3f49ab44fc0
+                sizer:
+                  columnProportions: []
+                widget:
+                  class: image
+                  id: game_capsule_generation
+                  image: ui/description_capsule.png
+                  innerBorder: [10, 3, 10, 3]
+                children:
+                  - uuid: 5900edd2-8c60-4dea-8ff3-af9617d07b70
+                    proportion: 1
+                    widget:
+                      class: label
+                      id: game_info_generation
+                      style: labelTag
+                      text: xth Gen
+                    fill: [centreHorizontal, centreVertical]
+              - uuid: f34782a2-96e5-434f-b177-5aa49922c4dd
+                proportion: 1
+                spacer: {}
+              - uuid: 7ecea90e-5fc4-49ae-8f85-ede541697d8e
+                sizer:
+                  columnProportions: []
+                widget:
+                  class: image
+                  id: game_capsule_games
+                  image: ui/description_capsule.png
+                  innerBorder: [10, 3, 10, 3]
+                children:
+                  - uuid: a34fddaa-7b65-4fff-b148-21d2768adf2a
+                    proportion: 1
+                    widget:
+                      class: label
+                      id: game_info_games
+                      style: labelTag
+                      text: Games
+                    fill: [centreHorizontal, centreVertical]
   - uuid: 26a873e6-7cb7-40ef-8c83-0a51bda64cca
     proportion: 1
     border: [80, 0, 80, 40]

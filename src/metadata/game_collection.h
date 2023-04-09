@@ -58,5 +58,6 @@ private:
     void collectMediaData(Entry& entry);
 
 	static std::pair<String, Vector<String>> parseName(const String& name);
-    static String postProcessName(const String& name);
+    static String postProcessSortName(const String& name);
+    static String postProcessDisplayName(const String& name);
 };
