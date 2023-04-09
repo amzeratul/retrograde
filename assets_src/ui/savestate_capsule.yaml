@@ -1,0 +1,33 @@
+uuid: c224a1fc-81e9-49ed-a330-7b3ccce801fe
+sizer:
+  columnProportions: []
+  type: vertical
+widget:
+  class: widget
+children:
+  - uuid: e42b569e-53d0-416b-9c85-f79b5d97cf22
+    sizer:
+      columnProportions: []
+    widget:
+      childLayerAdjustment: 0
+      class: image
+      id: imageFrame
+      image: ui/savestate_frame.png
+      size: [672, 672]
+    children:
+      - uuid: 4d506a6f-aa6d-4260-b761-b551ffc12801
+        proportion: 1
+        sizer:
+          columnProportions: []
+        widget:
+          class: image
+          id: image
+          image: ui/savestate_new.png
+        fill: [centreHorizontal, centreVertical]
+  - uuid: 70832b5e-099b-43c2-a89d-ad6e3103ba16
+    widget:
+      class: label
+      id: label
+      style: labelRegular
+      text: New Savestate
+    fill: [centreHorizontal, centreVertical]

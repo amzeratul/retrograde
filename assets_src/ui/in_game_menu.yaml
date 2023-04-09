@@ -110,7 +110,7 @@ children:
                       columnProportions: []
                     widget:
                       class: list
-                      id: savestates
+                      id: savestateList
                       options: []
                       style: savestateList
                       type: horizontal

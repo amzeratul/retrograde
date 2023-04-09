@@ -3,6 +3,8 @@
 #include <halley.hpp>
 
 #include "src/metadata/game_collection.h"
+enum class SaveStateType;
+class SaveStateCollection;
 class GameCanvas;
 using namespace Halley;
 
@@ -36,9 +38,20 @@ private:
     void showMedia();
     void showAchievements();
 
+    void refreshSaveStateList(bool canSave);
+
     void onChooseOption(const String& optionId);
     void onGamepadInput(const UIInputResults& input, Time time) override;
     void back();
     void close();
     void hide();
+};
+
+class SaveStateCapsule : public UIWidget {
+public:
+    SaveStateCapsule(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment);
+    void loadData(SaveStateCollection& ssc, SaveStateType type, size_t idx);
+
+private:
+    RetrogradeEnvironment& retrogradeEnvironment;
 };

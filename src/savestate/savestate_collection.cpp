@@ -15,7 +15,7 @@ void SaveStateCollection::setCore(LibretroCore& core)
 	this->core = &core;
 }
 
-void SaveStateCollection::saveGameState(SaveStateType type)
+Future<SaveState> SaveStateCollection::saveGameState(SaveStateType type)
 {
 	if (!core) {
 		throw Exception("Core not set", 0);
@@ -39,7 +39,7 @@ void SaveStateCollection::saveGameState(SaveStateType type)
 
 	const auto path = dir / getFileName(type, idx);
 
-	Concurrent::execute(Executors::getCPU(), [data = std::move(data), screenshot = std::move(screenshot), path] ()
+	return Concurrent::execute(Executors::getCPU(), [data = std::move(data), screenshot = std::move(screenshot), path] () -> SaveState
 	{
 		SaveState saveState;
 		saveState.setSaveData(data);
@@ -47,6 +47,7 @@ void SaveStateCollection::saveGameState(SaveStateType type)
 			saveState.setScreenShot(*screenshot);
 		}
 		Path::writeFile(path, saveState.toBytes());
+		return saveState;
 	});
 }
 

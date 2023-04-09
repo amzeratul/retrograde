@@ -30,7 +30,7 @@ public:
 
     void setCore(LibretroCore& core);
 
-	void saveGameState(SaveStateType type);
+	Future<SaveState> saveGameState(SaveStateType type);
     void loadGameState(SaveStateType type, size_t idx);
     void deleteGameState(SaveStateType type, size_t idx);
 

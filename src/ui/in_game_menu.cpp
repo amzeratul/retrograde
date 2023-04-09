@@ -2,6 +2,7 @@
 
 #include "src/game/game_canvas.h"
 #include "src/retrograde/retrograde_environment.h"
+#include "src/savestate/savestate.h"
 #include "src/savestate/savestate_collection.h"
 #include "src/util/image_cache.h"
 
@@ -72,7 +73,7 @@ void InGameMenu::setupMenu()
 	} else if (mode == Mode::InGame) {
 		options->addTextItem("resume", LocalisedString::fromHardcodedString("Resume"), -1, true);
 		options->addTextItem("reset", LocalisedString::fromHardcodedString("Reset"), -1, true);
-		options->addTextItem("savestate", LocalisedString::fromHardcodedString("Save/Load"), -1, true);
+		options->addTextItem("savestates", LocalisedString::fromHardcodedString("Save/Load"), -1, true);
 		options->addTextItem("swapdisc", LocalisedString::fromHardcodedString("Swap Disc"), -1, true);
 		//options->add(std::make_shared<UIWidget>("", Vector2f(0, 100)));
 		options->addTextItem("media", LocalisedString::fromHardcodedString("View Media"), -1, true);
@@ -138,31 +139,44 @@ void InGameMenu::showSaveStates(bool canSave)
 	getWidget("optionsPane")->setActive(false);
 	getWidget("savestatePane")->setActive(true);
 
-	const auto& ssc = gameCanvas.getSaveStateCollection();
+	refreshSaveStateList(canSave);
 
-	const auto savestatesList = getWidgetAs<UIList>("savestates");
+	setHandle(UIEventType::ListAccept, "savestateList", [=] (const UIEvent& event)
+	{
+		if (event.getStringData() == "save") {
+			gameCanvas.getSaveStateCollection().saveGameState(SaveStateType::Permanent).then(Executors::getMainUpdateThread(), [=] (SaveState savestate)
+			{
+				refreshSaveStateList(canSave);
+			});
+		} else {
+			const auto split = event.getStringData().split(':');
+			const auto type = fromString<SaveStateType>(split[0]);
+			const auto idx = split[1].toInteger();
+			gameCanvas.startGame(std::pair(type, idx));
+			close();
+		}
+	});
+}
+
+void InGameMenu::refreshSaveStateList(bool canSave)
+{
+	auto& ssc = gameCanvas.getSaveStateCollection();
+
+	const auto savestatesList = getWidgetAs<UIList>("savestateList");
 	savestatesList->clear();
 
 	if (canSave) {
 		const auto id = "save";
-		auto label = savestatesList->makeLabel(id, LocalisedString::fromUserString(id));
-		savestatesList->addItem(id, label, 1, Vector4f(400, 400, 400, 400), UISizerAlignFlags::Centre);
+		auto entry = std::make_shared<SaveStateCapsule>(factory, retrogradeEnvironment);
+		savestatesList->addItem(id, std::move(entry), 1);
 	}
 
 	for (const auto& e: ssc.enumerate()) {
 		const auto id = toString(e.first) + ":" + toString(e.second);
-		auto label = savestatesList->makeLabel(id, LocalisedString::fromUserString(id));
-		savestatesList->addItem(id, label, 1, Vector4f(400, 400, 400, 400), UISizerAlignFlags::Centre);
+		auto entry = std::make_shared<SaveStateCapsule>(factory, retrogradeEnvironment);
+		entry->loadData(ssc, e.first, e.second);
+		savestatesList->addItem(id, std::move(entry), 1);
 	}
-
-	setHandle(UIEventType::ListAccept, "savestates", [=] (const UIEvent& event)
-	{
-		const auto split = event.getStringData().split(':');
-		const auto type = fromString<SaveStateType>(split[0]);
-		const auto idx = split[1].toInteger();
-		gameCanvas.startGame(std::pair(type, idx));
-		close();
-	});
 }
 
 void InGameMenu::showSwapDisc()
@@ -213,4 +227,28 @@ void InGameMenu::close()
 void InGameMenu::hide()
 {
 	setActive(false);
+}
+
+SaveStateCapsule::SaveStateCapsule(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment)
+	: UIWidget("", {}, UISizer())
+	, retrogradeEnvironment(retrogradeEnvironment)
+{
+	factory.loadUI(*this, "savestate_capsule");
+}
+
+void SaveStateCapsule::loadData(SaveStateCollection& ssc, SaveStateType type, size_t idx)
+{
+	if (const auto ss = ssc.getSaveState(type, idx)) {
+		auto image = ss->getScreenShot();
+
+		const float aspectRatio = 4.0f / 3.0f;
+		const auto maxSize = Vector2f(aspectRatio * 672.0f, 672.0f);
+
+		Sprite sprite = Sprite().setImage(retrogradeEnvironment.getResources(), *retrogradeEnvironment.getHalleyAPI().video, std::move(image));
+		getWidgetAs<UIImage>("image")->setSprite(sprite);
+		getWidgetAs<UIImage>("image")->setMinSize(maxSize);
+
+		String label = toString(type) + ":" + toString(idx);
+		getWidgetAs<UILabel>("label")->setText(LocalisedString::fromUserString(label));
+	}
 }

@@ -62,8 +62,8 @@ uiStyle:
       hover: { img: "ui/savestate_item.png" }
       selected: { img: "ui/savestate_item_selected.png" }
       drag: ""
-      innerBorder: [ 24, 0, 24, 0 ]
-    innerBorder: [ 36, 36, 36, 20 ]
+      innerBorder: [ 36, 36, 36, 20 ]
+    innerBorder: [ 0, 0, 0, 80 ]
     extraMouseBorder: [ 1, 1, 1, 1 ]
     scrollBorder: [ 80, 0, 80, 0 ]
     selectionChangedSound: ""
