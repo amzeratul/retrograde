@@ -43,6 +43,8 @@ set (SOURCES
 	"src/retrograde/settings.cpp"
 
 	"src/savestate/rewind_data.cpp"
+	"src/savestate/savestate.cpp"
+	"src/savestate/savestate_collection.cpp"
 
 	"src/ui/choose_game_window.cpp"
 	"src/ui/choose_system_window.cpp"
@@ -110,6 +112,8 @@ set (HEADERS
 	"src/retrograde/settings.h"
 
 	"src/savestate/rewind_data.h"
+	"src/savestate/savestate.h"
+	"src/savestate/savestate_collection.h"
 
 	"src/ui/choose_game_window.h"
 	"src/ui/choose_system_window.h"

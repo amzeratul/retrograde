@@ -738,6 +738,12 @@ void LibretroCore::setOption(const String& key, const String& value)
 	}
 }
 
+bool LibretroCore::canSwapDisc() const
+{
+	// TODO
+	return false;
+}
+
 bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 {
 	switch (cmd) {

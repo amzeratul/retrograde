@@ -141,6 +141,8 @@ public:
 	const HashMap<String, Option>& getOptions() const;
 	void setOption(const String& key, const String& value);
 
+	bool canSwapDisc() const;
+
 protected:
 	bool onEnvironment(uint32_t cmd, void* data) override;
 	void onVideoRefresh(const void* data, uint32_t width, uint32_t height, size_t pitch) override;

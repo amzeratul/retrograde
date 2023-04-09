@@ -4,6 +4,9 @@
 
 #include "src/metadata/game_collection.h"
 #include "src/ui/in_game_menu.h"
+enum class SaveStateType;
+class SaveStateCollection;
+class SaveState;
 class CoreConfig;
 class SystemBezel;
 class SystemConfig;
@@ -28,7 +31,10 @@ public:
     void close();
 
 	void resetGame();
-    void setReady();
+    void startGame(std::optional<std::pair<SaveStateType, size_t>> loadState = {});
+
+    SaveStateCollection& getSaveStateCollection();
+    bool canSwapDisc() const;
 
 private:
     UIFactory& factory;
@@ -40,6 +46,7 @@ private:
 
 	std::unique_ptr<LibretroCore> core;
 	std::unique_ptr<RewindData> rewindData;
+	std::unique_ptr<SaveStateCollection> saveStateCollection;
 
     mutable Sprite screen;
     std::unique_ptr<FilterChain> filterChain;
@@ -50,7 +57,8 @@ private:
     mutable int pendingCloseState = 0;
     bool coreLoaded = false;
     bool gameLoaded = false;
-    bool readyToLoadGame = false;
+
+    Time autoSaveTime = 0;
 
 	std::shared_ptr<InGameMenu> menu;
 
@@ -62,8 +70,10 @@ private:
 
     void onGamepadInput(const UIInputResults& input, Time time) override;
 
+    void loadCore();
 	void updateBezels();
     void updateFilterChain(Vector2i screenSize);
+    void updateAutoSave(Time t);
 
     void openMenu();
     const GameCollection::Entry* getGameMetadata();

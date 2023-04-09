@@ -11,6 +11,8 @@
 #include "src/retrograde/retrograde_game.h"
 #include "src/libretro/libretro_core.h"
 #include "src/savestate/rewind_data.h"
+#include "src/savestate/savestate.h"
+#include "src/savestate/savestate_collection.h"
 
 GameCanvas::GameCanvas(UIFactory& factory, RetrogradeEnvironment& environment, const CoreConfig& coreConfig, const SystemConfig& systemConfig, String gameId, UIWidget& parentMenu)
 	: UIWidget("game_canvas")
@@ -22,6 +24,8 @@ GameCanvas::GameCanvas(UIFactory& factory, RetrogradeEnvironment& environment, c
 	, parentMenu(parentMenu)
 {
 	rewindData = std::make_unique<RewindData>(16 * 1024 * 1024);
+	saveStateCollection = std::make_unique<SaveStateCollection>(environment.getSaveDir(systemConfig.getId()), this->gameId);
+
 	setModal(false);
 
 	UIInputButtons buttons;
@@ -32,6 +36,7 @@ GameCanvas::GameCanvas(UIFactory& factory, RetrogradeEnvironment& environment, c
 GameCanvas::~GameCanvas()
 {
 	screen = {};
+	saveStateCollection.reset();
 	core.reset();
 	environment.getGame().setTargetFPSOverride(std::nullopt);
 }
@@ -39,32 +44,37 @@ GameCanvas::~GameCanvas()
 void GameCanvas::onAddedToRoot(UIRoot& root)
 {
 	fitToRoot();
+
 	getRoot()->addChild(std::make_shared<InGameMenu>(factory, environment, *this, InGameMenu::Mode::PreStart, getGameMetadata()));
+}
+
+void GameCanvas::startGame(std::optional<std::pair<SaveStateType, size_t>> loadState)
+{
+	loadCore();
+	core->loadGame(environment.getRomsDir(systemConfig.getId()) / gameId);
+	gameLoaded = true;
+
+	if (loadState) {
+		saveStateCollection->loadGameState(loadState->first, loadState->second);
+	}
+}
+
+void GameCanvas::loadCore()
+{
+	core = environment.loadCore(coreConfig, systemConfig);
+	coreLoaded = true;
+	saveStateCollection->setCore(*core);
 }
 
 void GameCanvas::update(Time t, bool moved)
 {
 	fitToRoot();
-
-	if (frames++ < 2) {
-		return;
-	}
-
-	if (!coreLoaded) {
-		core = environment.loadCore(coreConfig, systemConfig);
-		coreLoaded = true;
-	}
-
+	
 	if (pendingCloseState == 2) {
 		doClose();
 	}
 
 	updateBezels();
-
-	if (!gameLoaded && readyToLoadGame && !gameId.isEmpty()) {
-		core->loadGame(environment.getRomsDir(systemConfig.getId()) / gameId);
-		gameLoaded = true;
-	}
 
 	if (t > 0.00001 && pendingCloseState == 0) {
 		stepGame();
@@ -72,6 +82,7 @@ void GameCanvas::update(Time t, bool moved)
 	
 	const auto windowSize = environment.getHalleyAPI().video->getWindow().getWindowRect().getSize();
 	updateFilterChain(windowSize);
+	updateAutoSave(t);
 }
 
 void GameCanvas::render(RenderContext& rc) const
@@ -165,16 +176,11 @@ void GameCanvas::stepGame()
 	}
 
 	auto& inputAPI = *environment.getHalleyAPI().input;
-
 	if (inputAPI.getKeyboard()->isButtonPressed(KeyCode::F2)) {
-		Path::writeFile(Path(environment.getSaveDir(core->getSystemId())) / (core->getGameName() + ".state0"), core->saveState(LibretroCore::SaveStateType::Normal));
+		saveStateCollection->saveGameState(SaveStateType::QuickSave);
 	}
-
 	if (inputAPI.getKeyboard()->isButtonPressed(KeyCode::F4)) {
-		const auto saveState = Path::readFile(Path(environment.getSaveDir(core->getSystemId())) / (core->getGameName() + ".state0"));
-		if (!saveState.empty()) {
-			core->loadState(saveState);
-		}
+		saveStateCollection->loadGameState(SaveStateType::QuickSave, 0);
 	}
 
 	const bool rewind = inputAPI.getKeyboard()->isButtonDown(KeyCode::F6);
@@ -204,6 +210,8 @@ void GameCanvas::stepGame()
 
 void GameCanvas::close()
 {
+	saveStateCollection->saveGameState(SaveStateType::Suspend);
+
 	// All this pending close state madness is to ensure that a painter.resetState() is called after the last stepGame()
 	pendingCloseState = 1;
 	screen = {};
@@ -213,11 +221,6 @@ void GameCanvas::close()
 void GameCanvas::resetGame()
 {
 	core->resetGame();
-}
-
-void GameCanvas::setReady()
-{
-	readyToLoadGame = true;
 }
 
 void GameCanvas::doClose()
@@ -282,6 +285,16 @@ void GameCanvas::updateFilterChain(Vector2i screenSize)
 	}
 }
 
+void GameCanvas::updateAutoSave(Time t)
+{
+	if (core) {
+		autoSaveTime += t;
+		if (autoSaveTime > 30.0) {
+			saveStateCollection->saveGameState(SaveStateType::Suspend);
+		}
+	}
+}
+
 void GameCanvas::openMenu()
 {
 	if (!menu || !menu->isAlive()) {
@@ -296,4 +309,14 @@ const GameCollection::Entry* GameCanvas::getGameMetadata()
 {
 	const auto& collection = environment.getGameCollection(systemConfig.getId());
 	return collection.findEntry(gameId);
+}
+
+SaveStateCollection& GameCanvas::getSaveStateCollection()
+{
+	return *saveStateCollection;
+}
+
+bool GameCanvas::canSwapDisc() const
+{
+	return core && core->canSwapDisc();
 }

@@ -9,8 +9,8 @@ Console selector:
 
 Game list UI:
 * Show videos (!)
-- Quick browse
-- Filter
+* Quick browse
+* Filter
 - Scrape online data (!)
 - Render PDF manual (!!) (Try PDFium?)
 

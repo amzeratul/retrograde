@@ -2,6 +2,7 @@
 
 #include "src/game/game_canvas.h"
 #include "src/retrograde/retrograde_environment.h"
+#include "src/savestate/savestate_collection.h"
 #include "src/util/image_cache.h"
 
 InGameMenu::InGameMenu(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, GameCanvas& gameCanvas, Mode mode, const GameCollection::Entry* metadata)
@@ -80,10 +81,10 @@ void InGameMenu::setupMenu()
 		options->addTextItem("exit", LocalisedString::fromHardcodedString("Exit Game"), -1, true);
 	}
 
-	options->setItemEnabled("continue", false);
-	options->setItemEnabled("load", false);
-	options->setItemEnabled("savestate", false);
-	options->setItemEnabled("swapdisc", false);
+	const auto& ssc = gameCanvas.getSaveStateCollection();
+	options->setItemEnabled("continue", ssc.hasSuspendSave());
+	options->setItemEnabled("load", ssc.hasAnySave());
+	options->setItemEnabled("swapdisc", gameCanvas.canSwapDisc());
 	options->setItemEnabled("media", false);
 	options->setItemEnabled("achievements", false);
 
@@ -105,11 +106,10 @@ void InGameMenu::onChooseOption(const String& optionId)
 		getWidgetAs<UIList>("options")->setSelectedOptionId("resume");
 		hide();
 	} else if (optionId == "new") {
-		gameCanvas.setReady();
+		gameCanvas.startGame();
 		close();
 	} else if (optionId == "continue") {
-		// TODO: load save
-		gameCanvas.setReady();
+		gameCanvas.startGame(std::pair(SaveStateType::Suspend, 0));
 		close();
 	} else if (optionId == "load") {
 		showSaveStates(false);
