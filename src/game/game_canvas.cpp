@@ -210,7 +210,9 @@ void GameCanvas::stepGame()
 
 void GameCanvas::close()
 {
-	saveStateCollection->saveGameState(SaveStateType::Suspend);
+	if (gameLoaded) {
+		saveStateCollection->saveGameState(SaveStateType::Suspend);
+	}
 
 	// All this pending close state madness is to ensure that a painter.resetState() is called after the last stepGame()
 	pendingCloseState = 1;

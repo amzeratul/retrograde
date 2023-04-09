@@ -11,7 +11,7 @@ public:
 
     void updateSize(Vector2i size);
 	void update(Vector2i size, std::optional<int> stride, gsl::span<const gsl::byte> data, TextureFormat textureFormat);
-
+    
 private:
     VideoAPI& videoAPI;
 

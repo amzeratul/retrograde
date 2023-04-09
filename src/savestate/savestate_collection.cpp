@@ -22,6 +22,7 @@ void SaveStateCollection::saveGameState(SaveStateType type)
 	}
 
 	auto data = core->saveState(LibretroCore::SaveStateType::Normal);
+	auto screenshot = std::shared_ptr<Image>(core->getLastScreenImage());
 
 	size_t idx = 0;
 	if (type == SaveStateType::Permanent) {
@@ -37,10 +38,13 @@ void SaveStateCollection::saveGameState(SaveStateType type)
 
 	const auto path = dir / getFileName(type, idx);
 
-	Concurrent::execute(Executors::getCPU(), [data = std::move(data), path] () mutable
+	Concurrent::execute(Executors::getCPU(), [data = std::move(data), screenshot = std::move(screenshot), path] ()
 	{
 		SaveState saveState;
-		saveState.setData(std::move(data));
+		saveState.setSaveData(data);
+		if (screenshot) {
+			saveState.setScreenShot(*screenshot);
+		}
 		Path::writeFile(path, saveState.toBytes());
 	});
 }
@@ -52,7 +56,7 @@ void SaveStateCollection::loadGameState(SaveStateType type, size_t idx)
 	}
 
 	if (const auto state = getSaveState(type, idx)) {
-		core->loadState(state->getData());
+		core->loadState(state->getSaveData());
 	}
 }
 

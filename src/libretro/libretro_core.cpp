@@ -676,6 +676,19 @@ const Sprite& LibretroCore::getVideoOut() const
 	return videoOut;
 }
 
+std::unique_ptr<Image> LibretroCore::getLastScreenImage() const
+{
+	if (!videoOut.hasMaterial() || !videoOut.getMaterial().getTexture(0)) {
+		return {};
+	}
+	const auto tex = videoOut.getMaterial().getTexture(0);
+	Painter* painter = nullptr;
+
+	auto img = std::make_unique<Image>(Image::Format::RGBA, tex->getSize(), false);
+	tex->copyToImage(*painter, *img); // NB: painter is null, so this is technically UB. DX11 textures don't actually use that field.
+	return img;
+}
+
 const CoreConfig& LibretroCore::getCoreConfig() const
 {
 	return coreConfig;
@@ -1084,11 +1097,13 @@ void LibretroCore::onVideoRefresh(const void* data, uint32_t width, uint32_t hei
 			tex = getOpenGLHWTexture();
 			flipBuffer = true;
 		}
+		lastFrameIsCPU = false;
 	} else {
 		// Software buffer
 		const auto dataSpan = gsl::span<const char>(static_cast<const char*>(data), pitch * height);
 		cpuUpdateTexture->update(size, static_cast<int>(pitch), gsl::as_bytes(dataSpan), getTextureFormat(systemAVInfo.pixelFormat));
 		tex = cpuUpdateTexture->getTexture();
+		lastFrameIsCPU = true;
 	}
 	
 	// No texture, make an empty one

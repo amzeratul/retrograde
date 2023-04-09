@@ -128,6 +128,7 @@ public:
 	void setPaused(bool paused);
 	void runFrame();
 	const Sprite& getVideoOut() const;
+	std::unique_ptr<Image> getLastScreenImage() const;
 
 	const CoreConfig& getCoreConfig() const;
 	const SystemInfo& getSystemInfo() const;
@@ -170,6 +171,7 @@ private:
 	bool rewinding = false;
 	bool fastForwarding = false;
 	bool paused = false;
+	bool lastFrameIsCPU = true;
 
 	String gameName;
 	String systemId;
