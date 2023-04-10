@@ -60,6 +60,7 @@ SystemRegionConfig::SystemRegionConfig(const ConfigNode& node)
 {
 	name = node["name"].asString();
 	logo = node["logo"].asString("");
+	machine = node["machine"].asString("");
 	regions = node["regions"].asVector<String>();
 }
 
@@ -73,6 +74,11 @@ const String& SystemRegionConfig::getLogo() const
 	return logo;
 }
 
+const String& SystemRegionConfig::getMachine() const
+{
+	return machine;
+}
+
 const Vector<String>& SystemRegionConfig::getRegions() const
 {
 	return regions;
@@ -84,6 +90,15 @@ String SystemRegionConfig::getLogoImage() const
 		return "";
 	} else {
 		return "systems/logos/" + logo;
+	}
+}
+
+String SystemRegionConfig::getMachineImage() const
+{
+	if (machine.isEmpty()) {
+		return "";
+	} else {
+		return "systems/machines/" + machine;
 	}
 }
 
@@ -173,9 +188,4 @@ SystemCategory SystemConfig::getCategory() const
 String SystemConfig::getDescriptionKey() const
 {
 	return "system_description_" + id;
-}
-
-String SystemConfig::getInfoImage() const
-{
-	return "systems/info_" + id + ".png";
 }

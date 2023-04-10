@@ -28,7 +28,7 @@ children:
     children:
       - uuid: ee966731-148d-452b-b168-94b7336be2fb
         proportion: 1
-        border: [80, 0, 80, 0]
+        border: [160, 0, 80, 0]
         sizer:
           columnProportions: []
           gap: 0

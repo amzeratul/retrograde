@@ -77,7 +77,8 @@ void ChooseSystemWindow::setSelectedSystem(const SystemConfig& systemConfig)
 	const size_t nGames = retrogradeEnvironment.getGameCollection(systemConfig.getId()).getEntries().size();
 	loadCapsuleInfo("game_capsule_games", "game_info_games", nGames == 0 ? "" : (nGames > 1 ? toString(nGames) + " Games" : "1 Game"));
 
-	retrogradeEnvironment.getImageCache().loadIntoOr(getWidgetAs<UIImage>("system_image"), systemConfig.getInfoImage(), "systems/info_unknown.png");
+	getWidgetAs<UIImage>("system_image")->setSprite({});
+	retrogradeEnvironment.getImageCache().loadIntoOr(getWidgetAs<UIImage>("system_image"), regionConfig.getMachineImage(), "systems/info_unknown.png", "Halley/Sprite", Vector2f(1000.0f, 500.0f));
 }
 
 const String& ChooseSystemWindow::getRegion() const

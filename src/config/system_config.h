@@ -49,12 +49,15 @@ public:
 
     const String& getName() const;
     const String& getLogo() const;
+    const String& getMachine() const;
     const Vector<String>& getRegions() const;
     String getLogoImage() const;
+    String getMachineImage() const;
 
 private:
     String name;
     String logo;
+    String machine;
     Vector<String> regions;
 };
 
@@ -76,7 +79,6 @@ public:
     SystemCategory getCategory() const;
 
 	String getDescriptionKey() const;
-    String getInfoImage() const;
 
 private:
     String id;
