@@ -38,7 +38,7 @@ Game running features
 - Retro Achievements (!)
 
 Core specific:
-- Stella is requesting analog controls??
+- Stella is requesting analog controls
 - DOSBox
 - ScummVM
 

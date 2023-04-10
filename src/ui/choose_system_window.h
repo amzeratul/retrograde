@@ -8,6 +8,11 @@ class RetrogradeEnvironment;
 
 class ChooseSystemWindow : public UIWidget {
 public:
+    enum class ViewMode {
+	    Timeline,
+        Generations
+    };
+
     ChooseSystemWindow(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, std::optional<String> systemId, std::optional<String> gameId);
 
     void onAddedToRoot(UIRoot& root) override;
@@ -35,7 +40,7 @@ private:
 
 class SystemList : public UIWidget {
 public:
-    SystemList(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, LocalisedString title, Vector<const SystemConfig*> systems, ChooseSystemWindow& parent);
+    SystemList(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, LocalisedString title, Vector<const SystemConfig*> systems, ChooseSystemWindow& parent, ChooseSystemWindow::ViewMode viewMode);
 
     void onMakeUI() override;
 
@@ -45,6 +50,7 @@ private:
     LocalisedString title;
     Vector<const SystemConfig*> systems;
     ChooseSystemWindow& parent;
+    ChooseSystemWindow::ViewMode viewMode;
 
     const SystemConfig* getSystemConfig(const String& id) const;
 };

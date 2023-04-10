@@ -1,0 +1,30 @@
+uuid: af7ff58e-dc8b-499f-bcf7-c458b5e35a88
+sizer:
+  columnProportions: []
+  gap: 10
+  type: vertical
+widget:
+  class: widget
+  size: [0, 0]
+children:
+  - uuid: edd5ee77-4bab-4c02-8fb4-7625b34f211c
+    widget:
+      class: label
+      id: year
+      style: labelTimeline
+      text: 19xx
+    fill: [centreHorizontal, centreVertical]
+  - uuid: e14e687f-4ca0-4c35-83d8-7dfeb26da869
+    sizer:
+      columnProportions: []
+    widget:
+      class: image
+      image: ui/timeline_dot.png
+    fill: [centreHorizontal, centreVertical]
+  - uuid: cbd327dd-5444-45c6-bbed-3122bbcb25bc
+    widget:
+      class: label
+      id: gen
+      style: labelTimeline
+      text: 1st Gen
+    fill: [centreHorizontal, centreVertical]

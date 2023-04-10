@@ -73,7 +73,9 @@ void ChooseSystemWindow::setSelectedSystem(const SystemConfig& systemConfig)
 	loadCapsuleInfo("game_capsule_date", "game_info_date", toString(systemConfig.getReleaseDate().year));
 	loadCapsuleInfo("game_capsule_developer", "game_info_developer", systemConfig.getManufacturer());
 	loadCapsuleInfo("game_capsule_generation", "game_info_generation", factory.getI18N().get("gen" + toString(systemConfig.getGeneration())).getString());
-	loadCapsuleInfo("game_capsule_games", "game_info_games", ""); // TODO
+
+	const size_t nGames = retrogradeEnvironment.getGameCollection(systemConfig.getId()).getEntries().size();
+	loadCapsuleInfo("game_capsule_games", "game_info_games", nGames == 0 ? "" : (nGames > 1 ? toString(nGames) + " Games" : "1 Game"));
 
 	retrogradeEnvironment.getImageCache().loadIntoOr(getWidgetAs<UIImage>("system_image"), systemConfig.getInfoImage(), "systems/info_unknown.png");
 }
@@ -98,41 +100,69 @@ void ChooseSystemWindow::close()
 
 void ChooseSystemWindow::populateSystems()
 {
-	auto getCategoryId = [](const SystemConfig& s) -> String
+	const auto viewMode = ViewMode::Timeline;
+	const bool showEmptySystems = true;
+
+	using CategoryType = std::pair<SystemCategory, std::optional<int>>;
+	auto getCategoryId = [&](const SystemConfig& s) -> CategoryType
 	{
-		if (s.getCategory() == SystemCategory::Computer) {
-			return "computer";
-		} else {
-			return "gen" + toString(s.getGeneration()) + toString(s.getCategory());
-		}
+		return { s.getCategory(), viewMode == ViewMode::Generations && s.getGeneration() != 0 ? std::optional<int>(s.getGeneration()) : std::nullopt };
 	};
 
-	bool showEmptySystems = true;
-
 	// Sort systems by category & generation
-	std::map<String, Vector<const SystemConfig*>> systemsByCategory;
+	Vector<CategoryType> categories;
+	HashMap<CategoryType, Vector<const SystemConfig*>> systemsByCategory;
 	for (const auto& s: retrogradeEnvironment.getConfigDatabase().getValues<SystemConfig>()) {
 		if (showEmptySystems || !retrogradeEnvironment.getGameCollection(s->getId()).getEntries().empty()) {
-			systemsByCategory[getCategoryId(*s)].push_back(s);
+			const auto cat = getCategoryId(*s);
+			systemsByCategory[cat].push_back(s);
+			if (!std_ex::contains(categories, cat)) {
+				categories.push_back(cat);
+			}
 		}
 	}
 
+	// Sort categories
+	std::sort(categories.begin(), categories.end());
+
+	// Generate UI
 	const auto systemCategoryList = getWidgetAs<UIList>("systemCategoryList");
 	systemCategoryList->setFocusable(false);
-	for (auto& [categoryId, systems]: systemsByCategory) {
-		auto title = factory.getI18N().get(categoryId);
-		systemCategoryList->addItem(categoryId, std::make_shared<SystemList>(factory, retrogradeEnvironment, std::move(title), std::move(systems), *this), 1);
+	for (auto& categoryId: categories) {
+		const auto sysIter = systemsByCategory.find(categoryId);
+		if (sysIter == systemsByCategory.end()) {
+			continue;
+		}
+		auto systems = sysIter->second;
+
+		const auto id = (categoryId.second ? "gen" + toString(categoryId.second.value()) : "") + toString(categoryId.first);
+		auto title = factory.getI18N().get(id);
+
+		if (viewMode == ViewMode::Generations) {
+			std::sort(systems.begin(), systems.end(), [&](const SystemConfig* a, const SystemConfig* b)
+			{
+				return std::tuple(a->getCategory(), -a->getUnitsSold(), a->getReleaseDate()) < std::tuple(b->getCategory(), -b->getUnitsSold(), b->getReleaseDate());
+			});
+		} else {
+			std::sort(systems.begin(), systems.end(), [&](const SystemConfig* a, const SystemConfig* b)
+			{
+				return a->getReleaseDate() < b->getReleaseDate();
+			});
+		}
+
+		systemCategoryList->addItem(id, std::make_shared<SystemList>(factory, retrogradeEnvironment, std::move(title), std::move(systems), *this, viewMode), 1);
 	}
 }
 
 
-SystemList::SystemList(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, LocalisedString title, Vector<const SystemConfig*> systems, ChooseSystemWindow& parent)
+SystemList::SystemList(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, LocalisedString title, Vector<const SystemConfig*> systems, ChooseSystemWindow& parent, ChooseSystemWindow::ViewMode viewMode)
 	: UIWidget("system_list", {}, UISizer())
 	, factory(factory)
 	, retrogradeEnvironment(retrogradeEnvironment)
 	, title(std::move(title))
 	, systems(std::move(systems))
 	, parent(parent)
+	, viewMode(viewMode)
 {
 	factory.loadUI(*this, "system_list");
 }
@@ -140,18 +170,28 @@ SystemList::SystemList(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvi
 void SystemList::onMakeUI()
 {
 	const auto& region = parent.getRegion();
-
-	std::sort(systems.begin(), systems.end(), [&](const SystemConfig* a, const SystemConfig* b)
-	{
-		return std::tuple(a->getCategory(), -a->getUnitsSold(), a->getReleaseDate()) < std::tuple(b->getCategory(), -b->getUnitsSold(), b->getReleaseDate());
-	});
-
 	getWidgetAs<UILabel>("title")->setText(title);
 
+	// Populate systems
 	const auto systemList = getWidgetAs<UIList>("systemList");
+	int lastGen = 0;
+	int lastYear = 0;
 	for (const auto& system: systems) {
+		const auto gen = system->getGeneration();
+		const auto year = system->getReleaseDate().year;
+
+		if (viewMode == ChooseSystemWindow::ViewMode::Timeline && (gen != lastGen || year != lastYear)) {
+			auto timelinePoint = factory.makeUI("timeline_point");
+			timelinePoint->getWidgetAs<UILabel>("year")->setText(LocalisedString::fromUserString(year != lastYear ? toString(year) : ""));
+			timelinePoint->getWidgetAs<UILabel>("gen")->setText(gen != lastGen ? factory.getI18N().get("gen" + toString(gen)) : LocalisedString());
+			systemList->add(timelinePoint, 0, Vector4f(-25, 0, -25, 0), UISizerAlignFlags::Centre);
+			lastGen = gen;
+			lastYear = year;
+		}
+
 		systemList->addItem(system->getId(), std::make_shared<SystemCapsule>(factory, retrogradeEnvironment, system, region));
 	}
+
 	systemList->setShowSelection(false);
 	systemList->setEnabled(false);
 	systemList->setFocusable(false);

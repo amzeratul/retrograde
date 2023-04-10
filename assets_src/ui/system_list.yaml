@@ -7,15 +7,16 @@ widget:
   class: widget
 children:
   - uuid: 8f9eadb1-6ea4-4c7d-85f7-e9961cba33fc
-    border: [60, 0, 0, 30]
+    border: [140, 0, 80, 30]
     widget:
       class: label
       id: title
-      style: labelRegular
+      style: labelSubHeader
       text: Systems
   - uuid: 67989b23-3f3b-4696-9d0e-390aa56d5524
     sizer:
       columnProportions: []
+      gap: 0
       type: vertical
     widget:
       class: scrollPane
@@ -25,14 +26,36 @@ children:
       scrollVertical: false
       smoothGoTo: true
     children:
-      - uuid: b4ac2109-4df4-418f-a30e-2ca17cc2b20f
+      - uuid: ee966731-148d-452b-b168-94b7336be2fb
         proportion: 1
-        border: [4, 4, 4, 4]
+        border: [80, 0, 80, 0]
         sizer:
           columnProportions: []
+          gap: 0
+          type: vertical
         widget:
-          class: list
-          id: systemList
-          options: []
-          style: systemList
-          type: horizontal
+          class: widget
+        children:
+          - uuid: b4ac2109-4df4-418f-a30e-2ca17cc2b20f
+            proportion: 1
+            border: [0, 0, 0, 0]
+            sizer:
+              columnProportions: []
+            widget:
+              childLayerAdjustment: 1
+              class: list
+              id: systemList
+              options: []
+              style: systemList
+              type: horizontal
+            children: []
+          - uuid: 06b137ea-c7ad-461d-bbc6-1736c476fc1b
+            proportion: 0
+            border: [100, -207, 50, 207]
+            sizer:
+              columnProportions: []
+            widget:
+              active: true
+              class: image
+              image: ui/hdivider.png
+            fill: [fillHorizontal, centreVertical]

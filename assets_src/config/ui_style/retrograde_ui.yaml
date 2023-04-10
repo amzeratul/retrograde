@@ -29,12 +29,12 @@ uiStyle:
       innerBorder: [ 24, 24, 24, 24 ]
     innerBorder: [ 2, 2, 2, 2 ]
     extraMouseBorder: [ 1, 1, 1, 1 ]
-    scrollBorder: [ 50, 55, 50, 50 ]
+    scrollBorder: [ 285, 55, 285, 50 ]
     selectionChangedSound: ""
     label: { font: Roboto Regular, size: 48, colour: "#FFFFFF" }
     selectedLabel: { font: Roboto Regular, size: 48, colour: "#FFFFFF" }
     disabledLabel: { font: Roboto Regular, size: 48, colour: "#FFFFFF" }
-    gap: 50
+    gap: 70
 
   gameList:
     classes: [list]
@@ -94,6 +94,10 @@ uiStyle:
     classes: [label]
     label: { font: Roboto Regular, size: 90, colour: "#FFFFFF" }
 
+  labelSubHeader:
+    classes: [label]
+    label: { font: Roboto Bold, size: 50, colour: "#FFFFFF" }
+
   labelRegular:
     classes: [label]
     label: { font: Roboto Regular, size: 48, colour: "#FFFFFF" }
@@ -109,6 +113,10 @@ uiStyle:
   labelListEntry:
     classes: [label]
     label: { font: Roboto Regular, size: 48, colour: "#FFFFFF", shadowDistance: 5, shadowSmoothness: 10, shadowColour: "#000000" }
+
+  labelTimeline:
+    classes: [label]
+    label: { font: Roboto Bold, size: 38, colour: "#FFFFFF" }
 
   rgScrollbar:
     classes: [scrollbar]

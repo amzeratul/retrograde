@@ -105,7 +105,9 @@ children:
                   active: true
                   class: scrollBarPane
                   scrollHorizontal: true
+                  scrollSpeed: 5000
                   scrollVertical: false
+                  smoothGoTo: true
                   style: rgScrollbarSaveState
                 children:
                   - uuid: b1cc98cb-ea92-4aa5-98a3-8f5cf8a1ae3a

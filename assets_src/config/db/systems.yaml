@@ -379,6 +379,18 @@ systems:
     category: console
     unitsSold: 9260000
     screenFilters: [crt-svideo]
+  - id: virtualboy
+    regions:
+      - name: Virtual Boy
+        region: [world]
+        logo: "Nintendo Virtual Boy.png"
+    cores: []
+    manufacturer: Nintendo
+    releaseDate: 1995-07-21
+    generation: 5
+    category: console
+    unitsSold: 770000
+    screenFilters: [lcd-grid]
   - id: jaguar
     regions: 
       - name: Atari Jaguar
@@ -430,18 +442,6 @@ systems:
     unitsSold: 48690000
     screenFilters: [lcd-gameboy-color]
     bezels: [gameboy-color]
-  - id: virtualboy
-    regions:
-      - name: Virtual Boy
-        region: [world]
-        logo: "Nintendo Virtual Boy.png"
-    cores: []
-    manufacturer: Nintendo
-    releaseDate: 1995-07-21
-    generation: 5
-    category: handheld
-    unitsSold: 770000
-    screenFilters: [lcd-grid]
   - id: ngp
     regions:
       - name: Neo Geo Pocket

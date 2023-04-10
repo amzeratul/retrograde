@@ -141,22 +141,21 @@ children:
                       style: labelTag
                       text: Games
                     fill: [centreHorizontal, centreVertical]
-  - uuid: 26a873e6-7cb7-40ef-8c83-0a51bda64cca
+  - uuid: b30d3364-d7ed-495a-b3ab-4c55c901d264
     proportion: 1
-    border: [80, 0, 80, 40]
+    border: [0, 0, 0, 40]
     sizer:
       columnProportions: []
       type: vertical
     widget:
-      childLayerAdjustment: 0
-      class: scrollBarPane
+      class: scrollPane
       scrollSpeed: 5000
       size: [400, 400]
       smoothGoTo: true
-      style: rgScrollbar
     children:
       - uuid: 370cad4d-6003-4382-bd63-5e94d96238ab
         proportion: 1
+        border: [0, 0, 0, 0]
         sizer:
           columnProportions: []
         widget:
