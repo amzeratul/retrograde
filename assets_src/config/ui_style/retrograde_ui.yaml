@@ -65,7 +65,7 @@ uiStyle:
       innerBorder: [ 36, 36, 36, 20 ]
     innerBorder: [ 0, 0, 0, 80 ]
     extraMouseBorder: [ 1, 1, 1, 1 ]
-    scrollBorder: [ 80, 0, 80, 0 ]
+    scrollBorder: [ 200, 0, 200, 0 ]
     selectionChangedSound: ""
     label: { font: Roboto Regular, size: 48, colour: "#FFFFFF" }
     selectedLabel: { font: Roboto Regular, size: 48, colour: "#FFFFFF" }
@@ -112,8 +112,25 @@ uiStyle:
 
   rgScrollbar:
     classes: [scrollbar]
-    horizontalBorder: [ 60, 0, 0, 0]
-    verticalBorder: [0, 60, 0, 0]
+    horizontalBorder: [ 0, 60, 0, 0 ]
+    verticalBorder: [ 60, 0, 0, 0 ]
+    bar:
+      horizontal: { img: ui/scrollbar.png, colour: "#FFFFFF" }
+      vertical: { img: ui/scrollbar.png, colour: "#FFFFFF" }
+    thumb:
+      normal: { img: ui/scrollbar_thumb.png, colour: "#FFFFFF" }
+      down: { img: ui/scrollbar_thumb.png, colour: "#FFFFFF" }
+      hover: { img: ui/scrollbar_thumb.png, colour: "#FFFFFF" }
+      disabled: { img: ui/scrollbar_thumb.png, colour: "#FFFFFF" }
+      innerBorder: [ 0, 0, 0, 0 ]
+      upSound: ""
+      downSound: ""
+      hoverSound: ""
+
+  rgScrollbarSaveState:
+    classes: [scrollbar]
+    horizontalBorder: [ 100, 60, 100, 0 ]
+    verticalBorder: [ 60, 0, 0, 0 ]
     bar:
       horizontal: { img: ui/scrollbar.png, colour: "#FFFFFF" }
       vertical: { img: ui/scrollbar.png, colour: "#FFFFFF" }

@@ -113,13 +113,13 @@ void ChooseGameWindow::onGameSelected(size_t gameIdx)
 
 	getWidgetAs<UILabel>("game_name")->setText(LocalisedString::fromUserString(entry.displayName));
 
-	auto loadCapsuleInfo = [&] (std::string_view capsuleName, std::string_view labelName, const String& data)
+	auto loadCapsuleInfo = [&] (std::string_view capsuleName, std::string_view labelName, const String& data, bool canHide = true)
 	{
-		getWidget(capsuleName)->setActive(!data.isEmpty() && data != "?" && data != "0");
+		getWidget(capsuleName)->setActive(!canHide || (!data.isEmpty() && data != "?" && data != "0"));
 		getWidgetAs<UILabel>(labelName)->setText(LocalisedString::fromUserString(data));
 	};
 
-	loadCapsuleInfo("game_capsule_date", "game_info_date", toString(entry.date.year));
+	loadCapsuleInfo("game_capsule_date", "game_info_date", entry.date.year ? toString(entry.date.year) : "?", false);
 	loadCapsuleInfo("game_capsule_developer", "game_info_developer", entry.developer);
 	loadCapsuleInfo("game_capsule_genre", "game_info_genre", entry.genre);
 	loadCapsuleInfo("game_capsule_nPlayers", "game_info_nPlayers", toString(entry.nPlayers.end));

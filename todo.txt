@@ -5,20 +5,22 @@ Profile selector:
 - Basic UI
 
 Console selector:
-- New UI
+- Source console art
+- Resize logos?
+- Timelines UI?
 
 Game list UI:
 * Show videos (!)
 * Quick browse
 * Filter
 - Scrape online data (!)
-- Render PDF manual (!!) (Try PDFium?)
 
 Input chooser UI
 - Basic UI
 
 In-game UI:
 * Browse media
+- Render PDF manual (!!) (Try PDFium?)
 - Swap disc
 - Configure core
 
