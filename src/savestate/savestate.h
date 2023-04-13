@@ -11,8 +11,10 @@ public:
 	void setSaveData(const Bytes& bytes);
 	Bytes getSaveData() const;
 
-	void setScreenShot(const Image& image);
+	void setScreenShot(const Image& image, float aspectRatio, uint8_t rotation);
 	std::unique_ptr<Image> getScreenShot() const;
+	float getScreenShotAspectRatio() const;
+	uint8_t getScreenShotRotation() const;
 
 	uint64_t getTimeStamp() const;
 	uint32_t getTimePlayed() const;
@@ -54,6 +56,8 @@ private:
 
 	struct ImageDataChunk {
 		Bytes data;
+		float aspectRatio;
+		uint8_t rotation;
 
 		void serialize(Serializer& s) const;
 		void deserialize(Deserializer& s);

@@ -31,6 +31,8 @@ Future<SaveState> SaveStateCollection::saveGameState(SaveStateType type)
 
 	auto data = core->saveState(LibretroCore::SaveStateType::Normal);
 	auto screenshot = std::shared_ptr<Image>(core->getLastScreenImage());
+	const auto aspectRatio = core->getSystemAVInfo().aspectRatio;
+	const auto rotation = static_cast<uint8_t>(core->getSystemAVInfo().rotation);
 
 	size_t idx = 0;
 	if (type == SaveStateType::Permanent) {
@@ -50,12 +52,12 @@ Future<SaveState> SaveStateCollection::saveGameState(SaveStateType type)
 	uint64_t timestamp = getCurrentTimestamp();
 	uint32_t timePlayed = 0; // TODO
 
-	return Concurrent::execute(Executors::getCPU(), [data = std::move(data), screenshot = std::move(screenshot), path, timestamp, timePlayed] () -> SaveState
+	return Concurrent::execute(Executors::getCPU(), [=, data = std::move(data), screenshot = std::move(screenshot)] () -> SaveState
 	{
 		SaveState saveState;
 		saveState.setSaveData(data);
 		if (screenshot) {
-			saveState.setScreenShot(*screenshot);
+			saveState.setScreenShot(*screenshot, aspectRatio, rotation);
 		}
 		saveState.setTimePlayed(timePlayed);
 		saveState.setTimeStamp(timestamp);

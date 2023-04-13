@@ -115,14 +115,26 @@ Bytes SaveState::getSaveData() const
 	}
 }
 
-void SaveState::setScreenShot(const Image& image)
+void SaveState::setScreenShot(const Image& image, float aspectRatio, uint8_t rotation)
 {
 	imageDataChunk.data = image.savePNGToBytes();
+	imageDataChunk.aspectRatio = aspectRatio;
+	imageDataChunk.rotation = rotation;
 }
 
 std::unique_ptr<Image> SaveState::getScreenShot() const
 {
 	return std::make_unique<Image>(imageDataChunk.data.byte_span());
+}
+
+float SaveState::getScreenShotAspectRatio() const
+{
+	return imageDataChunk.aspectRatio;
+}
+
+uint8_t SaveState::getScreenShotRotation() const
+{
+	return imageDataChunk.rotation;
 }
 
 uint64_t SaveState::getTimeStamp() const
@@ -172,9 +184,13 @@ void SaveState::SaveDataChunk::deserialize(Deserializer& s)
 void SaveState::ImageDataChunk::serialize(Serializer& s) const
 {
 	s << data;
+	s << aspectRatio;
+	s << rotation;
 }
 
 void SaveState::ImageDataChunk::deserialize(Deserializer& s)
 {
 	s >> data;
+	s >> aspectRatio;
+	s >> rotation;
 }

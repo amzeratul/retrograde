@@ -241,7 +241,7 @@ void SaveStateCapsule::loadData(SaveStateCollection& ssc, SaveStateType type, si
 	if (const auto ss = ssc.getSaveState(type, idx)) {
 		auto image = ss->getScreenShot();
 
-		const float aspectRatio = 4.0f / 3.0f;
+		const float aspectRatio = ss->getScreenShotAspectRatio();
 		const auto maxSize = Vector2f(aspectRatio * 672.0f, 672.0f);
 
 		Sprite sprite = Sprite().setImage(retrogradeEnvironment.getResources(), *retrogradeEnvironment.getHalleyAPI().video, std::move(image));
