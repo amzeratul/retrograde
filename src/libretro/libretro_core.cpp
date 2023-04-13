@@ -261,7 +261,7 @@ void LibretroCore::addAudioSamples(gsl::span<const float> samples)
 	buffer.resize(samples.size());
 	memcpy(buffer.data(), samples.data(), samples.size_bytes());
 	const auto sampleRate = systemAVInfo.sampleRate;
-
+	
 	Concurrent::execute(audioThread->getQueue(), [audioOut=audioOut, sampleRate, buffer = std::move(buffer)]()
 	{
 		constexpr float maxPitchShift = 0.01f;
@@ -502,7 +502,10 @@ void LibretroCore::runFrame()
 		dx11State->load(*environment.getHalleyAPI().video);
 	}
 
-	DLL_FUNC(dll, retro_run)();
+	{
+		ProfilerEvent event(ProfilerEventType::ExternalCode);
+		DLL_FUNC(dll, retro_run)();
+	}
 	
 	if (dx11State) {
 		dx11State->save(*environment.getHalleyAPI().video);

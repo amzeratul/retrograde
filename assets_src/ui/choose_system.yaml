@@ -78,6 +78,7 @@ children:
                   id: game_capsule_developer
                   image: ui/description_capsule.png
                   innerBorder: [10, 3, 10, 3]
+                  size: [300, 0]
                 children:
                   - uuid: 87e200ce-e1cc-4cfb-b6d1-2e8890c6d486
                     proportion: 1
@@ -95,6 +96,7 @@ children:
                   id: game_capsule_date
                   image: ui/description_capsule.png
                   innerBorder: [10, 3, 10, 3]
+                  size: [140, 0]
                 children:
                   - uuid: 965b3a98-deda-46f0-a9d3-fb9be5fd1e9c
                     proportion: 1
@@ -112,6 +114,7 @@ children:
                   id: game_capsule_generation
                   image: ui/description_capsule.png
                   innerBorder: [10, 3, 10, 3]
+                  size: [200, 0]
                 children:
                   - uuid: 5900edd2-8c60-4dea-8ff3-af9617d07b70
                     proportion: 1
@@ -132,6 +135,7 @@ children:
                   id: game_capsule_games
                   image: ui/description_capsule.png
                   innerBorder: [10, 3, 10, 3]
+                  size: [350, 0]
                 children:
                   - uuid: a34fddaa-7b65-4fff-b148-21d2768adf2a
                     proportion: 1

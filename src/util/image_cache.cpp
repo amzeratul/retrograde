@@ -69,6 +69,11 @@ void ImageCache::loadIntoOr(std::shared_ptr<UIImage> uiImage, std::string_view n
 	}
 }
 
+void ImageCache::clear()
+{
+	textures.clear();
+}
+
 Sprite ImageCache::toSprite(std::shared_ptr<const Texture> tex, std::string_view materialName)
 {
 	if (!tex) {

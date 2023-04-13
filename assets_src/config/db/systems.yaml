@@ -60,6 +60,18 @@ systems:
     category: computer
     unitsSold: 9000000
     screenFilters: [crt-composite-ntsc-2phase]
+  - id: pc98
+    regions:
+      - name: PC-98
+        region: [world]
+        logo: "NEC PC-9801.png"
+        machine: "NEC PC-9801.png"
+    cores: []
+    manufacturer: NEC
+    releaseDate: 1982-10-01
+    category: computer
+    unitsSold: 18300000
+    screenFilters: [crt-composite-ntsc-2phase]
 
   # 1st Generation
 

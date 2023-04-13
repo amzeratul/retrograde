@@ -297,6 +297,7 @@ void GameCanvas::updateAutoSave(Time t)
 		autoSaveTime += t;
 		if (autoSaveTime > 30.0) {
 			saveStateCollection->saveGameState(SaveStateType::Suspend);
+			autoSaveTime = 0;
 		}
 	}
 }

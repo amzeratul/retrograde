@@ -89,6 +89,7 @@ const String& ChooseSystemWindow::getRegion() const
 void ChooseSystemWindow::loadSystem(const String& systemId)
 {
 	setActive(false);
+	retrogradeEnvironment.getImageCache().clear();
 	const auto& systemConfig = retrogradeEnvironment.getConfigDatabase().get<SystemConfig>(systemId);
 	getRoot()->addChild(std::make_shared<ChooseGameWindow>(factory, retrogradeEnvironment, systemConfig, pendingGameId, *this));
 	pendingGameId = {};
