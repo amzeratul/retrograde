@@ -50,11 +50,12 @@ void GameStage::init()
 	env->setProfileId("default");
 
 	uiRoot->addChild(std::make_shared<ChooseSystemWindow>(*uiFactory, *env, systemId, gamePath));
+
+	getInputAPI().getJoystick(0)->vibrate(std::make_shared<InputVibrationADSR>(0.3, 0.1, 0.3, 0.3, 1.0f, 1.0f, 0.5f, 0.5f));
 }
 
 void GameStage::onVariableUpdate(Time t)
 {
-	onUpdate(t);
 	/*
 	const auto& game = dynamic_cast<RetrogradeGame&>(getGame());
 	if (!game.getTargetFPSOverride()) {
@@ -65,6 +66,7 @@ void GameStage::onVariableUpdate(Time t)
 
 void GameStage::onFixedUpdate(Time t)
 {
+	onUpdate(t);
 	/*
 	const auto& game = dynamic_cast<RetrogradeGame&>(getGame());
 	if (game.getTargetFPSOverride()) {

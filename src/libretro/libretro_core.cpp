@@ -262,14 +262,11 @@ void LibretroCore::addAudioSamples(gsl::span<const float> samples)
 	memcpy(buffer.data(), samples.data(), samples.size_bytes());
 	const auto sampleRate = systemAVInfo.sampleRate;
 	
-	Concurrent::execute(audioThread->getQueue(), [audioOut=audioOut, sampleRate, buffer = std::move(buffer)]()
-	{
-		constexpr float maxPitchShift = 0.01f;
-		const auto span = gsl::span<const float>(buffer.data(), buffer.size());
-		if (audioOut) {
-			audioOut->addInterleavedSamplesWithResampleSync(span, static_cast<float>(sampleRate), maxPitchShift);
-		}
-	});
+	constexpr float maxPitchShift = 0.01f;
+	const auto span = gsl::span<const float>(buffer.data(), buffer.size());
+	if (audioOut) {
+		audioOut->addInterleavedSamplesWithResampleSync(span, static_cast<float>(sampleRate), maxPitchShift, *environment.getHalleyAPI().core, *environment.getHalleyAPI().audioOutput);
+	}
 }
 
 void LibretroCore::deInit()
@@ -547,31 +544,34 @@ Bytes LibretroCore::saveState(SaveStateType type) const
 	size_t sz = getSaveStateSize(type);
 	Bytes bytes;
 	bytes.resize(sz);
-	saveState(type, gsl::as_writable_bytes(gsl::span<Byte>(bytes)));
+	const bool ok = saveState(type, gsl::as_writable_bytes(gsl::span<Byte>(bytes)));
+	if (!ok) {
+		return {};
+	}
 	return bytes;
 }
 
-void LibretroCore::saveState(SaveStateType type, gsl::span<gsl::byte> bytes) const
+bool LibretroCore::saveState(SaveStateType type, gsl::span<gsl::byte> bytes) const
 {
 	auto guard = ScopedGuard([=]() { popInstance(); });
 	pushInstance();
 
 	saveStateType = type;
-	DLL_FUNC(dll, retro_serialize)(bytes.data(), bytes.size());
+	return DLL_FUNC(dll, retro_serialize)(bytes.data(), bytes.size());
 }
 
-void LibretroCore::loadState(gsl::span<const gsl::byte> bytes)
+bool LibretroCore::loadState(gsl::span<const gsl::byte> bytes)
 {
 	auto guard = ScopedGuard([=]() { popInstance(); });
 	pushInstance();
 
 	saveStateType = SaveStateType::Normal;
-	DLL_FUNC(dll, retro_unserialize)(bytes.data(), bytes.size());
+	return DLL_FUNC(dll, retro_unserialize)(bytes.data(), bytes.size());
 }
 
-void LibretroCore::loadState(const Bytes& bytes)
+bool LibretroCore::loadState(const Bytes& bytes)
 {
-	loadState(gsl::as_bytes(gsl::span<const Byte>(bytes)));
+	return loadState(gsl::as_bytes(gsl::span<const Byte>(bytes)));
 }
 
 gsl::span<Byte> LibretroCore::getMemory(MemoryType type)
@@ -1676,7 +1676,7 @@ void LibretroCore::onEnvSetAudioBufferStatusCallback(const retro_audio_buffer_st
 
 void LibretroCore::onEnvSetMinimumAudioLatency(uint32_t data)
 {
-	audioOut->setLatencyTarget(std::max(1024u, data * 48));
+	//audioOut->setLatencyTarget(std::max(1024u, data * 48));
 }
 
 std::shared_ptr<Texture> LibretroCore::getDX11HWTexture(Vector2i size)

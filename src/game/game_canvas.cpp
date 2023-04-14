@@ -187,7 +187,8 @@ void GameCanvas::stepGame()
 		saveStateCollection->loadGameState(SaveStateType::QuickSave, 0);
 	}
 
-	const bool rewind = inputAPI.getKeyboard()->isButtonDown(KeyCode::F6);
+	const bool canRewind = false;
+	const bool rewind = canRewind && inputAPI.getKeyboard()->isButtonDown(KeyCode::F6);
 	const bool ffwd = !rewind && inputAPI.getKeyboard()->isButtonDown(KeyCode::F7);
 
 	core->setRewinding(rewind);
@@ -203,9 +204,14 @@ void GameCanvas::stepGame()
 		for (int i = 0; i < n; ++i) {
 			core->setFastFowarding(i < n - 1);
 			core->runFrame();
-			//auto save = rewindData->getBuffer(core->getSaveStateSize(LibretroCore::SaveStateType::RewindRecording));
-			//core->saveState(LibretroCore::SaveStateType::RewindRecording, gsl::as_writable_bytes(gsl::span<Byte>(save)));
-			//rewindData->pushFrame(std::move(save));
+
+			if (canRewind) {
+				auto save = rewindData->getBuffer(core->getSaveStateSize(LibretroCore::SaveStateType::RewindRecording));
+				const bool ok = core->saveState(LibretroCore::SaveStateType::RewindRecording, gsl::as_writable_bytes(gsl::span<Byte>(save)));
+				if (ok) {
+					rewindData->pushFrame(std::move(save));
+				}
+			}
 		}
 	}
 

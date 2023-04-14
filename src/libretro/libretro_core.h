@@ -117,9 +117,9 @@ public:
 
 	size_t getSaveStateSize(SaveStateType type) const;
 	Bytes saveState(SaveStateType type) const;
-	void saveState(SaveStateType type, gsl::span<gsl::byte> bytes) const;
-	void loadState(gsl::span<const gsl::byte> bytes);
-	void loadState(const Bytes& bytes);
+	bool saveState(SaveStateType type, gsl::span<gsl::byte> bytes) const;
+	bool loadState(gsl::span<const gsl::byte> bytes);
+	bool loadState(const Bytes& bytes);
 
 	gsl::span<Byte> getMemory(MemoryType type);
 

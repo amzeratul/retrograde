@@ -6,7 +6,7 @@ cores:
   - id: parallel_n64
     options:
       parallel-n64-gfxplugin: angrylion
-      parallel-n64-pak1: memory
+      parallel-n64-pak1: rumble
   - id: swanstation
   - id: mgba
   - id: gambatte
@@ -27,6 +27,8 @@ cores:
     options:
       dolphin_renderer: Hardware
   - id: mupen64plus_next
+    options:
+      mupen64plus-pak1: rumble
   - id: stella
   - id: mesen
   - id: nestopia
