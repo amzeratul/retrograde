@@ -1,13 +1,14 @@
-General
+Input:
 * Input device properties
+* Mouse support
+* Light gun support
+* Keyboard support
 
 Profile selector:
 - Basic UI
 
-Console selector:
-- Source console art
+System selector:
 - Resize logos?
-- Timelines UI?
 
 Game list UI:
 * Show videos (!)
@@ -20,9 +21,9 @@ Input chooser UI
 
 In-game UI:
 * Browse media
-- Render PDF manual (!!) (Try PDFium?)
 - Swap disc
 - Configure core
+- Render PDF manual (!!) (Try Poppler or PDFium)
 
 General settings UI:
 - Basic UI
@@ -30,14 +31,11 @@ General settings UI:
 
 Game running features
 * Sort out the whole cartridge ram save situation
-* Mouse support
-* Light gun support
 - Better pixel resample shader when no filter is applied
-- Keyboard support
-- Better audio output?
 - Retro Achievements (!)
 
 Core specific:
+- Rewind misbehaving on Mupen64Plus
 - Stella is requesting analog controls
 - DOSBox
 - ScummVM

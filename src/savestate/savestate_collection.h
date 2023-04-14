@@ -26,12 +26,18 @@ namespace Halley {
 
 class SaveStateCollection {
 public:
+    enum class LoadResult {
+	    FileNotFound,
+        Failed,
+        Success
+    };
+
     SaveStateCollection(Path dir, String gameId);
 
     void setCore(LibretroCore& core);
 
 	Future<SaveState> saveGameState(SaveStateType type);
-    void loadGameState(SaveStateType type, size_t idx);
+    LoadResult loadGameState(SaveStateType type, size_t idx);
     void deleteGameState(SaveStateType type, size_t idx);
 
     gsl::span<const std::pair<SaveStateType, size_t>> enumerate() const;

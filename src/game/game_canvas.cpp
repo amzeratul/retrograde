@@ -59,7 +59,10 @@ void GameCanvas::startGame(std::optional<std::pair<SaveStateType, size_t>> loadS
 	}
 
 	if (loadState) {
-		saveStateCollection->loadGameState(loadState->first, loadState->second);
+		const auto result = saveStateCollection->loadGameState(loadState->first, loadState->second);
+		if (result == SaveStateCollection::LoadResult::Failed) {
+			pendingLoadState = loadState;
+		}
 	}
 }
 
@@ -180,11 +183,23 @@ void GameCanvas::stepGame()
 	}
 
 	auto& inputAPI = *environment.getHalleyAPI().input;
-	if (inputAPI.getKeyboard()->isButtonPressed(KeyCode::F2)) {
-		saveStateCollection->saveGameState(SaveStateType::QuickSave);
-	}
-	if (inputAPI.getKeyboard()->isButtonPressed(KeyCode::F4)) {
-		saveStateCollection->loadGameState(SaveStateType::QuickSave, 0);
+
+	if (pendingLoadState) {
+		const auto result = saveStateCollection->loadGameState(pendingLoadState->first, pendingLoadState->second);
+		pendingLoadStateAttempts++;
+		if (result == SaveStateCollection::LoadResult::Success || pendingLoadStateAttempts > 10) {
+			pendingLoadState = {};
+			if (result != SaveStateCollection::LoadResult::Success) {
+				Logger::logError("Failed to resume from save state");
+			}
+		}
+	} else {
+		if (inputAPI.getKeyboard()->isButtonPressed(KeyCode::F2)) {
+			saveStateCollection->saveGameState(SaveStateType::QuickSave);
+		}
+		if (inputAPI.getKeyboard()->isButtonPressed(KeyCode::F4)) {
+			saveStateCollection->loadGameState(SaveStateType::QuickSave, 0);
+		}	
 	}
 
 	const bool canRewind = false;

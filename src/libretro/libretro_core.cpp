@@ -689,6 +689,14 @@ std::unique_ptr<Image> LibretroCore::getLastScreenImage() const
 
 	auto img = std::make_unique<Image>(Image::Format::RGBA, tex->getSize(), false);
 	tex->copyToImage(*painter, *img); // NB: painter is null, so this is technically UB. DX11 textures don't actually use that field.
+	if (videoOut.isFlipped()) {
+		img->flipVertically();
+	}
+	for (auto& px: img->getPixels4BPP()) {
+		auto col = Image::convertIntToColour(px);
+		col.a = 255;
+		px = Image::convertColourToInt(col);
+	}
 	return img;
 }
 

@@ -58,6 +58,9 @@ private:
     bool coreLoaded = false;
     bool gameLoaded = false;
 
+    std::optional<std::pair<SaveStateType, size_t>> pendingLoadState;
+    int pendingLoadStateAttempts = 0;
+
     Time autoSaveTime = 0;
 
 	std::shared_ptr<InGameMenu> menu;

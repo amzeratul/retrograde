@@ -66,14 +66,17 @@ Future<SaveState> SaveStateCollection::saveGameState(SaveStateType type)
 	});
 }
 
-void SaveStateCollection::loadGameState(SaveStateType type, size_t idx)
+SaveStateCollection::LoadResult SaveStateCollection::loadGameState(SaveStateType type, size_t idx)
 {
 	if (!core) {
 		throw Exception("Core not set", 0);
 	}
 
 	if (const auto state = getSaveState(type, idx)) {
-		core->loadState(state->getSaveData());
+		const bool ok = core->loadState(state->getSaveData());
+		return ok ? LoadResult::Success : LoadResult::Failed;
+	} else {
+		return LoadResult::FileNotFound;
 	}
 }
 
