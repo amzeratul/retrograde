@@ -115,6 +115,7 @@ SystemConfig::SystemConfig(const ConfigNode& node)
 	regions = node["regions"].asVector<SystemRegionConfig>();
 	screenFilters = node["screenFilters"].asVector<String>({});
 	bezels = node["bezels"].asVector<String>({});
+	capabilities = node["capabilities"].asHashMap<SystemCapability, bool>();
 }
 
 const String& SystemConfig::getId() const
