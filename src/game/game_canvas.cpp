@@ -202,7 +202,7 @@ void GameCanvas::stepGame()
 		}	
 	}
 
-	const bool canRewind = false;
+	const bool canRewind = systemConfig.hasCapability(SystemCapability::Rewind);
 	const bool rewind = canRewind && inputAPI.getKeyboard()->isButtonDown(KeyCode::F6);
 	const bool ffwd = !rewind && inputAPI.getKeyboard()->isButtonDown(KeyCode::F7);
 
@@ -215,9 +215,16 @@ void GameCanvas::stepGame()
 			core->runFrame();
 		}
 	} else {
-		const int n = ffwd ? 8 : 1;
+		// The idea here is to try to do up to 32 frames, but stop short if we're going to exceed 12 ms
+		const int n = ffwd ? 32 : 1;
+		auto frameStartTime = std::chrono::steady_clock::now();
+		Time totalFrameTime = 0.0;
+		Time lastFrameTime = 0.0;
+		const Time maxCPUTime = 0.012; // 12 ms
+
 		for (int i = 0; i < n; ++i) {
-			core->setFastFowarding(i < n - 1);
+			const bool lastFrame = i == n - 1 || totalFrameTime + 2 * lastFrameTime > maxCPUTime;
+			core->setFastFowarding(!lastFrame);
 			core->runFrame();
 
 			if (canRewind) {
@@ -226,6 +233,16 @@ void GameCanvas::stepGame()
 				if (ok) {
 					rewindData->pushFrame(std::move(save));
 				}
+			}
+
+			if (ffwd) {
+				if (lastFrame) {
+					break;
+				}
+				const auto now = std::chrono::steady_clock::now();
+				lastFrameTime = std::chrono::duration<double>(now - frameStartTime).count();
+				frameStartTime = now;
+				totalFrameTime += lastFrameTime;
 			}
 		}
 	}

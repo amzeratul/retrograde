@@ -403,6 +403,8 @@ systems:
     category: console
     unitsSold: 32930000
     screenFilters: [crt-svideo]
+    capabilities:
+      rewind: false
   - id: 32x
     regions:
       - name: Sega 32X
@@ -433,6 +435,8 @@ systems:
     category: console
     unitsSold: 9260000
     screenFilters: [crt-svideo]
+    capabilities:
+      rewind: false
   - id: virtualboy
     regions:
       - name: Virtual Boy
@@ -459,6 +463,8 @@ systems:
     category: console
     unitsSold: 250000
     screenFilters: [crt-svideo]
+    capabilities:
+      rewind: false
   - id: psx
     regions:
       - name: PlayStation
@@ -472,6 +478,8 @@ systems:
     category: console
     unitsSold: 102490000
     screenFilters: [crt-svideo]
+    capabilities:
+      rewind: false
   - id: 3do
     regions:
       - name: 3DO
@@ -485,6 +493,8 @@ systems:
     category: console
     unitsSold: 2000000
     screenFilters: [crt-svideo]
+    capabilities:
+      rewind: false
 
   # 5th Generation Handhelds
   - id: gbc
@@ -566,6 +576,8 @@ systems:
     category: console
     unitsSold: 21740000
     screenFilters: [crt-svideo]
+    capabilities:
+      rewind: false
   - id: dreamcast
     regions:
       - name: Sega Dreamcast
@@ -579,6 +591,8 @@ systems:
     category: console
     unitsSold: 9130000
     screenFilters: [crt-svideo]
+    capabilities:
+      rewind: false
   - id: ps2
     regions:
       - name: PlayStation 2
@@ -592,6 +606,8 @@ systems:
     category: console
     unitsSold: 155000000
     screenFilters: [crt-svideo]
+    capabilities:
+      rewind: false
   - id: xbox
     regions:
       - name: Xbox
@@ -605,6 +621,8 @@ systems:
     category: console
     unitsSold: 24000000
     screenFilters: [crt-svideo]
+    capabilities:
+      rewind: false
 
   # 6th Generation Handhelds
   - id: gba
@@ -662,6 +680,8 @@ systems:
     generation: 6
     category: arcade
     screenFilters: [crt-rgb]
+    capabilities:
+      rewind: false
   - id: atomiswave
     regions:
       - name: Atomiswave
@@ -673,6 +693,8 @@ systems:
     generation: 6
     category: arcade
     screenFilters: [crt-rgb]
+    capabilities:
+      rewind: false
 
   # 7th Generation Consoles
 
@@ -691,6 +713,8 @@ systems:
     unitsSold: 154000000
     screenFilters: [lcd-ds]
     bezels: [ndsi]
+    capabilities:
+      rewind: false
   - id: psp
     regions:
       - name: PlayStation Portable
@@ -705,6 +729,8 @@ systems:
     unitsSold: 81000000
     screenFilters: [lcd-grid]
     bezels: []
+    capabilities:
+      rewind: false
 
   # 8th Generation Consoles
 

@@ -189,3 +189,12 @@ String SystemConfig::getDescriptionKey() const
 {
 	return "system_description_" + id;
 }
+
+bool SystemConfig::hasCapability(SystemCapability capability) const
+{
+	const auto iter = capabilities.find(capability);
+	if (iter != capabilities.end()) {
+		return iter->second;
+	}
+	return true;
+}

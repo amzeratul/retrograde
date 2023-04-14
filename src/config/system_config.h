@@ -10,6 +10,11 @@ enum class SystemCategory {
     Computer
 };
 
+enum class SystemCapability {
+	Savestate,
+	Rewind,
+};
+
 namespace Halley {
 	
 	template <>
@@ -20,6 +25,16 @@ namespace Halley {
 				"handheld",
 				"arcade",
                 "computer"
+			}};
+		}
+	};
+
+	template <>
+	struct EnumNames<SystemCapability> {
+		constexpr std::array<const char*, 2> operator()() const {
+			return{{
+				"savestate",
+				"rewind"
 			}};
 		}
 	};
@@ -80,6 +95,8 @@ public:
 
 	String getDescriptionKey() const;
 
+    bool hasCapability(SystemCapability capability) const;
+
 private:
     String id;
     String manufacturer;
@@ -91,4 +108,5 @@ private:
     Vector<String> bezels;
     int generation;
     int unitsSold;
+    HashMap<SystemCapability, bool> capabilities;
 };

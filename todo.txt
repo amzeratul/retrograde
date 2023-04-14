@@ -11,9 +11,9 @@ System selector:
 - Resize logos?
 
 Game list UI:
-* Show videos (!)
 * Quick browse
 * Filter
+- Show videos (!)
 - Scrape online data (!)
 
 Input chooser UI
@@ -30,12 +30,11 @@ General settings UI:
 - Configure core
 
 Game running features
-* Sort out the whole cartridge ram save situation
 - Better pixel resample shader when no filter is applied
 - Retro Achievements (!)
+- Cheats
 
 Core specific:
-- Rewind misbehaving on Mupen64Plus
 - Stella is requesting analog controls
 - DOSBox
 - ScummVM
