@@ -70,7 +70,10 @@ public:
 	};
 
 	InputMapper(InputAPI& input, Settings& settings);
+
 	void update();
+	void chooseBestAssignments();
+	void setAssignmentsFixed(bool fixed);
 
 	std::shared_ptr<InputVirtual> getInput(int idx);
 	std::shared_ptr<InputVirtual> getUIInput();
@@ -80,6 +83,10 @@ private:
 		std::shared_ptr<InputDevice> srcDevice;
 		std::shared_ptr<InputVirtual> input;
 		bool present = false;
+		int priority = 0;
+		InputType type = InputType::None;
+
+		bool operator<(const Assignment& other) const;
 	};
 
 	InputAPI& inputAPI;
@@ -88,8 +95,11 @@ private:
 	std::shared_ptr<InputVirtual> uiInput;
 	Vector<Assignment> gameInput;
 
+	bool assignmentsChanged = false;
+	bool assignmentsFixed = false;
+
 	void assignJoysticks();
-	void assignDevice(std::shared_ptr<InputDevice> device);
+	void assignDevice(std::shared_ptr<InputDevice> device, InputType type);
 	void bindInputJoystick(std::shared_ptr<InputVirtual> dst, std::shared_ptr<InputDevice> joy);
 	void bindInputKeyboard(std::shared_ptr<InputVirtual> dst, std::shared_ptr<InputDevice> kb);
 	void bindUIInput();

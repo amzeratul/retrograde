@@ -19,6 +19,30 @@ void InputMapper::update()
 	assignJoysticks();
 }
 
+void InputMapper::chooseBestAssignments()
+{
+	if (assignmentsFixed && !assignmentsChanged) {
+		return;
+	}
+
+	// Sort based on last device used on UI, and device types
+	const auto* last = uiInput->getLastDevice();
+	for (auto& input: gameInput) {
+		const auto basePriority = input.type == InputType::Gamepad ? 1 : input.type == InputType::Keyboard ? 0 : -1;
+		input.priority = input.srcDevice.get() == last || input.input.get() == last ? 2 : basePriority;
+	}
+	std::sort(gameInput.begin(), gameInput.end());
+
+	// Unset fixed because if we got here with fixed set, it's because assignments changed
+	assignmentsChanged = false;
+	assignmentsFixed = false;
+}
+
+void InputMapper::setAssignmentsFixed(bool fixed)
+{
+	assignmentsFixed = fixed;
+}
+
 std::shared_ptr<InputVirtual> InputMapper::getInput(int idx)
 {
 	return gameInput.at(idx).input;
@@ -27,6 +51,11 @@ std::shared_ptr<InputVirtual> InputMapper::getInput(int idx)
 std::shared_ptr<InputVirtual> InputMapper::getUIInput()
 {
 	return uiInput;
+}
+
+bool InputMapper::Assignment::operator<(const Assignment& other) const
+{
+	return priority > other.priority;
 }
 
 void InputMapper::assignJoysticks()
@@ -38,8 +67,12 @@ void InputMapper::assignJoysticks()
 
 	// Build assignments
 	const auto nJoy = inputAPI.getNumberOfJoysticks();
+	const auto nKey = inputAPI.getNumberOfKeyboards();
 	for (size_t i = 0; i < nJoy; ++i) {
-		assignDevice(inputAPI.getJoystick(static_cast<int>(i)));
+		assignDevice(inputAPI.getJoystick(static_cast<int>(i)), InputType::Gamepad);
+	}
+	for (size_t i = 0; i < nKey; ++i) {
+		assignDevice(inputAPI.getKeyboard(static_cast<int>(i)), InputType::Keyboard);
 	}
 
 	// Remove items marked not present
@@ -47,17 +80,27 @@ void InputMapper::assignJoysticks()
 		if (!input.present && input.srcDevice) {
 			input.srcDevice = {};
 			input.input->clearBindings();
+			input.type = InputType::None;
+			assignmentsChanged = true;
 		}
 	}
 }
 
-void InputMapper::assignDevice(std::shared_ptr<InputDevice> device)
+void InputMapper::assignDevice(std::shared_ptr<InputDevice> device, InputType type)
 {
-	if (auto* assignment = findAssignment(device, device->isEnabled())) {
-		if (device->isEnabled()) {
+	if (device->isEnabled()) {
+		if (auto* assignment = findAssignment(device, device->isEnabled())) {
 			assignment->present = true;
+			assignment->type = type;
 			if (assignment->srcDevice != device) {
-				bindInputJoystick(assignment->input, device);
+				assignment->srcDevice = device;
+				assignmentsChanged = true;
+
+				if (type == InputType::Gamepad) {
+					bindInputJoystick(assignment->input, device);
+				} else if (type == InputType::Keyboard) {
+					bindInputKeyboard(assignment->input, device);
+				}
 			}
 		}
 	}

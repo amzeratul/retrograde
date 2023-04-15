@@ -45,6 +45,8 @@ private:
     void back();
     void close();
     void hide();
+
+    void startGame(std::optional<std::pair<SaveStateType, size_t>> loadState);
 };
 
 class SaveStateCapsule : public UIWidget {

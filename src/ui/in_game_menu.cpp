@@ -1,6 +1,7 @@
 #include "in_game_menu.h"
 
 #include "src/game/game_canvas.h"
+#include "src/retrograde/input_mapper.h"
 #include "src/retrograde/retrograde_environment.h"
 #include "src/savestate/savestate.h"
 #include "src/savestate/savestate_collection.h"
@@ -107,11 +108,9 @@ void InGameMenu::onChooseOption(const String& optionId)
 		getWidgetAs<UIList>("options")->setSelectedOptionId("resume");
 		hide();
 	} else if (optionId == "new") {
-		gameCanvas.startGame();
-		close();
+		startGame(std::nullopt);
 	} else if (optionId == "continue") {
-		gameCanvas.startGame(std::pair(SaveStateType::Suspend, 0));
-		close();
+		startGame(std::pair(SaveStateType::Suspend, 0));
 	} else if (optionId == "load") {
 		showSaveStates(false);
 	} else if (optionId == "savestates") {
@@ -152,8 +151,7 @@ void InGameMenu::showSaveStates(bool canSave)
 			const auto split = event.getStringData().split(':');
 			const auto type = fromString<SaveStateType>(split[0]);
 			const auto idx = split[1].toInteger();
-			gameCanvas.startGame(std::pair(type, idx));
-			close();
+			startGame(std::pair(type, idx));
 		}
 	});
 }
@@ -227,6 +225,13 @@ void InGameMenu::close()
 void InGameMenu::hide()
 {
 	setActive(false);
+}
+
+void InGameMenu::startGame(std::optional<std::pair<SaveStateType, size_t>> loadState)
+{
+	retrogradeEnvironment.getInputMapper().chooseBestAssignments();
+	gameCanvas.startGame(loadState);
+	close();
 }
 
 SaveStateCapsule::SaveStateCapsule(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment)

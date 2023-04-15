@@ -10,6 +10,7 @@
 #include "src/retrograde/retrograde_environment.h"
 #include "src/retrograde/retrograde_game.h"
 #include "src/libretro/libretro_core.h"
+#include "src/retrograde/input_mapper.h"
 #include "src/savestate/rewind_data.h"
 #include "src/savestate/savestate.h"
 #include "src/savestate/savestate_collection.h"
