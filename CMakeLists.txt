@@ -38,6 +38,7 @@ set (SOURCES
 	"src/metadata/game_collection.cpp"
 
 	"src/retrograde/game_stage.cpp"
+	"src/retrograde/input_mapper.cpp"
 	"src/retrograde/retrograde_environment.cpp"
 	"src/retrograde/retrograde_game.cpp"
 	"src/retrograde/settings.cpp"
@@ -107,6 +108,7 @@ set (HEADERS
 	"src/metadata/game_collection.h"
 
 	"src/retrograde/game_stage.h"
+	"src/retrograde/input_mapper.h"
 	"src/retrograde/retrograde_environment.h"
 	"src/retrograde/retrograde_game.h"
 	"src/retrograde/settings.h"

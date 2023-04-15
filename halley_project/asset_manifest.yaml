@@ -23,6 +23,7 @@ packs:
       - ~:gameProperties
       - ~:prefab
       - ~:scene
+      - ~:binaryFile:binary/sdl
 
   - name: images
     matches:

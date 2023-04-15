@@ -1,4 +1,6 @@
 #include "game_stage.h"
+
+#include "input_mapper.h"
 #include "retrograde_game.h"
 #include "src/retrograde/retrograde_environment.h"
 #include "src/ui/choose_system_window.h"
@@ -64,6 +66,7 @@ void GameStage::onUpdate(Time t)
 	Executor(Executors::getMainUpdateThread()).runPending();
 
 	env->getConfigDatabase().update();
+	env->getInputMapper().update();
 
 	auto kb = getInputAPI().getKeyboard();
 	if ((kb->isButtonDown(KeyCode::LCtrl) || kb->isButtonDown(KeyCode::RCtrl)) && kb->isButtonPressed(KeyCode::Enter)) {
@@ -76,7 +79,7 @@ void GameStage::onUpdate(Time t)
 	const auto uiSize = windowSize / zoomLevel;
 	uiRoot->setRect(Rect4f(Vector2f(), uiSize));
 
-	auto uiInput = env->getUIInput();
+	auto uiInput = env->getInputMapper().getUIInput();
 	uiInput->update(t);
 	uiRoot->update(t, UIInputType::Mouse, getInputAPI().getMouse(), uiInput);
 

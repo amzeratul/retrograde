@@ -6,6 +6,7 @@
 #include "src/filter_chain/filter_chain.h"
 #include "src/ui/choose_game_window.h"
 
+class InputMapper;
 class ImageCache;
 class CoreConfig;
 class LibretroCore;
@@ -33,7 +34,7 @@ public:
 	std::unique_ptr<FilterChain> makeFilterChain(const String& path);
 	GameCollection& getGameCollection(const String& systemId);
 
-	std::shared_ptr<InputVirtual> getUIInput();
+	InputMapper& getInputMapper();
 	ImageCache& getImageCache() const;
 
 	void setProfileId(String id);
@@ -62,12 +63,8 @@ private:
 
 	String profileId;
 
-	std::shared_ptr<InputVirtual> uiInput;
-
 	HashMap<String, std::shared_ptr<GameCollection>> gameCollections;
 
 	std::shared_ptr<ImageCache> imageCache;
-
-	std::shared_ptr<InputVirtual> makeUIInput();
-	std::shared_ptr<InputVirtual> makeInput(int idx);
+	std::shared_ptr<InputMapper> inputMapper;
 };
