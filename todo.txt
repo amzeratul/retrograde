@@ -2,7 +2,6 @@ Input:
 * Input device properties
 * Mouse support
 * Light gun support
-* Keyboard support
 
 Profile selector:
 - Basic UI

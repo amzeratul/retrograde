@@ -38,7 +38,7 @@ RetrogradeEnvironment::RetrogradeEnvironment(RetrogradeGame& game, Path _rootDir
 	settings.load(rootDir / "config" / "settings.yaml");
 	romsDir = settings.getRomsDir().isAbsolute() ? settings.getRomsDir() : (rootDir / settings.getRomsDir());
 
-	inputMapper = std::make_shared<InputMapper>(*halleyAPI.input, settings);
+	inputMapper = std::make_shared<InputMapper>(*this);
 }
 
 const Path& RetrogradeEnvironment::getSystemDir() const

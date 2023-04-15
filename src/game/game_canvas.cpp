@@ -51,6 +51,8 @@ void GameCanvas::onAddedToRoot(UIRoot& root)
 
 void GameCanvas::startGame(std::optional<std::pair<SaveStateType, size_t>> loadState)
 {
+	environment.getInputMapper().chooseBestAssignments(systemConfig);
+
 	if (!coreLoaded) {
 		loadCore();
 	}

@@ -1,12 +1,14 @@
 #include "input_mapper.h"
 
-InputMapper::InputMapper(InputAPI& inputAPI, Settings& settings)
-	: inputAPI(inputAPI)
-	, settings(settings)
+#include "retrograde_environment.h"
+
+InputMapper::InputMapper(RetrogradeEnvironment& retrogradeEnvironment)
+	: retrogradeEnvironment(retrogradeEnvironment)
 {
+	assignments.resize(8);
 	gameInput.resize(8);
 	for (auto& input: gameInput) {
-		input.input = std::make_shared<InputVirtual>(17, 6);
+		input = std::make_shared<InputVirtual>(17, 6);
 	}
 	uiInput = std::make_shared<InputVirtual>(13, 6);
 	bindUIInput();
@@ -19,7 +21,7 @@ void InputMapper::update()
 	assignJoysticks();
 }
 
-void InputMapper::chooseBestAssignments()
+void InputMapper::chooseBestAssignments(const SystemConfig& systemConfig)
 {
 	if (assignmentsFixed && !assignmentsChanged) {
 		return;
@@ -27,15 +29,17 @@ void InputMapper::chooseBestAssignments()
 
 	// Sort based on last device used on UI, and device types
 	const auto* last = uiInput->getLastDevice();
-	for (auto& input: gameInput) {
+	for (auto& input: assignments) {
 		const auto basePriority = input.type == InputType::Gamepad ? 1 : input.type == InputType::Keyboard ? 0 : -1;
-		input.priority = input.srcDevice.get() == last || input.input.get() == last ? 2 : basePriority;
+		input.priority = input.srcDevice.get() == last ? 2 : basePriority;
 	}
-	std::sort(gameInput.begin(), gameInput.end());
+	std::sort(assignments.begin(), assignments.end());
 
 	// Unset fixed because if we got here with fixed set, it's because assignments changed
 	assignmentsChanged = false;
 	assignmentsFixed = false;
+
+	bindDevices(systemConfig.getId());
 }
 
 void InputMapper::setAssignmentsFixed(bool fixed)
@@ -45,7 +49,7 @@ void InputMapper::setAssignmentsFixed(bool fixed)
 
 std::shared_ptr<InputVirtual> InputMapper::getInput(int idx)
 {
-	return gameInput.at(idx).input;
+	return gameInput.at(idx);
 }
 
 std::shared_ptr<InputVirtual> InputMapper::getUIInput()
@@ -61,11 +65,12 @@ bool InputMapper::Assignment::operator<(const Assignment& other) const
 void InputMapper::assignJoysticks()
 {
 	// Mark all assignments as missing
-	for (auto& input: gameInput) {
+	for (auto& input: assignments) {
 		input.present = false;
 	}
 
 	// Build assignments
+	const auto& inputAPI = *retrogradeEnvironment.getHalleyAPI().input;
 	const auto nJoy = inputAPI.getNumberOfJoysticks();
 	const auto nKey = inputAPI.getNumberOfKeyboards();
 	for (size_t i = 0; i < nJoy; ++i) {
@@ -76,12 +81,14 @@ void InputMapper::assignJoysticks()
 	}
 
 	// Remove items marked not present
-	for (auto& input: gameInput) {
-		if (!input.present && input.srcDevice) {
-			input.srcDevice = {};
-			input.input->clearBindings();
-			input.type = InputType::None;
+	for (int i = 0; i < 8; ++i) {
+		auto& assignment = assignments[i];
+		auto& input = gameInput[i];
+		if (!assignment.present && assignment.srcDevice) {
+			assignment.srcDevice = {};
+			assignment.type = InputType::None;
 			assignmentsChanged = true;
+			input->clearBindings();
 		}
 	}
 }
@@ -89,24 +96,26 @@ void InputMapper::assignJoysticks()
 void InputMapper::assignDevice(std::shared_ptr<InputDevice> device, InputType type)
 {
 	if (device->isEnabled()) {
-		if (auto* assignment = findAssignment(device, device->isEnabled())) {
-			assignment->present = true;
-			assignment->type = type;
-			if (assignment->srcDevice != device) {
-				assignment->srcDevice = device;
+		if (auto assignmentId = findAssignment(device, device->isEnabled())) {
+			auto& assignment = assignments[*assignmentId];
+			assignment.present = true;
+			assignment.type = type;
+			if (assignment.srcDevice != device) {
+				assignment.srcDevice = device;
 				assignmentsChanged = true;
 
+				auto& input = gameInput[*assignmentId];
 				if (type == InputType::Gamepad) {
-					bindInputJoystick(assignment->input, device);
+					bindInputJoystick(input, device, "");
 				} else if (type == InputType::Keyboard) {
-					bindInputKeyboard(assignment->input, device);
+					bindInputKeyboard(input, device);
 				}
 			}
 		}
 	}
 }
 
-void InputMapper::bindInputJoystick(std::shared_ptr<InputVirtual> input, std::shared_ptr<InputDevice> joy)
+void InputMapper::bindInputJoystick(std::shared_ptr<InputVirtual> input, std::shared_ptr<InputDevice> joy, const String& systemId)
 {
 	input->clearBindings();
 
@@ -173,35 +182,35 @@ void InputMapper::bindUIInput()
 	input->clearBindings();
 
 	for (int i = 0; i < 8; ++i) {
-		const auto joy = gameInput[i].input;
+		const auto joy = assignments[i].srcDevice;
 		if (joy) {
-			input->bindButton(UI_BUTTON_A, joy, LIBRETRO_BUTTON_A);
-			input->bindButton(UI_BUTTON_B, joy, LIBRETRO_BUTTON_B);
-			input->bindButton(UI_BUTTON_X, joy, LIBRETRO_BUTTON_X);
-			input->bindButton(UI_BUTTON_Y, joy, LIBRETRO_BUTTON_Y);
+			input->bindButton(UI_BUTTON_A, joy, joy->getButtonAtPosition(JoystickButtonPosition::PlatformAcceptButton));
+			input->bindButton(UI_BUTTON_B, joy, joy->getButtonAtPosition(JoystickButtonPosition::PlatformCancelButton));
+			input->bindButton(UI_BUTTON_X, joy, joy->getButtonAtPosition(JoystickButtonPosition::FaceLeft));
+			input->bindButton(UI_BUTTON_Y, joy, joy->getButtonAtPosition(JoystickButtonPosition::FaceTop));
 
-			input->bindButton(UI_BUTTON_BACK, joy, LIBRETRO_BUTTON_BACK);
-			input->bindButton(UI_BUTTON_START, joy, LIBRETRO_BUTTON_START);
+			input->bindButton(UI_BUTTON_BACK, joy, joy->getButtonAtPosition(JoystickButtonPosition::Select));
+			input->bindButton(UI_BUTTON_START, joy, joy->getButtonAtPosition(JoystickButtonPosition::Start));
 
-			input->bindButton(UI_BUTTON_BUMPER_LEFT, joy, LIBRETRO_BUTTON_BUMPER_LEFT);
-			input->bindButton(UI_BUTTON_BUMPER_RIGHT, joy, LIBRETRO_BUTTON_BUMPER_RIGHT);
+			input->bindButton(UI_BUTTON_BUMPER_LEFT, joy, joy->getButtonAtPosition(JoystickButtonPosition::BumperLeft));
+			input->bindButton(UI_BUTTON_BUMPER_RIGHT, joy, joy->getButtonAtPosition(JoystickButtonPosition::BumperRight));
 
-			input->bindButton(UI_BUTTON_TRIGGER_LEFT, joy, LIBRETRO_BUTTON_TRIGGER_LEFT);
-			input->bindButton(UI_BUTTON_TRIGGER_RIGHT, joy, LIBRETRO_BUTTON_TRIGGER_RIGHT);
-			input->bindButton(UI_BUTTON_STICK_LEFT, joy, LIBRETRO_BUTTON_STICK_LEFT);
-			input->bindButton(UI_BUTTON_STICK_RIGHT, joy, LIBRETRO_BUTTON_STICK_RIGHT);
-			input->bindButton(UI_BUTTON_SYSTEM, joy, LIBRETRO_BUTTON_SYSTEM);
+			input->bindButton(UI_BUTTON_TRIGGER_LEFT, joy, joy->getButtonAtPosition(JoystickButtonPosition::TriggerLeft));
+			input->bindButton(UI_BUTTON_TRIGGER_RIGHT, joy, joy->getButtonAtPosition(JoystickButtonPosition::TriggerRight));
+			input->bindButton(UI_BUTTON_STICK_LEFT, joy, joy->getButtonAtPosition(JoystickButtonPosition::LeftStick));
+			input->bindButton(UI_BUTTON_STICK_RIGHT, joy, joy->getButtonAtPosition(JoystickButtonPosition::RightStick));
+			input->bindButton(UI_BUTTON_SYSTEM, joy, joy->getButtonAtPosition(JoystickButtonPosition::System));
 
 			for (int j = 0; j < 6; ++j) {
 				input->bindAxis(j, joy, j);
 			}
 
-			input->bindAxisButton(UI_AXIS_LEFT_X, joy, LIBRETRO_BUTTON_LEFT, LIBRETRO_BUTTON_RIGHT);
-			input->bindAxisButton(UI_AXIS_LEFT_Y, joy, LIBRETRO_BUTTON_UP, LIBRETRO_BUTTON_DOWN);
+			input->bindAxisButton(UI_AXIS_LEFT_X, joy, joy->getButtonAtPosition(JoystickButtonPosition::DPadLeft), joy->getButtonAtPosition(JoystickButtonPosition::DPadRight));
+			input->bindAxisButton(UI_AXIS_LEFT_Y, joy, joy->getButtonAtPosition(JoystickButtonPosition::DPadUp), joy->getButtonAtPosition(JoystickButtonPosition::DPadDown));
 		}
 	}
 
-	auto kb = inputAPI.getKeyboard();
+	auto kb = retrogradeEnvironment.getHalleyAPI().input->getKeyboard();
 	if (kb) {
 		input->bindButton(UI_BUTTON_A, kb, KeyCode::Enter, KeyMods::None);
 		input->bindButton(UI_BUTTON_B, kb, KeyCode::Esc, KeyMods::None);
@@ -212,23 +221,36 @@ void InputMapper::bindUIInput()
 	}
 }
 
-InputMapper::Assignment* InputMapper::findAssignment(std::shared_ptr<InputDevice> device, bool tryNew)
+void InputMapper::bindDevices(const String& systemId)
 {
-	for (auto& input: gameInput) {
-		if (input.srcDevice == device) {
-			return &input;
+	for (int i = 0; i < 8; ++i) {
+		auto& assignment = assignments[i];
+		auto& input = gameInput[i];
+		if (assignment.type == InputType::Gamepad) {
+			bindInputJoystick(input, assignment.srcDevice, systemId);
+		} else if (assignment.type == InputType::Keyboard) {
+			bindInputKeyboard(input, assignment.srcDevice);
+		}
+	}
+}
+
+std::optional<int> InputMapper::findAssignment(std::shared_ptr<InputDevice> device, bool tryNew)
+{
+	for (int i = 0; i < 8; ++i) {
+		if (assignments[i].srcDevice == device) {
+			return i;
 		}
 	}
 
 	// Try first empty assignment
 	if (tryNew) {
-		for (auto& input : gameInput) {
-			if (!input.srcDevice) {
-				return &input;
+		for (int i = 0; i < 8; ++i) {
+			if (!assignments[i].srcDevice) {
+				return i;
 			}
 		}
 	}
 
 	// No assignment possible
-	return nullptr;
+	return {};
 }

@@ -1,8 +1,15 @@
 #pragma once
 
 #include <halley.hpp>
+class RetrogradeEnvironment;
+class SystemConfig;
 class Settings;
 using namespace Halley;
+
+class GameInputMapper {
+public:
+
+};
 
 class InputMapper {
 public:
@@ -69,10 +76,10 @@ public:
 		LIBRETRO_AXIS_TRIGGER_RIGHT
 	};
 
-	InputMapper(InputAPI& input, Settings& settings);
+	InputMapper(RetrogradeEnvironment& retrogradeEnvironment);
 
 	void update();
-	void chooseBestAssignments();
+	void chooseBestAssignments(const SystemConfig& systemConfig);
 	void setAssignmentsFixed(bool fixed);
 
 	std::shared_ptr<InputVirtual> getInput(int idx);
@@ -81,7 +88,6 @@ public:
 private:
 	struct Assignment {
 		std::shared_ptr<InputDevice> srcDevice;
-		std::shared_ptr<InputVirtual> input;
 		bool present = false;
 		int priority = 0;
 		InputType type = InputType::None;
@@ -89,19 +95,20 @@ private:
 		bool operator<(const Assignment& other) const;
 	};
 
-	InputAPI& inputAPI;
-	Settings& settings;
+	RetrogradeEnvironment& retrogradeEnvironment;
 
 	std::shared_ptr<InputVirtual> uiInput;
-	Vector<Assignment> gameInput;
+	Vector<std::shared_ptr<InputVirtual>> gameInput;
+	Vector<Assignment> assignments;
 
 	bool assignmentsChanged = false;
 	bool assignmentsFixed = false;
 
 	void assignJoysticks();
 	void assignDevice(std::shared_ptr<InputDevice> device, InputType type);
-	void bindInputJoystick(std::shared_ptr<InputVirtual> dst, std::shared_ptr<InputDevice> joy);
+	void bindInputJoystick(std::shared_ptr<InputVirtual> dst, std::shared_ptr<InputDevice> joy, const String& systemId);
 	void bindInputKeyboard(std::shared_ptr<InputVirtual> dst, std::shared_ptr<InputDevice> kb);
 	void bindUIInput();
-	Assignment* findAssignment(std::shared_ptr<InputDevice> device, bool tryNew);
+	void bindDevices(const String& systemId);
+	std::optional<int> findAssignment(std::shared_ptr<InputDevice> device, bool tryNew);
 };

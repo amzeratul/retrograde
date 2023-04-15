@@ -229,7 +229,6 @@ void InGameMenu::hide()
 
 void InGameMenu::startGame(std::optional<std::pair<SaveStateType, size_t>> loadState)
 {
-	retrogradeEnvironment.getInputMapper().chooseBestAssignments();
 	gameCanvas.startGame(loadState);
 	close();
 }
