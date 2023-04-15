@@ -101,9 +101,6 @@ std::unique_ptr<LibretroCore> RetrogradeEnvironment::loadCore(const CoreConfig& 
 	const String corePath = coreConfig.getId() + "_libretro.dll";
 
 	auto core = LibretroCore::load(coreConfig, getCoresDir() + "/" + corePath, systemConfig.getId(), *this);
-	for (int i = 0; i < 8; ++i) {
-		core->setInputDevice(i, inputMapper->getInput(i));
-	}
 	
 	if (!core) {
 		Logger::logError("Failed to load core " + String(corePath));

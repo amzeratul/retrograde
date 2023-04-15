@@ -26,6 +26,7 @@ GameCanvas::GameCanvas(UIFactory& factory, RetrogradeEnvironment& environment, c
 {
 	rewindData = std::make_unique<RewindData>(16 * 1024 * 1024);
 	saveStateCollection = std::make_unique<SaveStateCollection>(environment.getSaveDir(systemConfig.getId()), this->gameId);
+	gameInputMapper = environment.getInputMapper().makeGameInputMapper(systemConfig);
 
 	setModal(false);
 
@@ -51,7 +52,7 @@ void GameCanvas::onAddedToRoot(UIRoot& root)
 
 void GameCanvas::startGame(std::optional<std::pair<SaveStateType, size_t>> loadState)
 {
-	environment.getInputMapper().chooseBestAssignments(systemConfig);
+	gameInputMapper->chooseBestAssignments();
 
 	if (!coreLoaded) {
 		loadCore();
@@ -72,6 +73,7 @@ void GameCanvas::startGame(std::optional<std::pair<SaveStateType, size_t>> loadS
 void GameCanvas::loadCore()
 {
 	core = environment.loadCore(coreConfig, systemConfig);
+	gameInputMapper->bindCore(*core);
 	coreLoaded = true;
 	saveStateCollection->setCore(*core);
 }
@@ -362,6 +364,11 @@ const GameCollection::Entry* GameCanvas::getGameMetadata()
 SaveStateCollection& GameCanvas::getSaveStateCollection()
 {
 	return *saveStateCollection;
+}
+
+GameInputMapper& GameCanvas::getGameInputMapper()
+{
+	return *gameInputMapper;
 }
 
 bool GameCanvas::canSwapDisc() const

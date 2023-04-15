@@ -3,6 +3,7 @@
 #include <halley.hpp>
 
 #include "src/metadata/game_collection.h"
+#include "src/retrograde/game_input_mapper.h"
 #include "src/ui/in_game_menu.h"
 enum class SaveStateType;
 class SaveStateCollection;
@@ -34,6 +35,7 @@ public:
     void startGame(std::optional<std::pair<SaveStateType, size_t>> loadState = {});
 
     SaveStateCollection& getSaveStateCollection();
+    GameInputMapper& getGameInputMapper();
     bool canSwapDisc() const;
 
 private:
@@ -47,6 +49,7 @@ private:
 	std::unique_ptr<LibretroCore> core;
 	std::unique_ptr<RewindData> rewindData;
 	std::unique_ptr<SaveStateCollection> saveStateCollection;
+    std::shared_ptr<GameInputMapper> gameInputMapper;
 
     mutable Sprite screen;
     std::unique_ptr<FilterChain> filterChain;
