@@ -230,6 +230,7 @@ systems:
     category: console
     unitsSold: 30750000
     screenFilters: [crt-composite-ntsc-2phase-megadrive, crt-composite-ntsc-2phase]
+    mapping: megadrive
   - id: megacd
     regions:
       - name: Sega Mega CD
@@ -247,6 +248,7 @@ systems:
     category: console
     unitsSold: 2240000
     screenFilters: [crt-composite-ntsc-2phase-megadrive, crt-composite-ntsc-2phase]
+    mapping: megadrive
   - id: pcengine
     regions:
       - name: PC Engine
@@ -403,6 +405,7 @@ systems:
     category: console
     unitsSold: 32930000
     screenFilters: [crt-svideo]
+    mapping: n64
     capabilities:
       rewind: false
   - id: 32x
@@ -418,6 +421,7 @@ systems:
     category: console
     unitsSold: 665000
     screenFilters: [crt-composite-ntsc-2phase-megadrive, crt-composite-ntsc-2phase]
+    mapping: megadrive
   - id: saturn
     regions:
       - name: Sega Saturn
@@ -435,6 +439,7 @@ systems:
     category: console
     unitsSold: 9260000
     screenFilters: [crt-svideo]
+    mapping: saturn
     capabilities:
       rewind: false
   - id: virtualboy

@@ -115,6 +115,7 @@ SystemConfig::SystemConfig(const ConfigNode& node)
 	regions = node["regions"].asVector<SystemRegionConfig>();
 	screenFilters = node["screenFilters"].asVector<String>({});
 	bezels = node["bezels"].asVector<String>({});
+	mapping = node["mapping"].asString("");
 	capabilities = node["capabilities"].asHashMap<SystemCapability, bool>();
 }
 
@@ -184,6 +185,11 @@ int SystemConfig::getUnitsSold() const
 SystemCategory SystemConfig::getCategory() const
 {
 	return category;
+}
+
+const String& SystemConfig::getMapping() const
+{
+	return mapping;
 }
 
 String SystemConfig::getDescriptionKey() const

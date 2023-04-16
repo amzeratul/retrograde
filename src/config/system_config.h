@@ -92,6 +92,7 @@ public:
     int getGeneration() const;
     int getUnitsSold() const;
     SystemCategory getCategory() const;
+    const String& getMapping() const;
 
 	String getDescriptionKey() const;
 
@@ -109,4 +110,5 @@ private:
     int generation;
     int unitsSold;
     HashMap<SystemCapability, bool> capabilities;
+    String mapping;
 };

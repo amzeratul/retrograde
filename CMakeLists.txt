@@ -18,7 +18,9 @@ set (SOURCES
 	"prec.cpp"
 	
 	"src/config/bezel_config.cpp"
+	"src/config/controller_config.cpp"
 	"src/config/core_config.cpp"
+	"src/config/mapping_config.cpp"
 	"src/config/screen_filter_config.cpp"
 	"src/config/system_config.cpp"
 
@@ -85,7 +87,9 @@ set (HEADERS
 	"src/contrib/spirv_cross/spirv.hpp"
 	
 	"src/config/bezel_config.h"
+	"src/config/controller_config.h"
 	"src/config/core_config.h"
+	"src/config/mapping_config.h"
 	"src/config/screen_filter_config.h"
 	"src/config/system_config.h"
 

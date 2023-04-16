@@ -1,0 +1,108 @@
+mappings:
+  - id: n64
+    physicalToLibretro:
+      a: 'b'
+      b: 'y'
+      start: start
+      dpup: dpup
+      dpdown: dpdown
+      dpleft: dpleft
+      dpright: dpright
+      ltrigger: leftshoulder
+      rtrigger: rightshoulder
+      ztrigger: lefttrigger
+      cleft: -rightx
+      cright: +rightx
+      cup: -righty
+      cdown: +righty
+      leftx: leftx
+      lefty: lefty
+    controllers:
+      n64:
+        physicalToSDL:
+          a: 'a'
+          b: 'b'
+          start: start
+          dpup: dpup
+          dpdown: dpdown
+          dpleft: dpleft
+          dpright: dpright
+          ltrigger: leftshoulder
+          rtrigger: rightshoulder
+          ztrigger: lefttrigger
+          cleft: -rightx
+          cright: +rightx
+          cup: -righty
+          cdown: +righty
+          leftx: leftx
+          lefty: lefty
+  - id: megadrive
+    physicalToLibretro:
+      a: 'y'
+      b: 'b'
+      c: 'a'
+      x: leftshoulder
+      y: 'x'
+      z: rightshoulder
+      start: start
+      mode: back
+      dpup: dpup
+      dpdown: dpdown
+      dpleft: dpleft
+      dpright: dpright
+      leftx: leftx
+      lefty: lefty
+    controllers:
+      sega:
+        physicalToSDL:
+          a: 'a'
+          b: 'b'
+          c: righttrigger
+          x: 'x'
+          y: 'y'
+          z: rightshoulder
+          start: start
+          mode: back
+          dpup: dpup
+          dpdown: dpdown
+          dpleft: dpleft
+          dpright: dpright
+          leftx: leftx
+          lefty: lefty
+  - id: saturn
+    physicalToLibretro:
+      a: 'b'
+      b: 'a'
+      c: rightshoulder
+      x: 'y'
+      y: 'x'
+      z: leftshoulder
+      l: lefttrigger
+      r: righttrigger
+      start: start
+      mode: back
+      dpup: dpup
+      dpdown: dpdown
+      dpleft: dpleft
+      dpright: dpright
+      leftx: leftx
+      lefty: lefty
+    controllers:
+      sega:
+        physicalToSDL:
+          a: 'a'
+          b: 'b'
+          c: righttrigger
+          x: 'x'
+          y: 'y'
+          z: rightshoulder
+          l: leftshoulder
+          r: lefttrigger
+          start: start
+          mode: back
+          dpup: dpup
+          dpdown: dpdown
+          dpleft: dpleft
+          dpright: dpright
+          leftx: leftx
+          lefty: lefty

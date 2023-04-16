@@ -1,0 +1,22 @@
+controllers:
+  - id: xinput
+    default: true
+    match:
+    - Xbox
+    - XInput
+  - id: sega
+    match:
+    - Mega Drive
+    - Genesis
+    - Saturn
+    - M30
+  - id: n64
+    match:
+    - N64
+    - Nintendo 64
+  - id: gamecube
+    match:
+    - GameCube
+  - id: arcade
+    match:
+    - Arcade

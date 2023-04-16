@@ -3,7 +3,9 @@
 
 #include "input_mapper.h"
 #include "src/config/bezel_config.h"
+#include "src/config/controller_config.h"
 #include "src/config/core_config.h"
+#include "src/config/mapping_config.h"
 #include "src/config/screen_filter_config.h"
 #include "src/config/system_config.h"
 #include "src/filter_chain/retroarch_filter_chain.h"
@@ -31,6 +33,8 @@ RetrogradeEnvironment::RetrogradeEnvironment(RetrogradeGame& game, Path _rootDir
 	configDatabase.init<CoreConfig>("cores");
 	configDatabase.init<ScreenFilterConfig>("screenFilters");
 	configDatabase.init<SystemConfig>("systems");
+	configDatabase.init<ControllerConfig>("controllers");
+	configDatabase.init<MappingConfig>("mappings");
 	configDatabase.load(resources, "db/");
 
 	imageCache = std::make_shared<ImageCache>(*halleyAPI.video, resources, imagesDir);

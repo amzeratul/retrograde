@@ -2,7 +2,10 @@
 
 #include <halley.hpp>
 
-#include "src/libretro/libretro_core.h"
+#include "src/config/mapping_config.h"
+
+class LibretroCore;
+class MappingConfig;
 class InputMapper;
 class RetrogradeEnvironment;
 class SystemConfig;
@@ -11,40 +14,6 @@ using namespace Halley;
 
 class GameInputMapper {
 public:
-	
-	enum LibretroButtons {
-		LIBRETRO_BUTTON_UP,
-		LIBRETRO_BUTTON_DOWN,
-		LIBRETRO_BUTTON_LEFT,
-		LIBRETRO_BUTTON_RIGHT,
-
-		LIBRETRO_BUTTON_B,
-		LIBRETRO_BUTTON_A,
-		LIBRETRO_BUTTON_Y,
-		LIBRETRO_BUTTON_X,
-
-		LIBRETRO_BUTTON_BACK,
-		LIBRETRO_BUTTON_START,
-
-		LIBRETRO_BUTTON_BUMPER_LEFT,
-		LIBRETRO_BUTTON_BUMPER_RIGHT,
-		LIBRETRO_BUTTON_TRIGGER_LEFT,
-		LIBRETRO_BUTTON_TRIGGER_RIGHT,
-
-		LIBRETRO_BUTTON_STICK_LEFT,
-		LIBRETRO_BUTTON_STICK_RIGHT,
-
-		LIBRETRO_BUTTON_SYSTEM,
-	};
-
-	enum LibretroAxes {
-		LIBRETRO_AXIS_LEFT_X,
-		LIBRETRO_AXIS_LEFT_Y,
-		LIBRETRO_AXIS_RIGHT_X,
-		LIBRETRO_AXIS_RIGHT_Y,
-		LIBRETRO_AXIS_TRIGGER_LEFT,
-		LIBRETRO_AXIS_TRIGGER_RIGHT
-	};
 
 	GameInputMapper(RetrogradeEnvironment& environment, InputMapper& inputMapper, const SystemConfig& systemConfig);
 
@@ -73,11 +42,14 @@ private:
 	bool assignmentsChanged = false;
 	bool assignmentsFixed = false;
 
+	const MappingConfig* mapping = nullptr;
+
 	void assignJoysticks();
 	void assignDevice(std::shared_ptr<InputDevice> device, InputType type);
 	void bindInputJoystick(std::shared_ptr<InputVirtual> dst, std::shared_ptr<InputDevice> joy);
+	void bindInputJoystickWithMapping(std::shared_ptr<InputVirtual> input, std::shared_ptr<InputDevice> joy, const MappingConfig::Mapping& mapping);
 	void bindInputKeyboard(std::shared_ptr<InputVirtual> dst, std::shared_ptr<InputDevice> kb);
 	void bindDevices();
 	std::optional<int> findAssignment(std::shared_ptr<InputDevice> device, bool tryNew);
-
+	String getControllerType(const String& name);
 };

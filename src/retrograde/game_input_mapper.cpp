@@ -2,6 +2,9 @@
 
 #include "input_mapper.h"
 #include "retrograde_environment.h"
+#include "src/config/controller_config.h"
+#include "src/config/mapping_config.h"
+#include "src/libretro/libretro_core.h"
 
 GameInputMapper::GameInputMapper(RetrogradeEnvironment& retrogradeEnvironment, InputMapper& inputMapper, const SystemConfig& systemConfig)
 	: retrogradeEnvironment(retrogradeEnvironment)
@@ -12,6 +15,10 @@ GameInputMapper::GameInputMapper(RetrogradeEnvironment& retrogradeEnvironment, I
 	gameInput.resize(8);
 	for (auto& input: gameInput) {
 		input = std::make_shared<InputVirtual>(17, 6);
+	}
+
+	if (!systemConfig.getMapping().isEmpty()) {
+		mapping = &retrogradeEnvironment.getConfigDatabase().get<MappingConfig>(systemConfig.getMapping());
 	}
 
 	assignJoysticks();
@@ -118,6 +125,18 @@ void GameInputMapper::bindInputJoystick(std::shared_ptr<InputVirtual> input, std
 	input->clearBindings();
 
 	if (joy) {
+		using namespace LibretroButtons;
+
+		input->bindButton(LIBRETRO_BUTTON_SYSTEM, joy, joy->getButtonAtPosition(JoystickButtonPosition::System));
+
+		if (mapping) {
+			const auto type = getControllerType(joy->getName());
+			if (mapping->hasMapping(type)) {
+				bindInputJoystickWithMapping(input, joy, mapping->getMapping(type));
+				return;
+			}
+		}
+
 		input->bindButton(LIBRETRO_BUTTON_UP, joy, joy->getButtonAtPosition(JoystickButtonPosition::DPadUp));
 		input->bindButton(LIBRETRO_BUTTON_DOWN, joy, joy->getButtonAtPosition(JoystickButtonPosition::DPadDown));
 		input->bindButton(LIBRETRO_BUTTON_LEFT, joy, joy->getButtonAtPosition(JoystickButtonPosition::DPadLeft));
@@ -138,7 +157,6 @@ void GameInputMapper::bindInputJoystick(std::shared_ptr<InputVirtual> input, std
 
 		input->bindButton(LIBRETRO_BUTTON_STICK_LEFT, joy, joy->getButtonAtPosition(JoystickButtonPosition::LeftStick));
 		input->bindButton(LIBRETRO_BUTTON_STICK_RIGHT, joy, joy->getButtonAtPosition(JoystickButtonPosition::RightStick));
-		input->bindButton(LIBRETRO_BUTTON_SYSTEM, joy, joy->getButtonAtPosition(JoystickButtonPosition::System));
 
 		input->bindAxis(LIBRETRO_AXIS_LEFT_X, joy, 0);
 		input->bindAxis(LIBRETRO_AXIS_LEFT_Y, joy, 1);
@@ -149,11 +167,31 @@ void GameInputMapper::bindInputJoystick(std::shared_ptr<InputVirtual> input, std
 	}
 }
 
+void GameInputMapper::bindInputJoystickWithMapping(std::shared_ptr<InputVirtual> input, std::shared_ptr<InputDevice> joy, const MappingConfig::Mapping& mapping)
+{
+	for (const auto& [axisId, entry]: mapping.axes) {
+		if (entry.axis) {
+			input->bindAxis(axisId, joy, entry.a);
+		} else {
+			input->bindAxisButton(axisId, joy, joy->getButtonAtPosition(static_cast<JoystickButtonPosition>(entry.a)), joy->getButtonAtPosition(static_cast<JoystickButtonPosition>(entry.b)));
+		}
+	}
+	for (const auto& [buttonId, entry]: mapping.buttons) {
+		if (entry.axis) {
+			// ??
+		} else {
+			input->bindButton(buttonId, joy, joy->getButtonAtPosition(static_cast<JoystickButtonPosition>(entry.a)));
+		}
+	}
+}
+
 void GameInputMapper::bindInputKeyboard(std::shared_ptr<InputVirtual> input, std::shared_ptr<InputDevice> kb)
 {
 	input->clearBindings();
 
 	if (kb) {
+		using namespace LibretroButtons;
+
 		input->bindButton(LIBRETRO_BUTTON_UP, kb, KeyCode::Up);
 		input->bindButton(LIBRETRO_BUTTON_DOWN, kb, KeyCode::Down);
 		input->bindButton(LIBRETRO_BUTTON_LEFT, kb, KeyCode::Left);
@@ -206,4 +244,17 @@ std::optional<int> GameInputMapper::findAssignment(std::shared_ptr<InputDevice> 
 
 	// No assignment possible
 	return {};
+}
+
+String GameInputMapper::getControllerType(const String& name)
+{
+	String bestResult;
+	for (const auto& [k, v]: retrogradeEnvironment.getConfigDatabase().getEntries<ControllerConfig>()) {
+		if (v.matches(name)) {
+			return v.getId();
+		} else if (v.isDefault()) {
+			bestResult = v.getId();
+		}
+	}
+	return bestResult;
 }
