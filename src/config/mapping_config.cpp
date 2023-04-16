@@ -107,14 +107,14 @@ MappingConfig::InputMapping MappingConfig::parseInputMapping(String id, bool lib
 		"b",
 		"x",
 		"y",
-		"back",
+		"select",
 		"start",
-		"leftshoulder",
-		"rightshoulder",
-		"lefttrigger",
-		"righttrigger",
-		"leftstick",
-		"rightstick"
+		"l",
+		"r",
+		"l2",
+		"r2",
+		"l3",
+		"r3"
 	};
 
 	std::array<String, 18> buttonNamesSDL = {

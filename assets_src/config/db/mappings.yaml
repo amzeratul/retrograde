@@ -1,16 +1,16 @@
 mappings:
   - id: n64
     physicalToLibretro:
-      a: 'b'
+      a: b
       b: 'y'
       start: start
       dpup: dpup
       dpdown: dpdown
       dpleft: dpleft
       dpright: dpright
-      ltrigger: leftshoulder
-      rtrigger: rightshoulder
-      ztrigger: lefttrigger
+      ltrigger: l
+      rtrigger: r
+      ztrigger: l2
       cleft: -rightx
       cright: +rightx
       cup: -righty
@@ -39,13 +39,13 @@ mappings:
   - id: megadrive
     physicalToLibretro:
       a: 'y'
-      b: 'b'
-      c: 'a'
-      x: leftshoulder
-      y: 'x'
-      z: rightshoulder
+      b: b
+      c: a
+      x: l
+      y: x
+      z: r
       start: start
-      mode: back
+      mode: select
       dpup: dpup
       dpdown: dpdown
       dpleft: dpleft
@@ -71,14 +71,14 @@ mappings:
           lefty: lefty
   - id: saturn
     physicalToLibretro:
-      a: 'b'
-      b: 'a'
-      c: rightshoulder
+      a: b
+      b: a
+      c: r
       x: 'y'
-      y: 'x'
-      z: leftshoulder
-      l: lefttrigger
-      r: righttrigger
+      y: x
+      z: l
+      l: l2
+      r: r2
       start: start
       mode: back
       dpup: dpup

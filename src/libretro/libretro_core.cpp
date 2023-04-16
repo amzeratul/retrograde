@@ -1228,15 +1228,15 @@ void LibretroCore::onInputPoll()
 			value |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_X) ? (1 << RETRO_DEVICE_ID_JOYPAD_X) : 0;
 			value |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_Y) ? (1 << RETRO_DEVICE_ID_JOYPAD_Y) : 0;
 
-			value |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_BACK) ? (1 << RETRO_DEVICE_ID_JOYPAD_SELECT) : 0;
+			value |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_SELECT) ? (1 << RETRO_DEVICE_ID_JOYPAD_SELECT) : 0;
 			value |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_START) ? (1 << RETRO_DEVICE_ID_JOYPAD_START) : 0;
 			
-			value |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_BUMPER_LEFT) ? (1 << RETRO_DEVICE_ID_JOYPAD_L) : 0;
-			value |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_BUMPER_RIGHT) ? (1 << RETRO_DEVICE_ID_JOYPAD_R) : 0;
-			value |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_TRIGGER_LEFT) ? (1 << RETRO_DEVICE_ID_JOYPAD_L2) : 0;
-			value |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_TRIGGER_RIGHT) ? (1 << RETRO_DEVICE_ID_JOYPAD_R2) : 0;
-			value |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_STICK_LEFT) ? (1 << RETRO_DEVICE_ID_JOYPAD_L3) : 0;
-			value |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_STICK_RIGHT) ? (1 << RETRO_DEVICE_ID_JOYPAD_R3) : 0;
+			value |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_L) ? (1 << RETRO_DEVICE_ID_JOYPAD_L) : 0;
+			value |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_R) ? (1 << RETRO_DEVICE_ID_JOYPAD_R) : 0;
+			value |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_L2) ? (1 << RETRO_DEVICE_ID_JOYPAD_L2) : 0;
+			value |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_R2) ? (1 << RETRO_DEVICE_ID_JOYPAD_R2) : 0;
+			value |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_L3) ? (1 << RETRO_DEVICE_ID_JOYPAD_L3) : 0;
+			value |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_R3) ? (1 << RETRO_DEVICE_ID_JOYPAD_R3) : 0;
 
 			if (!hasAnalogStick) {
 				// Use left stick as d-pad if this core doesn't use analog sticks

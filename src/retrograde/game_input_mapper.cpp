@@ -194,21 +194,22 @@ void GameInputMapper::bindInputJoystick(std::shared_ptr<InputVirtual> input, std
 		input->bindButton(LIBRETRO_BUTTON_LEFT, joy, joy->getButtonAtPosition(JoystickButtonPosition::DPadLeft));
 		input->bindButton(LIBRETRO_BUTTON_RIGHT, joy, joy->getButtonAtPosition(JoystickButtonPosition::DPadRight));
 
-		input->bindButton(LIBRETRO_BUTTON_B, joy, joy->getButtonAtPosition(JoystickButtonPosition::FaceRight));
-		input->bindButton(LIBRETRO_BUTTON_A, joy, joy->getButtonAtPosition(JoystickButtonPosition::FaceBottom));
-		input->bindButton(LIBRETRO_BUTTON_Y, joy, joy->getButtonAtPosition(JoystickButtonPosition::FaceTop));
-		input->bindButton(LIBRETRO_BUTTON_X, joy, joy->getButtonAtPosition(JoystickButtonPosition::FaceLeft));
+		// NB: Libretro uses SNES assignments
+		input->bindButton(LIBRETRO_BUTTON_A, joy, joy->getButtonAtPosition(JoystickButtonPosition::FaceRight));
+		input->bindButton(LIBRETRO_BUTTON_B, joy, joy->getButtonAtPosition(JoystickButtonPosition::FaceBottom));
+		input->bindButton(LIBRETRO_BUTTON_X, joy, joy->getButtonAtPosition(JoystickButtonPosition::FaceTop));
+		input->bindButton(LIBRETRO_BUTTON_Y, joy, joy->getButtonAtPosition(JoystickButtonPosition::FaceLeft));
 
-		input->bindButton(LIBRETRO_BUTTON_BACK, joy, joy->getButtonAtPosition(JoystickButtonPosition::Select));
+		input->bindButton(LIBRETRO_BUTTON_SELECT, joy, joy->getButtonAtPosition(JoystickButtonPosition::Select));
 		input->bindButton(LIBRETRO_BUTTON_START, joy, joy->getButtonAtPosition(JoystickButtonPosition::Start));
 
-		input->bindButton(LIBRETRO_BUTTON_BUMPER_LEFT, joy, joy->getButtonAtPosition(JoystickButtonPosition::BumperLeft));
-		input->bindButton(LIBRETRO_BUTTON_BUMPER_RIGHT, joy, joy->getButtonAtPosition(JoystickButtonPosition::BumperRight));
-		input->bindButton(LIBRETRO_BUTTON_TRIGGER_LEFT, joy, joy->getButtonAtPosition(JoystickButtonPosition::TriggerLeft));
-		input->bindButton(LIBRETRO_BUTTON_TRIGGER_RIGHT, joy, joy->getButtonAtPosition(JoystickButtonPosition::TriggerRight));
+		input->bindButton(LIBRETRO_BUTTON_L, joy, joy->getButtonAtPosition(JoystickButtonPosition::BumperLeft));
+		input->bindButton(LIBRETRO_BUTTON_R, joy, joy->getButtonAtPosition(JoystickButtonPosition::BumperRight));
+		input->bindButton(LIBRETRO_BUTTON_L2, joy, joy->getButtonAtPosition(JoystickButtonPosition::TriggerLeft));
+		input->bindButton(LIBRETRO_BUTTON_R2, joy, joy->getButtonAtPosition(JoystickButtonPosition::TriggerRight));
 
-		input->bindButton(LIBRETRO_BUTTON_STICK_LEFT, joy, joy->getButtonAtPosition(JoystickButtonPosition::LeftStick));
-		input->bindButton(LIBRETRO_BUTTON_STICK_RIGHT, joy, joy->getButtonAtPosition(JoystickButtonPosition::RightStick));
+		input->bindButton(LIBRETRO_BUTTON_L3, joy, joy->getButtonAtPosition(JoystickButtonPosition::LeftStick));
+		input->bindButton(LIBRETRO_BUTTON_R3, joy, joy->getButtonAtPosition(JoystickButtonPosition::RightStick));
 
 		input->bindAxis(LIBRETRO_AXIS_LEFT_X, joy, 0);
 		input->bindAxis(LIBRETRO_AXIS_LEFT_Y, joy, 1);
@@ -249,16 +250,17 @@ void GameInputMapper::bindInputKeyboard(std::shared_ptr<InputVirtual> input, std
 		input->bindButton(LIBRETRO_BUTTON_LEFT, kb, KeyCode::Left);
 		input->bindButton(LIBRETRO_BUTTON_RIGHT, kb, KeyCode::Right);
 
-		input->bindButton(LIBRETRO_BUTTON_B, kb, KeyCode::A);
-		input->bindButton(LIBRETRO_BUTTON_A, kb, KeyCode::S);
-		input->bindButton(LIBRETRO_BUTTON_Y, kb, KeyCode::F);
-		input->bindButton(LIBRETRO_BUTTON_X, kb, KeyCode::D);
+		// NB: Libretro uses SNES assignments
+		input->bindButton(LIBRETRO_BUTTON_A, kb, KeyCode::A);
+		input->bindButton(LIBRETRO_BUTTON_B, kb, KeyCode::S);
+		input->bindButton(LIBRETRO_BUTTON_X, kb, KeyCode::F);
+		input->bindButton(LIBRETRO_BUTTON_Y, kb, KeyCode::D);
 
-		input->bindButton(LIBRETRO_BUTTON_BACK, kb, KeyCode::Space);
+		input->bindButton(LIBRETRO_BUTTON_SELECT, kb, KeyCode::Space);
 		input->bindButton(LIBRETRO_BUTTON_START, kb, KeyCode::Enter);
 
-		input->bindButton(LIBRETRO_BUTTON_BUMPER_LEFT, kb, KeyCode::Q);
-		input->bindButton(LIBRETRO_BUTTON_BUMPER_RIGHT, kb, KeyCode::W);
+		input->bindButton(LIBRETRO_BUTTON_L, kb, KeyCode::Q);
+		input->bindButton(LIBRETRO_BUTTON_R, kb, KeyCode::W);
 
 		input->bindButton(LIBRETRO_BUTTON_SYSTEM, kb, KeyCode::F1);
 	}
