@@ -23,7 +23,7 @@ namespace {
 	}
 }
 
-Future<SaveState> SaveStateCollection::saveGameState(SaveStateType type)
+Future<std::optional<SaveState>> SaveStateCollection::saveGameState(SaveStateType type)
 {
 	if (!core) {
 		throw Exception("Core not set", 0);
@@ -52,7 +52,7 @@ Future<SaveState> SaveStateCollection::saveGameState(SaveStateType type)
 	uint64_t timestamp = getCurrentTimestamp();
 	uint32_t timePlayed = 0; // TODO
 
-	return Concurrent::execute(Executors::getCPU(), [=, data = std::move(data), screenshot = std::move(screenshot)] () -> SaveState
+	return Concurrent::execute(Executors::getCPU(), [=, data = std::move(data), screenshot = std::move(screenshot)] () -> std::optional<SaveState>
 	{
 		SaveState saveState;
 		saveState.setSaveData(data);
@@ -61,7 +61,17 @@ Future<SaveState> SaveStateCollection::saveGameState(SaveStateType type)
 		}
 		saveState.setTimePlayed(timePlayed);
 		saveState.setTimeStamp(timestamp);
-		Path::writeFile(path, saveState.toBytes());
+
+		const auto dir = path.parentPath().string();
+		std::error_code ec;
+		if (!std::filesystem::is_directory(dir, ec)) {
+			std::filesystem::create_directories(dir, ec);
+		}
+		const bool ok = Path::writeFile(path, saveState.toBytes());
+		if (!ok) {
+			Logger::logError("Failed to save file.");
+			return std::nullopt;
+		}
 		return saveState;
 	});
 }

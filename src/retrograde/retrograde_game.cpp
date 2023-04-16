@@ -57,7 +57,11 @@ String RetrogradeGame::getDataPath() const
 
 bool RetrogradeGame::isDevMode() const
 {
+#if defined(DEV_BUILD) && !defined(RELEASE_MODE)
 	return true;
+#else
+	return false;
+#endif
 }
 
 std::unique_ptr<Stage> RetrogradeGame::startGame()

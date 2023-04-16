@@ -143,7 +143,7 @@ void InGameMenu::showSaveStates(bool canSave)
 	setHandle(UIEventType::ListAccept, "savestateList", [=] (const UIEvent& event)
 	{
 		if (event.getStringData() == "save") {
-			gameCanvas.getSaveStateCollection().saveGameState(SaveStateType::Permanent).then(Executors::getMainUpdateThread(), [=] (SaveState savestate)
+			gameCanvas.getSaveStateCollection().saveGameState(SaveStateType::Permanent).then(Executors::getMainUpdateThread(), [=] (std::optional<SaveState> savestate)
 			{
 				refreshSaveStateList(canSave);
 			});
