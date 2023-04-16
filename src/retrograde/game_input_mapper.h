@@ -24,12 +24,14 @@ public:
 
 private:
 	struct Assignment {
-		std::shared_ptr<InputDevice> srcDevice;
+		std::shared_ptr<InputDevice> assignedDevice;
+		std::shared_ptr<InputDevice> boundDevice;
 		bool present = false;
 		int priority = 0;
 		InputType type = InputType::None;
 
 		bool operator<(const Assignment& other) const;
+		void clear();
 	};
 
 	RetrogradeEnvironment& retrogradeEnvironment;

@@ -39,7 +39,7 @@ void GameInputMapper::chooseBestAssignments()
 	const auto* last = inputMapper.getUIInput()->getLastDevice();
 	for (auto& input: assignments) {
 		const auto basePriority = input.type == InputType::Gamepad ? 1 : input.type == InputType::Keyboard ? 0 : -1;
-		input.priority = input.srcDevice.get() == last ? 2 : basePriority;
+		input.priority = input.assignedDevice.get() == last ? 2 : basePriority;
 	}
 	std::sort(assignments.begin(), assignments.end());
 
@@ -67,6 +67,15 @@ bool GameInputMapper::Assignment::operator<(const Assignment& other) const
 	return priority > other.priority;
 }
 
+void GameInputMapper::Assignment::clear()
+{
+	assignedDevice = {};
+	boundDevice = {};
+	type = InputType::None;
+	present = false;
+	priority = 0;
+}
+
 void GameInputMapper::assignJoysticks()
 {
 	// Mark all assignments as missing
@@ -86,16 +95,28 @@ void GameInputMapper::assignJoysticks()
 	}
 
 	// Remove items marked not present
+	bool assignmentsRemoved = false;
 	for (int i = 0; i < 8; ++i) {
 		auto& assignment = assignments[i];
 		auto& input = gameInput[i];
-		if (!assignment.present && assignment.srcDevice) {
-			assignment.srcDevice = {};
-			assignment.type = InputType::None;
+		if (!assignment.present && assignment.assignedDevice) {
+			assignment.clear();
 			assignmentsChanged = true;
 			input->clearBindings();
+			assignmentsRemoved = true;
 		}
 	}
+
+	// Shift everything down
+	if (assignmentsRemoved) {
+		for (auto& assignment: assignments) {
+			assignment.priority = assignment.assignedDevice ? 1 : 0;
+		}
+		std::sort(assignments.begin(), assignments.end());
+	}
+
+	// Bind devices
+	bindDevices();
 }
 
 void GameInputMapper::assignDevice(std::shared_ptr<InputDevice> device, InputType type)
@@ -105,19 +126,50 @@ void GameInputMapper::assignDevice(std::shared_ptr<InputDevice> device, InputTyp
 			auto& assignment = assignments[*assignmentId];
 			assignment.present = true;
 			assignment.type = type;
-			if (assignment.srcDevice != device) {
-				assignment.srcDevice = device;
+			if (assignment.assignedDevice != device) {
+				assignment.assignedDevice = device;
 				assignmentsChanged = true;
-
-				auto& input = gameInput[*assignmentId];
-				if (type == InputType::Gamepad) {
-					bindInputJoystick(input, device);
-				} else if (type == InputType::Keyboard) {
-					bindInputKeyboard(input, device);
-				}
 			}
 		}
 	}
+}
+
+void GameInputMapper::bindDevices()
+{
+	for (int i = 0; i < 8; ++i) {
+		auto& assignment = assignments[i];
+		auto& input = gameInput[i];
+
+		if (assignment.boundDevice != assignment.assignedDevice) {
+			if (assignment.type == InputType::Gamepad) {
+				bindInputJoystick(input, assignment.assignedDevice);
+			} else if (assignment.type == InputType::Keyboard) {
+				bindInputKeyboard(input, assignment.assignedDevice);
+			}
+			assignment.boundDevice = assignment.assignedDevice;
+		}
+	}
+}
+
+std::optional<int> GameInputMapper::findAssignment(std::shared_ptr<InputDevice> device, bool tryNew)
+{
+	for (int i = 0; i < 8; ++i) {
+		if (assignments[i].assignedDevice == device) {
+			return i;
+		}
+	}
+
+	// Try first empty assignment
+	if (tryNew) {
+		for (int i = 0; i < 8; ++i) {
+			if (!assignments[i].assignedDevice) {
+				return i;
+			}
+		}
+	}
+
+	// No assignment possible
+	return {};
 }
 
 void GameInputMapper::bindInputJoystick(std::shared_ptr<InputVirtual> input, std::shared_ptr<InputDevice> joy)
@@ -210,40 +262,6 @@ void GameInputMapper::bindInputKeyboard(std::shared_ptr<InputVirtual> input, std
 
 		input->bindButton(LIBRETRO_BUTTON_SYSTEM, kb, KeyCode::F1);
 	}
-}
-
-void GameInputMapper::bindDevices()
-{
-	for (int i = 0; i < 8; ++i) {
-		auto& assignment = assignments[i];
-		auto& input = gameInput[i];
-		if (assignment.type == InputType::Gamepad) {
-			bindInputJoystick(input, assignment.srcDevice);
-		} else if (assignment.type == InputType::Keyboard) {
-			bindInputKeyboard(input, assignment.srcDevice);
-		}
-	}
-}
-
-std::optional<int> GameInputMapper::findAssignment(std::shared_ptr<InputDevice> device, bool tryNew)
-{
-	for (int i = 0; i < 8; ++i) {
-		if (assignments[i].srcDevice == device) {
-			return i;
-		}
-	}
-
-	// Try first empty assignment
-	if (tryNew) {
-		for (int i = 0; i < 8; ++i) {
-			if (!assignments[i].srcDevice) {
-				return i;
-			}
-		}
-	}
-
-	// No assignment possible
-	return {};
 }
 
 String GameInputMapper::getControllerType(const String& name)
