@@ -30,7 +30,6 @@ private:
     std::optional<String> pendingSystemId;
     std::optional<String> pendingGameId;
     String region;
-    Sprite bg;
 
     void loadSystem(const String& systemId);
     void close();
