@@ -43,7 +43,13 @@ public:
     GameCollection(Path dir);
 
     void scanGames();
-    gsl::span<const Entry> getEntries() const;
+    void scanGameData();
+
+	bool isReady() const;
+    void whenReady(std::function<void()> f);
+
+    size_t getNumEntries() const;
+	gsl::span<const Entry> getEntries() const;
     const Entry* findEntry(const String& file) const;
 
 private:
@@ -53,8 +59,14 @@ private:
     HashMap<String, size_t> fileIndex;
     std::shared_ptr<ESGameList> esGameList;
 
+    bool gameDataRequested = false;
+    Future<bool> scanningFuture;
+
+    void doScanGames();
+    void waitForLoad() const;
+
     void makeEntry(const Path& path);
-    Entry makeEntryForFile(const Path& path, const String& cleanName);
+    void collectEntryData(Entry& result);
     void collectMediaData(Entry& entry);
 
 	static std::pair<String, Vector<String>> parseName(const String& name);

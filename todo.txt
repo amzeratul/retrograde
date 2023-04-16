@@ -1,7 +1,8 @@
 Input:
-* Input device properties
-* Mouse support
-* Light gun support
+* Input chooser UI
+* Pointer support
+- Mouse support
+- Light gun support
 
 Profile selector:
 - Basic UI
@@ -11,12 +12,10 @@ System selector:
 
 Game list UI:
 * Quick browse
-* Filter
+* Recent
+- Filter/Search
 - Show videos (!)
 - Scrape online data (!)
-
-Input chooser UI
-- Basic UI
 
 In-game UI:
 * Browse media

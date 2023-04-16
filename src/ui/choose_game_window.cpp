@@ -17,8 +17,11 @@ ChooseGameWindow::ChooseGameWindow(UIFactory& factory, RetrogradeEnvironment& re
 	, parentMenu(parentMenu)
 	, collection(retrogradeEnvironment.getGameCollection(systemConfig.getId()))
 {
+	aliveFlag = std::make_shared<bool>(true);
+
 	const auto coreId = systemConfig.getCores().empty() ? "" : systemConfig.getCores().front();
 	coreConfig = coreId.isEmpty() ? nullptr : &retrogradeEnvironment.getConfigDatabase().get<CoreConfig>(coreId);
+	collection.scanGameData();
 
 	factory.loadUI(*this, "choose_game");
 
@@ -28,6 +31,11 @@ ChooseGameWindow::ChooseGameWindow(UIFactory& factory, RetrogradeEnvironment& re
 	buttons.accept = 0;
 	buttons.cancel = 1;
 	setInputButtons(buttons);
+}
+
+ChooseGameWindow::~ChooseGameWindow()
+{
+	*aliveFlag = false;
 }
 
 void ChooseGameWindow::onMakeUI()
@@ -47,13 +55,20 @@ void ChooseGameWindow::onMakeUI()
 		onGameSelected(event.getIntData());
 	});
 
-	const auto gameList = getWidgetAs<UIList>("gameList");
-	for (size_t i = 0; i < collection.getEntries().size(); ++i) {
-		const auto& entry = collection.getEntries()[i];
-		gameList->addItem(toString(i), std::make_shared<GameCapsule>(factory, retrogradeEnvironment, entry));
-	}
-
 	retrogradeEnvironment.getImageCache().loadIntoOr(getWidgetAs<UIImage>("system_logo"), systemConfig.getRegion("world").getLogoImage(), "", "Halley/Sprite", Vector2f(780.0f, 400.0f));
+
+	collection.whenReady([=, aliveFlag = aliveFlag]() {
+		if (!*aliveFlag) {
+			return;
+		}
+		const auto gameList = getWidgetAs<UIList>("gameList");
+		gameList->clear();
+		const auto& entries = collection.getEntries();
+		for (size_t i = 0; i < entries.size(); ++i) {
+			const auto& entry = entries[i];
+			gameList->addItem(toString(i), std::make_shared<GameCapsule>(factory, retrogradeEnvironment, entry));
+		}
+	});
 }
 
 void ChooseGameWindow::onAddedToRoot(UIRoot& root)

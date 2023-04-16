@@ -60,11 +60,6 @@ GameCollection::GameCollection(Path dir)
 
 void GameCollection::scanGames()
 {
-	const auto gameListPath = dir / "gamelist.xml";
-	if (Path::exists(gameListPath)) {
-		esGameList = std::make_shared<ESGameList>(gameListPath);
-	}
-
 	entries.clear();
 	fileIndex.clear();
 	nameIndex.clear();
@@ -75,30 +70,86 @@ void GameCollection::scanGames()
 			makeEntry(e.path().filename().string());
 		}
 	}
+}
+
+void GameCollection::scanGameData()
+{
+	if (!gameDataRequested) {
+		gameDataRequested = true;
+		scanningFuture = Concurrent::execute(Executors::getCPU(), [=]()
+		{
+			doScanGames();
+			return true;
+		});
+	}
+}
+
+void GameCollection::doScanGames()
+{
+	// Load gamelist
+	const auto gameListPath = dir / "gamelist.xml";
+	if (Path::exists(gameListPath)) {
+		esGameList = std::make_shared<ESGameList>(gameListPath);
+	}
+
+	// Load metadata
+	for (auto& e: entries) {
+		collectEntryData(e);
+	}
+
+	// Sort and index
 	std::sort(entries.begin(), entries.end());
 	nameIndex.clear();
-
 	for (size_t i = 0; i < entries.size(); ++i) {
 		const auto& e = entries[i];
 		for (auto& file: e.files) {
 			fileIndex[file.toString()] = i;
 		}
 		nameIndex[e.sortName] = i;
+	}	
+}
+
+bool GameCollection::isReady() const
+{
+	return scanningFuture.isReady();
+}
+
+void GameCollection::whenReady(std::function<void()> f)
+{
+	if (scanningFuture.isReady()) {
+		f();
+	} else {
+		scanningFuture.then(Executors::getMainUpdateThread(), [f = std::move(f)](bool)
+		{
+			f();
+		});
 	}
+}
+
+size_t GameCollection::getNumEntries() const
+{
+	return entries.size();
 }
 
 gsl::span<const GameCollection::Entry> GameCollection::getEntries() const
 {
+	waitForLoad();
 	return entries;
 }
 
 const GameCollection::Entry* GameCollection::findEntry(const String& file) const
 {
+	waitForLoad();
 	const auto iter = fileIndex.find(file);
 	if (iter != fileIndex.end()) {
 		return &entries[iter->second];
 	}
 	return nullptr;
+}
+
+void GameCollection::waitForLoad() const
+{
+	scanningFuture.wait();
 }
 
 void GameCollection::makeEntry(const Path& path)
@@ -116,21 +167,21 @@ void GameCollection::makeEntry(const Path& path)
 		entry.files.push_back(path);
 		entry.sortFiles();
 	} else {
-		Entry result = makeEntryForFile(path, cleanName);
+		Entry result;
+		result.files.push_back(path);
 		result.tags = std::move(tags);
+		result.sortName = cleanName;
 
 		nameIndex[cleanName] = entries.size();
 		entries.push_back(std::move(result));
 	}
 }
 
-GameCollection::Entry GameCollection::makeEntryForFile(const Path& path, const String& cleanName)
+void GameCollection::collectEntryData(Entry& result)
 {
-	Entry result;
-	result.files.push_back(path);
-
 	// Try reading from EmulationStation gamelist.xml
 	if (esGameList) {
+		const auto& path = result.files.front();
 		if (const auto* gameListData = esGameList->findData(path.toString())) {
 			result.sortName = postProcessSortName(gameListData->name);
 			result.displayName = postProcessDisplayName(gameListData->name);
@@ -155,16 +206,14 @@ GameCollection::Entry GameCollection::makeEntryForFile(const Path& path, const S
 			tryAdd(MediaType::Manual, gameListData->manual);
 			tryAdd(MediaType::Video, gameListData->video);
 
-			return result;
+			return;
 		}
 	}
 
 	// Fallback
 	result.nPlayers = Range<int>(0, 0);
-	result.sortName = cleanName;
-	result.displayName = postProcessDisplayName(cleanName);
+	result.displayName = postProcessDisplayName(result.sortName);
 	collectMediaData(result);
-	return result;
 }
 
 std::pair<String, Vector<String>> GameCollection::parseName(const String& name)

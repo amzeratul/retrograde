@@ -73,8 +73,8 @@ void ChooseSystemWindow::setSelectedSystem(const SystemConfig& systemConfig)
 	loadCapsuleInfo("game_capsule_date", "game_info_date", toString(systemConfig.getReleaseDate().year));
 	loadCapsuleInfo("game_capsule_developer", "game_info_developer", systemConfig.getManufacturer());
 	loadCapsuleInfo("game_capsule_generation", "game_info_generation", factory.getI18N().get("gen" + toString(systemConfig.getGeneration())).getString());
-
-	const size_t nGames = retrogradeEnvironment.getGameCollection(systemConfig.getId()).getEntries().size();
+	
+	const size_t nGames = retrogradeEnvironment.getGameCollection(systemConfig.getId()).getNumEntries();
 	loadCapsuleInfo("game_capsule_games", "game_info_games", nGames == 0 ? "" : (nGames > 1 ? toString(nGames) + " Games" : "1 Game"));
 
 	getWidgetAs<UIImage>("system_image")->setSprite({});
@@ -115,7 +115,7 @@ void ChooseSystemWindow::populateSystems()
 	Vector<CategoryType> categories;
 	HashMap<CategoryType, Vector<const SystemConfig*>> systemsByCategory;
 	for (const auto& s: retrogradeEnvironment.getConfigDatabase().getValues<SystemConfig>()) {
-		if (showEmptySystems || !retrogradeEnvironment.getGameCollection(s->getId()).getEntries().empty()) {
+		if (showEmptySystems || retrogradeEnvironment.getGameCollection(s->getId()).getNumEntries() > 0) {
 			const auto cat = getCategoryId(*s);
 			systemsByCategory[cat].push_back(s);
 			if (!std_ex::contains(categories, cat)) {

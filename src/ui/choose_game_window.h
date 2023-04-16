@@ -13,6 +13,7 @@ class RetrogradeEnvironment;
 class ChooseGameWindow : public UIWidget {
 public:
     ChooseGameWindow(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvironment, const SystemConfig& systemConfig, std::optional<String> gameId, UIWidget& parentMenu);
+    ~ChooseGameWindow() override;
 
     void onMakeUI() override;
     void onAddedToRoot(UIRoot& root) override;
@@ -29,6 +30,8 @@ private:
     std::optional<String> pendingGameId;
     UIWidget& parentMenu;
     GameCollection& collection;
+
+    std::shared_ptr<bool> aliveFlag;
    
     void onGamepadInput(const UIInputResults& input, Time time) override;
     void loadGame(size_t gameIdx);
