@@ -40,6 +40,9 @@ private:
     void onGameSelected(size_t gameIdx);
     void onGameSelected(const GameCollection::Entry& entry);
     void onErrorDueToNoCoreAvailable();
+
+    void savePosition();
+    void loadPosition();
 };
 
 class GameCapsule : public UIWidget {

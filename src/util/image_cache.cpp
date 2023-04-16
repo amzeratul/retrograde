@@ -43,23 +43,29 @@ void ImageCache::loadIntoOr(std::shared_ptr<UIImage> uiImage, std::string_view n
 		tex = getTexture(fallbackName);
 	}
 
+	const auto reqN = startRequest(*uiImage);
+
 	if (!tex) {
-		uiImage->setSprite(Sprite());
-		uiImage->sendEvent(UIEvent(UIEventType::ImageUpdated, uiImage->getId(), ConfigNode(Vector2f())));
+		if (fulfillRequest(*uiImage, reqN)) {
+			uiImage->setSprite(Sprite());
+			uiImage->sendEvent(UIEvent(UIEventType::ImageUpdated, uiImage->getId(), ConfigNode(Vector2f())));
+		}
 		return;
 	}
 
 	String mat = materialName;
-	auto doUpdate = [this, tex, uiImage, mat, maxSize]()
+	auto doUpdate = [this, tex, uiImage, mat, maxSize, reqN]()
 	{
-		uiImage->setSprite(toSprite(tex, mat));
-		if (maxSize) {
-			const auto size = uiImage->getMinimumSize();
-			const auto scale = size / *maxSize;
-			const auto finalSize = size / std::max(scale.x, scale.y);
-			uiImage->setMinSize(finalSize);
+		if (fulfillRequest(*uiImage, reqN)) {
+			uiImage->setSprite(toSprite(tex, mat));
+			if (maxSize) {
+				const auto size = uiImage->getMinimumSize();
+				const auto scale = size / *maxSize;
+				const auto finalSize = size / std::max(scale.x, scale.y);
+				uiImage->setMinSize(finalSize);
+			}
+			uiImage->sendEvent(UIEvent(UIEventType::ImageUpdated, uiImage->getId(), ConfigNode(uiImage->getMinimumSize())));
 		}
-		uiImage->sendEvent(UIEvent(UIEventType::ImageUpdated, uiImage->getId(), ConfigNode(uiImage->getMinimumSize())));
 	};
 
 	if (tex->isLoaded()) {
@@ -67,6 +73,25 @@ void ImageCache::loadIntoOr(std::shared_ptr<UIImage> uiImage, std::string_view n
 	} else {
 		tex->onLoad().then(Executors::getMainUpdateThread(), doUpdate);
 	}
+}
+
+uint64_t ImageCache::startRequest(const UIImage& dst)
+{
+	const auto curReqNumber = requestNumber++;
+	auto& req = pendingRequests[&dst];
+	req.mostRecent = curReqNumber;
+	req.count++;
+	return curReqNumber;
+}
+
+bool ImageCache::fulfillRequest(const UIImage& dst, uint64_t id)
+{
+	auto& req = pendingRequests.at(&dst);
+	const bool ok = req.mostRecent == id;
+	if (--req.count == 0) {
+		pendingRequests.erase(&dst);
+	}
+	return ok;
 }
 
 void ImageCache::clear()

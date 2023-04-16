@@ -17,9 +17,19 @@ private:
     VideoAPI& video;
     Resources& resources;
     Path root;
+    uint64_t requestNumber = 0;
+
+    struct Request {
+        uint64_t mostRecent = 0;
+        uint64_t count = 0;
+    };
 
     HashMap<String, std::shared_ptr<Texture>> textures;
+    HashMap<const UIImage*, Request> pendingRequests;
 
     std::shared_ptr<Texture> loadTexture(std::string_view name, bool trim);
     Sprite toSprite(std::shared_ptr<const Texture> tex, std::string_view materialName);
+
+    uint64_t startRequest(const UIImage& dst);
+    bool fulfillRequest(const UIImage& dst, uint64_t id);
 };

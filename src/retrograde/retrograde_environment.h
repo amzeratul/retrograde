@@ -47,9 +47,6 @@ private:
 	Resources& resources;
 	const HalleyAPI& halleyAPI;
 
-	ConfigDatabase configDatabase;
-	Settings settings;
-	
 	Path rootDir;
 	Path profilesDir;
 	Path curProfileDir;
@@ -62,6 +59,9 @@ private:
 	Path coreAssetsDir;
 
 	String profileId;
+
+	ConfigDatabase configDatabase;
+	Settings settings;
 
 	HashMap<String, std::shared_ptr<GameCollection>> gameCollections;
 

@@ -13,11 +13,12 @@
 #include "src/metadata/game_collection.h"
 #include "src/util/image_cache.h"
 
-RetrogradeEnvironment::RetrogradeEnvironment(RetrogradeGame& game, Path _rootDir, Resources& resources, const HalleyAPI& halleyAPI)
+RetrogradeEnvironment::RetrogradeEnvironment(RetrogradeGame& game, Path rootDir, Resources& resources, const HalleyAPI& halleyAPI)
 	: game(game)
 	, resources(resources)
 	, halleyAPI(halleyAPI)
-	, rootDir(std::move(_rootDir))
+	, rootDir(rootDir)
+	, settings(rootDir / "config" / "settings.yaml")
 {
 	systemDir = rootDir / "system";
 	profilesDir = rootDir / "profiles";
@@ -39,7 +40,7 @@ RetrogradeEnvironment::RetrogradeEnvironment(RetrogradeGame& game, Path _rootDir
 
 	imageCache = std::make_shared<ImageCache>(*halleyAPI.video, resources, imagesDir);
 
-	settings.load(rootDir / "config" / "settings.yaml");
+	settings.load();
 	romsDir = settings.getRomsDir().isAbsolute() ? settings.getRomsDir() : (rootDir / settings.getRomsDir());
 
 	inputMapper = std::make_shared<InputMapper>(*this);

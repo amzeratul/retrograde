@@ -35,6 +35,7 @@ ChooseGameWindow::ChooseGameWindow(UIFactory& factory, RetrogradeEnvironment& re
 
 ChooseGameWindow::~ChooseGameWindow()
 {
+	savePosition();
 	*aliveFlag = false;
 }
 
@@ -72,6 +73,8 @@ void ChooseGameWindow::onMakeUI()
 				gameList->addItem(toString(i), std::make_shared<GameCapsule>(factory, retrogradeEnvironment, entry));
 			}
 		}
+
+		loadPosition();
 	});
 }
 
@@ -119,6 +122,7 @@ void ChooseGameWindow::loadGame(size_t gameIdx)
 void ChooseGameWindow::loadGame(const String& gameId)
 {
 	if (coreConfig) {
+		savePosition();
 		setActive(false);
 		getRoot()->addChild(std::make_shared<GameCanvas>(factory, retrogradeEnvironment, *coreConfig, systemConfig, gameId, *this));
 	} else {
@@ -160,6 +164,44 @@ void ChooseGameWindow::onGameSelected(const GameCollection::Entry& entry)
 void ChooseGameWindow::onErrorDueToNoCoreAvailable()
 {
 	// TODO
+}
+
+void ChooseGameWindow::savePosition()
+{
+	const auto gameList = getWidgetAs<UIList>("gameList");
+	const auto& entries = collection.getEntries();
+	const auto curSel = gameList->getSelectedOption();
+
+	if (curSel < 0 || curSel >= static_cast<int>(entries.size())) {
+		return;
+	}
+	const auto& curEntry = entries[curSel];
+
+	ConfigNode::MapType windowData;
+	windowData["lastEntry"] = curEntry.files.front().getString();
+	retrogradeEnvironment.getSettings().setWindowData("choose_game:" + systemConfig.getId(), std::move(windowData));
+	retrogradeEnvironment.getSettings().save();
+}
+
+void ChooseGameWindow::loadPosition()
+{
+	auto& windowData = retrogradeEnvironment.getSettings().getWindowData("choose_game:" + systemConfig.getId());
+	windowData.ensureType(ConfigNodeType::Map);
+	const auto lastEntry = windowData["lastEntry"].asString("");
+	if (!lastEntry.isEmpty()) {
+		const auto lastEntryPath = Path(lastEntry);
+		const auto& entries = collection.getEntries();
+		const auto iter = std_ex::find_if(entries, [&] (const GameCollection::Entry& e)
+		{
+			return e.files.front() == lastEntryPath;
+		});
+
+		if (iter != entries.end()) {
+			const auto idx = static_cast<int>(iter - entries.begin());
+			const auto gameList = getWidgetAs<UIList>("gameList");
+			gameList->setSelectedOption(idx);
+		}
+	}
 }
 
 
