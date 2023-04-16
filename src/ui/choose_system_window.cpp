@@ -18,6 +18,11 @@ ChooseSystemWindow::ChooseSystemWindow(UIFactory& factory, RetrogradeEnvironment
 	setAnchor(UIAnchor());
 }
 
+ChooseSystemWindow::~ChooseSystemWindow()
+{
+	savePosition();
+}
+
 void ChooseSystemWindow::onAddedToRoot(UIRoot& root)
 {
 	if (pendingSystemId) {
@@ -82,6 +87,7 @@ const String& ChooseSystemWindow::getRegion() const
 
 void ChooseSystemWindow::loadSystem(const String& systemId)
 {
+	savePosition();
 	setActive(false);
 	retrogradeEnvironment.getImageCache().clear();
 	const auto& systemConfig = retrogradeEnvironment.getConfigDatabase().get<SystemConfig>(systemId);
@@ -147,6 +153,36 @@ void ChooseSystemWindow::populateSystems()
 		}
 
 		systemCategoryList->addItem(id, std::make_shared<SystemList>(factory, retrogradeEnvironment, std::move(title), std::move(systems), *this, viewMode), 1);
+	}
+
+	layout();
+	loadPosition();
+}
+
+void ChooseSystemWindow::savePosition()
+{
+	const auto systemCategoryList = getWidgetAs<UIList>("systemCategoryList");
+	const auto category = systemCategoryList->getSelectedOptionId();
+	const auto systemList = systemCategoryList->getItem(category)->getWidgetAs<UIList>("systemList");
+
+	ConfigNode::MapType windowData;
+	windowData["category"] = category;
+	windowData["system"] = systemList->getSelectedOptionId();
+	retrogradeEnvironment.getSettings().setWindowData("choose_system", std::move(windowData));
+	retrogradeEnvironment.getSettings().save();
+}
+
+void ChooseSystemWindow::loadPosition()
+{
+	const auto systemCategoryList = getWidgetAs<UIList>("systemCategoryList");
+
+	auto& windowData = retrogradeEnvironment.getSettings().getWindowData("choose_system");
+	windowData.ensureType(ConfigNodeType::Map);
+	if (windowData["category"].asString("") != "") {
+		systemCategoryList->setSelectedOptionId(windowData["category"].asString(""));
+
+		const auto systemList = systemCategoryList->getItem(systemCategoryList->getSelectedOptionId())->getWidgetAs<UIList>("systemList");
+		systemList->setSelectedOptionId(windowData["system"].asString(""));
 	}
 }
 
