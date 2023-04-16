@@ -74,6 +74,7 @@ void ChooseGameWindow::onMakeUI()
 			}
 		}
 
+		layout();
 		loadPosition();
 	});
 }
