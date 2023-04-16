@@ -32,6 +32,7 @@ public:
         String genre;
         Date date;
         Range<int> nPlayers;
+        bool hidden = false;
 
         void sortFiles();
         const Path& getBestFileToLoad(const CoreConfig& coreConfig) const;

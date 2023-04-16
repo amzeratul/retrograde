@@ -36,7 +36,9 @@ private:
     void onGamepadInput(const UIInputResults& input, Time time) override;
     void loadGame(size_t gameIdx);
     void loadGame(const String& gamePath);
+    void onNoGameSelected();
     void onGameSelected(size_t gameIdx);
+    void onGameSelected(const GameCollection::Entry& entry);
     void onErrorDueToNoCoreAvailable();
 };
 

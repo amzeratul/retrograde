@@ -191,6 +191,7 @@ void GameCollection::collectEntryData(Entry& result)
 			result.publisher = gameListData->publisher;
 			result.genre = gameListData->genre;
 			result.nPlayers = gameListData->players;
+			result.hidden = gameListData->hidden;
 
 			auto tryAdd = [&](MediaType type, const String& str)
 			{

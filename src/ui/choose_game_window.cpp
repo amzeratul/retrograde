@@ -40,6 +40,8 @@ ChooseGameWindow::~ChooseGameWindow()
 
 void ChooseGameWindow::onMakeUI()
 {
+	onNoGameSelected();
+
 	setHandle(UIEventType::ListAccept, "gameList", [=] (const UIEvent& event)
 	{
 		loadGame(event.getIntData());
@@ -66,7 +68,9 @@ void ChooseGameWindow::onMakeUI()
 		const auto& entries = collection.getEntries();
 		for (size_t i = 0; i < entries.size(); ++i) {
 			const auto& entry = entries[i];
-			gameList->addItem(toString(i), std::make_shared<GameCapsule>(factory, retrogradeEnvironment, entry));
+			if (!entry.hidden) {
+				gameList->addItem(toString(i), std::make_shared<GameCapsule>(factory, retrogradeEnvironment, entry));
+			}
 		}
 	});
 }
@@ -122,10 +126,19 @@ void ChooseGameWindow::loadGame(const String& gameId)
 	}
 }
 
+void ChooseGameWindow::onNoGameSelected()
+{
+	GameCollection::Entry entry;
+	onGameSelected(entry);
+}
+
 void ChooseGameWindow::onGameSelected(size_t gameIdx)
 {
-	const auto& entry = collection.getEntries()[gameIdx];
+	onGameSelected(collection.getEntries()[gameIdx]);
+}
 
+void ChooseGameWindow::onGameSelected(const GameCollection::Entry& entry)
+{
 	getWidgetAs<UILabel>("game_name")->setText(LocalisedString::fromUserString(entry.displayName));
 
 	auto loadCapsuleInfo = [&] (std::string_view capsuleName, std::string_view labelName, const String& data, bool canHide = true)
