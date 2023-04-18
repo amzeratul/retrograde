@@ -10,7 +10,7 @@ SamplerState linearSampler : register(s1)
     AddressV = Clamp;
 };
 
-float4 smoothPixel(Texture2D tex, float2 uv)
+float4 smoothPixel(Texture2D tex, float2 uv, float sharpness)
 {
     int2 size;
     tex.GetDimensions(size.x, size.y);
@@ -19,7 +19,7 @@ float4 smoothPixel(Texture2D tex, float2 uv)
     float2 pxCoordFract = pxCoord - pxCoordMid;
 
     float pxSize = length(ddx(pxCoord));
-    float zoom = 1.0 / pxSize;
+    float zoom = 1.0 / pxSize * sharpness;
 
     if (zoom < 1) {
         return tex.Sample(linearSampler, uv);
@@ -32,6 +32,6 @@ float4 smoothPixel(Texture2D tex, float2 uv)
 }
 
 float4 main(VOut input) : SV_TARGET {
-    float4 col = smoothPixel(tex0, input.texCoord0.xy);
+    float4 col = smoothPixel(tex0, input.texCoord0.xy, 1.0);
     return col * input.colour + input.colourAdd * col.a;
 }
