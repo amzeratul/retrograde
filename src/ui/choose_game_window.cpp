@@ -220,7 +220,7 @@ void GameCapsule::onMakeUI()
 	const auto maxSize = Vector2f(598.0f, 448.0f);
 
 	const auto capsule = getWidgetAs<UIImage>("capsule");
-	retrogradeEnvironment.getImageCache().loadIntoOr(capsule, entry.getMedia(GameCollection::MediaType::Screenshot).toString(), "games/game_unknown.png", "Halley/Sprite", maxSize);
+	retrogradeEnvironment.getImageCache().loadIntoOr(capsule, entry.getMedia(GameCollection::MediaType::Screenshot).toString(), "games/game_unknown.png", "Halley/SmoothPixel", maxSize);
 
 	const auto name = getWidgetAs<UILabel>("name");
 	name->setText(LocalisedString::fromUserString(entry.displayName));

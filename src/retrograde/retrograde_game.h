@@ -27,6 +27,8 @@ public:
 	I18N& getI18N();
 	void toggleFullscreen();
 
+	String getDevConAddress() const override;
+
 private:
 	const HalleyAPI* api;
 	Vector<String> args;
@@ -35,4 +37,6 @@ private:
 
 	WindowDefinition windowDefinition;
 	WindowDefinition fullscreenDefinition;
+
+	String devConAddress;
 };

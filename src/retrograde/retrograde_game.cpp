@@ -12,6 +12,14 @@ void initXAudio2Plugin(IPluginRegistry &registry);
 void RetrogradeGame::init(const Environment& env, const Vector<String>& args)
 {
 	this->args = args;
+
+	for (size_t i = 0; i < args.size(); ++i) {
+		const auto& arg = args[i];
+
+		if (arg.startsWith("--devcon=")) {
+			devConAddress = arg.mid(9);
+		}
+	}
 }
 
 int RetrogradeGame::initPlugins(IPluginRegistry& registry)
@@ -119,6 +127,11 @@ void RetrogradeGame::toggleFullscreen()
 	auto& window = getAPI().video->getWindow();
 	const bool isCurrentlyFullscreen = window.getDefinition().getWindowType() != WindowType::ResizableWindow;
 	window.update(WindowDefinition(isCurrentlyFullscreen ? windowDefinition : fullscreenDefinition));
+}
+
+String RetrogradeGame::getDevConAddress() const
+{
+	return devConAddress;
 }
 
 HalleyGame(RetrogradeGame);

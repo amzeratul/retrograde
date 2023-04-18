@@ -246,9 +246,9 @@ void SaveStateCapsule::loadData(SaveStateCollection& ssc, SaveStateType type, si
 		auto image = ss->getScreenShot();
 
 		const float aspectRatio = ss->getScreenShotAspectRatio();
-		const auto maxSize = Vector2f(aspectRatio * 672.0f, 672.0f);
+		const auto maxSize = Vector2f(aspectRatio * 1000.0f, 1000.0f);
 
-		Sprite sprite = Sprite().setImage(retrogradeEnvironment.getResources(), *retrogradeEnvironment.getHalleyAPI().video, std::move(image));
+		Sprite sprite = Sprite().setImage(retrogradeEnvironment.getResources(), *retrogradeEnvironment.getHalleyAPI().video, std::move(image), "Halley/SmoothPixel");
 		getWidgetAs<UIImage>("image")->setSprite(sprite);
 		getWidgetAs<UIImage>("image")->setMinSize(maxSize);
 
