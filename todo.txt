@@ -12,7 +12,6 @@ System selector:
 
 Game list UI:
 * Quick browse
-* Recent
 - Filter/Search
 - Show videos (!)
 - Scrape online data (!)

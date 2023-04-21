@@ -123,6 +123,40 @@ children:
                       type: horizontal
                       uniformSizedItems: true
                     fill: [fillHorizontal, centreVertical]
+          - uuid: bdf2e0c4-dcd5-4d61-a2e9-5c4cf73ced77
+            proportion: 1
+            sizer:
+              columnProportions: []
+              columns: 1
+              gap: 50
+              type: vertical
+            widget:
+              active: false
+              class: widget
+              id: inputPane
+            children:
+              - uuid: 8d061a7b-f9bc-493a-8c48-66e37d7a2070
+                border: [100, 0, 0, 0]
+                widget:
+                  class: label
+                  style: labelHeader
+                  text: Input Config
+              - uuid: 3df8ee99-753d-4b1e-8e61-1ee55b1b0e3c
+                border: [50, 0, 0, 0]
+                sizer:
+                  columnProportions: []
+                widget:
+                  class: horizontalDiv
+                  style: horizontalDiv
+              - uuid: 5966d854-444b-4e7a-921b-0aaf14c8459c
+                proportion: 1
+                sizer:
+                  columnProportions: []
+                  gap: 0
+                widget:
+                  class: widget
+                  id: inputPanelContents
+                children: []
       - uuid: e0403a87-5059-4fc9-8af9-e7cef4eb1ed9
         sizer:
           columnProportions: []

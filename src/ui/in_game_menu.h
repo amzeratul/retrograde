@@ -37,6 +37,7 @@ private:
     void showSwapDisc();
     void showMedia();
     void showAchievements();
+    void showInput();
 
     void refreshSaveStateList(bool canSave);
 

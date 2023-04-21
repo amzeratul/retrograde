@@ -1,0 +1,146 @@
+uuid: 1b3b28e8-b7d6-4b7e-b8ff-7a1800370d03
+sizer:
+  columnProportions: []
+  gap: 30
+  type: vertical
+widget:
+  class: widget
+children:
+  - uuid: f236b596-2ff9-4e31-9753-e72e9ede17d0
+    sizer:
+      columnProportions: []
+      gap: 4
+    widget:
+      class: widget
+      id: hardwareDeviceLine
+    children:
+      - uuid: 409b6f3d-d667-4e34-98da-7613ba4bba90
+        border: [0, 21, 0, 21]
+        sizer:
+          columnProportions: []
+        widget:
+          class: image
+          colour: "#303f9f"
+          id: leftArrow
+          image: ui/input_left_arrow.png
+        fill: [centreHorizontal, centreVertical]
+      - uuid: 156bcdbe-f146-4116-aef0-dbc59819d08f
+        proportion: 1
+        sizer:
+          columnProportions: []
+          gap: 20
+        widget:
+          class: image
+          colour: "#303f9f"
+          id: deviceNameBg
+          image: ui/round_rect_20px.png
+          innerBorder: [20, 0, 20, 0]
+          size: [0, 0]
+        children:
+          - uuid: a33d055e-e3f7-4016-acb3-7b9bbb0b09f0
+            proportion: 1
+            border: [0, 0, 0, 0]
+            widget:
+              class: label
+              id: deviceName
+              marquee: 100
+              maxHeight: 60
+              maxWidth: 430
+              style: labelInputDevice
+              text: Xbox Controller
+            fill: [centreHorizontal, centreVertical]
+          - uuid: c868e047-252e-4ea5-a4c4-d2fd3822d348
+            border: [0, 0, 0, 0]
+            sizer:
+              columnProportions: []
+            widget:
+              active: false
+              class: image
+              id: iconKeyboard
+              image: ui/input_keyboard.png
+            fill: [centreHorizontal, centreVertical]
+          - uuid: e946d9e7-3f14-46e6-a603-1f8adffcef9d
+            border: [0, 0, 0, 0]
+            sizer:
+              columnProportions: []
+            widget:
+              class: image
+              id: iconGamepad
+              image: ui/input_gamepad.png
+            fill: [centreHorizontal, centreVertical]
+      - uuid: b20a05f0-eb40-4177-9ca0-6a48e2d1a836
+        border: [0, 21, 0, 21]
+        sizer:
+          columnProportions: []
+        widget:
+          class: image
+          colour: "#303f9f"
+          id: rightArrow
+          image: ui/input_right_arrow.png
+        fill: [centreHorizontal, centreVertical]
+  - uuid: 7fcd9403-b0a9-4457-92d3-c66f82def66f
+    border: [24, 0, 24, 0]
+    sizer:
+      columnProportions: []
+      gap: 10
+      type: vertical
+    widget:
+      class: image
+      image: ui/input_slot.png
+      size: [600, 600]
+    children:
+      - uuid: c6d16024-c7c9-4477-a439-01cf025cd365
+        border: [0, 30, 0, 20]
+        widget:
+          class: label
+          id: portName
+          style: labelInputDevice
+          text: Port 1
+        fill: [centreHorizontal, fillVertical]
+      - uuid: 178e21f5-496c-49d2-8be9-263aae1c5ff1
+        sizer:
+          columnProportions: []
+        widget:
+          class: image
+          colour: "#303f9f"
+          id: upArrow
+          image: ui/input_up_arrow.png
+        fill: [centreHorizontal, centreVertical]
+      - uuid: be54bee3-9204-4ebe-bed5-f70fa5c50fe1
+        proportion: 1
+        border: [10, 10, 10, 10]
+        widget:
+          class: widget
+          id: deviceImageContainer
+      - uuid: 6483ea38-050a-414e-a528-6cb754564795
+        border: [20, 0, 20, 0]
+        sizer:
+          columnProportions: []
+        widget:
+          class: image
+          colour: "#303f9f"
+          id: virtualDeviceBg
+          image: ui/round_rect_20px.png
+        children:
+          - uuid: 032c699c-89ab-4e04-a513-1fdf93f66a5c
+            proportion: 1
+            widget:
+              class: label
+              id: virtualDeviceName
+              marquee: 100
+              maxHeight: 50
+              maxWidth: 500
+              style: labelInputVirtual
+              text: Virtual Device Name
+            fill: [centreHorizontal, centreVertical]
+      - uuid: 864b56da-9e6a-49ba-8cf2-22681f0d852d
+        border: [0, 0, 0, 20]
+        sizer:
+          columnProportions: []
+        widget:
+          class: image
+          colour: "#303f9f"
+          id: downArrow
+          image: ui/input_down_arrow.png
+        fill: [centreHorizontal, centreVertical]
+    fill: [centreHorizontal, centreVertical]

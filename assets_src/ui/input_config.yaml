@@ -1,0 +1,45 @@
+uuid: d90bdcd0-5f02-49cf-96cd-f826551ff7b4
+sizer:
+  columnProportions: []
+  gap: 34
+widget:
+  class: widget
+children:
+  - uuid: aa3c916b-2f50-49a4-af80-830588c39085
+    sizer:
+      columnProportions: []
+      type: vertical
+    widget:
+      class: widget
+      id: ""
+    children:
+      - uuid: c46678a8-c0b6-479c-ae54-4429c11649e0
+        widget:
+          class: label
+          text: Unassigned
+      - uuid: f88bfbe8-750b-4d32-910a-221ed4a1b794
+        proportion: 1
+        sizer:
+          columnProportions: []
+          gap: 10
+          type: vertical
+        widget:
+          class: widget
+          id: parkingSpace
+        children: []
+        fill: [centreHorizontal, centreVertical]
+  - uuid: d8922114-f406-4eb2-881e-c1531299a37d
+    sizer:
+      columnProportions: []
+    widget:
+      class: verticalDiv
+      style: verticalDiv
+  - uuid: 5669cadf-6d3f-47df-b287-148d92c4cc74
+    proportion: 1
+    sizer:
+      columnProportions: []
+      gap: 34
+    widget:
+      class: widget
+      id: slots
+    children: []

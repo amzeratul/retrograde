@@ -114,6 +114,14 @@ uiStyle:
     classes: [label]
     label: { font: Roboto Regular, size: 48, colour: "#FFFFFF", shadowDistance: 5, shadowSmoothness: 10, shadowColour: "#000000" }
 
+  labelInputDevice:
+    classes: [label]
+    label: { font: Roboto Regular, size: 40, colour: "#FFFFFF" }
+
+  labelInputVirtual:
+    classes: [label]
+    label: { font: Roboto Bold, size: 36, colour: "#FFFFFF" }
+
   labelTimeline:
     classes: [label]
     label: { font: Roboto Bold, size: 38, colour: "#FFFFFF" }
@@ -155,4 +163,9 @@ uiStyle:
   horizontalDiv:
     classes: [horizontalDiv]
     image: ui/hdivider.png
+    gap: 2
+
+  verticalDiv:
+    classes: [verticalDiv]
+    image: ui/vdivider.png
     gap: 2

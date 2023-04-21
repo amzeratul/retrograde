@@ -2,6 +2,7 @@
 
 #include "src/game/game_canvas.h"
 #include "src/retrograde/input_mapper.h"
+#include "src/retrograde/input_mapper.h"
 #include "src/retrograde/retrograde_environment.h"
 #include "src/savestate/savestate.h"
 #include "src/savestate/savestate_collection.h"
@@ -21,9 +22,10 @@ InGameMenu::InGameMenu(UIFactory& factory, RetrogradeEnvironment& retrogradeEnvi
 	setModal(true);
 
 	UIInputButtons buttons;
-	buttons.cancel = 1;
+	buttons.cancel = InputMapper::UIButtons::UI_BUTTON_B;
+	buttons.secondary = InputMapper::UIButtons::UI_BUTTON_Y;
 	if (mode == Mode::InGame) {
-		buttons.secondary = 12;
+		buttons.tertiary = InputMapper::UIButtons::UI_BUTTON_SYSTEM;
 	}
 	setInputButtons(buttons);
 }
@@ -192,6 +194,14 @@ void InGameMenu::showAchievements()
 	// TODO
 }
 
+void InGameMenu::showInput()
+{
+	getWidget("optionsPane")->setActive(false);
+	getWidget("inputPane")->setActive(true);
+
+	// TODO
+}
+
 void InGameMenu::onGamepadInput(const UIInputResults& input, Time time)
 {
 	if (input.isButtonPressed(UIGamepadInput::Button::Cancel)) {
@@ -199,6 +209,10 @@ void InGameMenu::onGamepadInput(const UIInputResults& input, Time time)
 	}
 
 	if (input.isButtonPressed(UIGamepadInput::Button::Secondary)) {
+		showInput();
+	}
+
+	if (input.isButtonPressed(UIGamepadInput::Button::Tertiary)) {
 		hide();
 	}
 }

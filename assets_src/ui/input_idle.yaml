@@ -1,0 +1,44 @@
+uuid: 041f6bee-cfd5-42c3-a813-8ea84c981a8c
+sizer:
+  columnProportions: []
+  gap: 10
+widget:
+  class: widget
+children:
+  - uuid: 3f9659d8-1695-4975-9401-b81e55c4d6d1
+    sizer:
+      columnProportions: []
+    widget:
+      class: image
+      colour: "#303f9f"
+      id: bg
+      image: ui/round_rect_20px.png
+      size: [120, 96]
+    children:
+      - uuid: 1d1e1749-781c-4b74-a5f6-3fb0b681909b
+        proportion: 1
+        sizer:
+          columnProportions: []
+        widget:
+          class: image
+          id: iconGamepad
+          image: ui/input_gamepad.png
+        fill: [centreHorizontal, centreVertical]
+      - uuid: 1291dbfe-c9d9-4bee-be97-c279582bbe57
+        sizer:
+          columnProportions: []
+        widget:
+          active: false
+          class: image
+          id: iconKeyboard
+          image: ui/input_keyboard.png
+        fill: [centreHorizontal, centreVertical]
+  - uuid: 19c5416b-59d3-4a3c-99df-3e0bd5bf5ade
+    sizer:
+      columnProportions: []
+    widget:
+      class: image
+      colour: "#303f9f"
+      id: arrow
+      image: ui/input_right_arrow.png
+    fill: [centreHorizontal, centreVertical]
