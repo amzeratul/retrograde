@@ -12,11 +12,15 @@ children:
     widget:
       class: widget
       id: ""
+      size: [336, 0]
     children:
       - uuid: c46678a8-c0b6-479c-ae54-4429c11649e0
+        border: [0, 20, 0, 20]
         widget:
           class: label
+          style: labelInputDevice
           text: Unassigned
+        fill: [centreHorizontal, fillVertical]
       - uuid: f88bfbe8-750b-4d32-910a-221ed4a1b794
         proportion: 1
         sizer:

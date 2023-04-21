@@ -1,5 +1,6 @@
 #include "in_game_menu.h"
 
+#include "input_config_widget.h"
 #include "src/game/game_canvas.h"
 #include "src/retrograde/input_mapper.h"
 #include "src/retrograde/input_mapper.h"
@@ -71,6 +72,7 @@ void InGameMenu::setupMenu()
 		options->addTextItem("new", LocalisedString::fromHardcodedString("New Game"), -1, true);
 		options->addTextItem("load", LocalisedString::fromHardcodedString("Load Game"), -1, true);
 		options->add(std::make_shared<UIWidget>("", Vector2f(0, 80)));
+		options->addTextItem("input", LocalisedString::fromHardcodedString("Input"), -1, true);
 		options->addTextItem("media", LocalisedString::fromHardcodedString("View Media"), -1, true);
 		options->addTextItem("achievements", LocalisedString::fromHardcodedString("Achievements"), -1, true);
 	} else if (mode == Mode::InGame) {
@@ -79,6 +81,7 @@ void InGameMenu::setupMenu()
 		options->addTextItem("savestates", LocalisedString::fromHardcodedString("Save/Load"), -1, true);
 		options->addTextItem("swapdisc", LocalisedString::fromHardcodedString("Swap Disc"), -1, true);
 		//options->add(std::make_shared<UIWidget>("", Vector2f(0, 100)));
+		options->addTextItem("input", LocalisedString::fromHardcodedString("Input"), -1, true);
 		options->addTextItem("media", LocalisedString::fromHardcodedString("View Media"), -1, true);
 		options->addTextItem("achievements", LocalisedString::fromHardcodedString("Achievements"), -1, true);
 		options->add(std::make_shared<UIWidget>("", Vector2f(0, 50)), 1);
@@ -119,6 +122,8 @@ void InGameMenu::onChooseOption(const String& optionId)
 		showSaveStates(true);
 	} else if (optionId == "swapdisc") {
 		showSwapDisc();
+	} else if (optionId == "input") {
+		showInput();
 	} else if (optionId == "media") {
 		showMedia();
 	} else if (optionId == "achievements") {
@@ -133,6 +138,8 @@ void InGameMenu::showRoot()
 {
 	getWidget("optionsPane")->setActive(true);
 	getWidget("savestatePane")->setActive(false);
+
+	getWidget("inputPanelContents")->clear();
 }
 
 void InGameMenu::showSaveStates(bool canSave)
@@ -199,7 +206,7 @@ void InGameMenu::showInput()
 	getWidget("optionsPane")->setActive(false);
 	getWidget("inputPane")->setActive(true);
 
-	// TODO
+	getWidget("inputPanelContents")->add(std::make_shared<InputConfigWidget>(factory, gameCanvas));
 }
 
 void InGameMenu::onGamepadInput(const UIInputResults& input, Time time)

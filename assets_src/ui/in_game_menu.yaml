@@ -90,7 +90,7 @@ children:
                   style: labelHeader
                   text: Savestates
               - uuid: 1124af72-6779-40a8-a4ba-80b03d5e6647
-                border: [50, 0, 0, 0]
+                border: [50, 0, 50, 0]
                 sizer:
                   columnProportions: []
                 widget:
@@ -142,7 +142,7 @@ children:
                   style: labelHeader
                   text: Input Config
               - uuid: 3df8ee99-753d-4b1e-8e61-1ee55b1b0e3c
-                border: [50, 0, 0, 0]
+                border: [50, 0, 50, 0]
                 sizer:
                   columnProportions: []
                 widget:
@@ -150,6 +150,7 @@ children:
                   style: horizontalDiv
               - uuid: 5966d854-444b-4e7a-921b-0aaf14c8459c
                 proportion: 1
+                border: [100, 0, 100, 0]
                 sizer:
                   columnProportions: []
                   gap: 0

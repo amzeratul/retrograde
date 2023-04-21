@@ -53,6 +53,7 @@ set (SOURCES
 	"src/ui/choose_game_window.cpp"
 	"src/ui/choose_system_window.cpp"
 	"src/ui/in_game_menu.cpp"
+	"src/ui/input_config_widget.cpp"
 
 	"src/util/cpu_update_texture.cpp"
 	"src/util/dll.cpp"
@@ -126,6 +127,7 @@ set (HEADERS
 	"src/ui/choose_game_window.h"
 	"src/ui/choose_system_window.h"
 	"src/ui/in_game_menu.h"
+	"src/ui/input_config_widget.h"
 
 	"src/util/cpu_update_texture.h"
 	"src/util/c_string_cache.h"
