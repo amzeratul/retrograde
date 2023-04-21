@@ -1,7 +1,7 @@
 uuid: d90bdcd0-5f02-49cf-96cd-f826551ff7b4
 sizer:
   columnProportions: []
-  gap: 34
+  gap: 0
 widget:
   class: widget
 children:
@@ -47,3 +47,4 @@ children:
       class: widget
       id: slots
     children: []
+    fill: [centreHorizontal, centreVertical]

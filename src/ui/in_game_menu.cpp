@@ -206,7 +206,7 @@ void InGameMenu::showInput()
 	getWidget("optionsPane")->setActive(false);
 	getWidget("inputPane")->setActive(true);
 
-	getWidget("inputPanelContents")->add(std::make_shared<InputConfigWidget>(factory, gameCanvas));
+	getWidget("inputPanelContents")->add(std::make_shared<InputConfigWidget>(factory, gameCanvas), 1);
 }
 
 void InGameMenu::onGamepadInput(const UIInputResults& input, Time time)

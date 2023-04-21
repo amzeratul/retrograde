@@ -150,7 +150,7 @@ children:
                   style: horizontalDiv
               - uuid: 5966d854-444b-4e7a-921b-0aaf14c8459c
                 proportion: 1
-                border: [100, 0, 100, 0]
+                border: [0, 0, 0, 0]
                 sizer:
                   columnProportions: []
                   gap: 0

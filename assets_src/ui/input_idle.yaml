@@ -1,7 +1,7 @@
 uuid: 041f6bee-cfd5-42c3-a813-8ea84c981a8c
 sizer:
   columnProportions: []
-  gap: 10
+  gap: 8
 widget:
   class: widget
 children:
