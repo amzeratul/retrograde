@@ -114,7 +114,7 @@ public:
 
 	struct PortControllerTypes {
 		Vector<ControllerType> types;
-		uint32_t curTypeIdx = 0;
+		size_t curTypeIdx = 0;
 		
 		bool operator==(const PortControllerTypes& other) const;
 		bool operator!=(const PortControllerTypes& other) const;
@@ -154,7 +154,7 @@ public:
 	LibretroVFS& getVFS() override;
 
 	void setInputDevice(int port, std::shared_ptr<InputVirtual> input);
-	void setControllerType(int port, uint32_t deviceId);
+	void setControllerType(int port, size_t typeIdx);
 	const Vector<PortControllerTypes> getControllerTypes() const;
 
 	const HashMap<String, Option>& getOptions() const;

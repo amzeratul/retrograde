@@ -456,7 +456,9 @@ bool LibretroCore::doLoadGame()
 			loadGameData();
 		}
 
-		DLL_FUNC(dll, retro_set_controller_port_device)(0, RETRO_DEVICE_JOYPAD);
+		for (size_t i = 0; i < controllerTypes.size(); ++i) {
+			DLL_FUNC(dll, retro_set_controller_port_device)(static_cast<int>(i), controllerTypes[i].types[controllerTypes[i].curTypeIdx].id);
+		}
 	} else {
 		gameInfos.clear();
 	}
@@ -758,16 +760,15 @@ void LibretroCore::setInputDevice(int idx, std::shared_ptr<InputVirtual> input)
 	inputs[idx].device = std::move(input);
 }
 
-void LibretroCore::setControllerType(int port, uint32_t deviceId)
+void LibretroCore::setControllerType(int port, size_t idx)
 {
 	auto& controllerPort = controllerTypes.at(port);
-	const auto iter = std_ex::find_if(controllerPort.types, [&] (const auto& e) { return e.id == deviceId; });
-	if (iter != controllerPort.types.end()) {
-		controllerPort.curTypeIdx = static_cast<int>(iter - controllerPort.types.begin());
+	if (idx < controllerPort.types.size()) {
+		controllerPort.curTypeIdx = idx;
 
 		auto guard = ScopedGuard([=]() { popInstance(); });
 		pushInstance();
-		DLL_FUNC(dll, retro_set_controller_port_device)(port, deviceId);
+		DLL_FUNC(dll, retro_set_controller_port_device)(port, controllerPort.types[idx].id);
 	}
 }
 
@@ -1244,7 +1245,7 @@ void LibretroCore::onEnvSetControllerInfo(const retro_controller_info* data)
 					portTypes.curTypeIdx = i;
 					hasDefault = true;
 				}
-				Logger::logDev("Can plug " + String(type.desc) + " (" + toString(static_cast<int>(type.id)) + ") on port " + toString(port + 1));
+				//Logger::logDev("Can plug " + String(type.desc) + " (" + toString(static_cast<int>(type.id)) + ") on port " + toString(port + 1));
 			}
 		}
 
@@ -1324,25 +1325,27 @@ int16_t LibretroCore::onInputState(uint32_t port, uint32_t device, uint32_t inde
 	}
 	const auto& input = inputs[port];
 
-	if (device == RETRO_DEVICE_JOYPAD) {
+	const auto maskedDevice = device & RETRO_DEVICE_MASK;
+
+	if (maskedDevice == RETRO_DEVICE_JOYPAD) {
 		if (id == RETRO_DEVICE_ID_JOYPAD_MASK) {
 			return input.buttonMask;
 		} else {
 			return input.buttonMask & (1 << id) ? 1 : 0;
 		}
-	} else if (device == RETRO_DEVICE_MOUSE) {
+	} else if (maskedDevice == RETRO_DEVICE_MOUSE) {
 		// TODO
 		Logger::logError("LibretroCore::onInputState - RETRO_DEVICE_MOUSE not implemented", true);
 		return 0;
-	} else if (device == RETRO_DEVICE_KEYBOARD) {
+	} else if (maskedDevice == RETRO_DEVICE_KEYBOARD) {
 		// TODO
 		Logger::logError("LibretroCore::onInputState - RETRO_DEVICE_KEYBOARD not implemented", true);
 		return 0;
-	} else if (device == RETRO_DEVICE_LIGHTGUN) {
+	} else if (maskedDevice == RETRO_DEVICE_LIGHTGUN) {
 		// TODO
 		Logger::logError("LibretroCore::onInputState - RETRO_DEVICE_LIGHTGUN not implemented", true);
 		return 0;
-	} else if (device == RETRO_DEVICE_ANALOG) {
+	} else if (maskedDevice == RETRO_DEVICE_ANALOG) {
 		if (index == RETRO_DEVICE_INDEX_ANALOG_LEFT || index == RETRO_DEVICE_INDEX_ANALOG_RIGHT) {
 			const int axis = static_cast<int>(id); // 0 = X, 1 = Y
 			if (axis < 2) {
@@ -1353,10 +1356,12 @@ int16_t LibretroCore::onInputState(uint32_t port, uint32_t device, uint32_t inde
 		} else if (index == RETRO_DEVICE_INDEX_ANALOG_BUTTON) {
 			return floatToInt(input.analogButtons[id]);
 		}
-	} else if (device == RETRO_DEVICE_POINTER) {
+	} else if (maskedDevice == RETRO_DEVICE_POINTER) {
 		// TODO
 		Logger::logError("LibretroCore::onInputState - RETRO_DEVICE_POINTER not implemented", true);
 		return 0;
+	} else {
+		Logger::logError("LibretroCore::onInputState - Unknown device type", true);
 	}
 	return 0;
 }

@@ -72,7 +72,7 @@ void InputConfigWidget::setSlots(int n)
 		auto slot = std::make_shared<InputSlotWidget>(factory);
 		slots[i] = slot;
 		slot->setSlotName("Port #" + toString(i + 1));
-		slot->setDeviceTypes(controllerTypes[i].types, controllerTypes[i].curTypeIdx);
+		slot->setDeviceTypes(controllerTypes[i].types, static_cast<int>(controllerTypes[i].curTypeIdx));
 		auto device = inputMapper.getDeviceAt(i);
 		slot->setDevice(device, inputMapper.getDeviceColour(*device));
 
@@ -180,14 +180,14 @@ std::shared_ptr<InputDevice> InputSlotWidget::getDevice() const
 	return device;
 }
 
-uint32_t InputSlotWidget::changeDeviceMapping(int dy)
+size_t InputSlotWidget::changeDeviceMapping(int dy)
 {
 	const auto type = clamp(curDeviceType + dy, 0, static_cast<int>(deviceTypes.size()) - 1);
 	if (type != curDeviceType) {
 		curDeviceType = type;
 		updateDeviceType();
 	}
-	return deviceTypes[curDeviceType].id;
+	return curDeviceType;
 }
 
 void InputSlotWidget::updateDeviceType()

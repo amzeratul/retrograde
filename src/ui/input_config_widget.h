@@ -44,7 +44,7 @@ public:
     void setDeviceTypes(Vector<LibretroCore::ControllerType> deviceTypes, int current);
     void setDevice(const std::shared_ptr<InputDevice>& device, Colour4f colour);
     std::shared_ptr<InputDevice> getDevice() const;
-    uint32_t changeDeviceMapping(int dy);
+    size_t changeDeviceMapping(int dy);
 
 private:
     Vector<LibretroCore::ControllerType> deviceTypes;
