@@ -1,7 +1,5 @@
 Input:
-* Input chooser UI
 * Pointer support
-- Mouse support
 - Light gun support
 
 Profile selector:

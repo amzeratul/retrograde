@@ -273,6 +273,7 @@ void LibretroCore::initAudioOut()
 	buffer.fill(0);
 	audioOut = std::make_shared<AudioClipStreaming>(2);
 	audioOut->addInterleavedSamples(buffer);
+	environment.getHalleyAPI().audio->setBufferSizeController(audioOut);
 }
 
 void LibretroCore::addAudioSamples(gsl::span<const float> samples)
@@ -304,6 +305,7 @@ void LibretroCore::deInit()
 	audioBufferStatusCallback = nullptr;
 	audioThread.reset();
 	audioOut.reset();
+	environment.getHalleyAPI().audio->setBufferSizeController({});
 
 	hwRenderCallback.reset();
 	hwRenderInterface.reset();
