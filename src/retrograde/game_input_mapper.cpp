@@ -113,9 +113,9 @@ std::optional<int> GameInputMapper::moveDevice(const std::shared_ptr<InputDevice
 	}
 
 	int pos = startPos;
-	bool found = false;
 	if (dx < 0 && pos >= 0) {
 		// Move to the left
+		bool found = false;
 		for (int i = pos; --i >= 0;) {
 			if (!assignments[i].assignedDevice) {
 				pos = i;
@@ -123,19 +123,17 @@ std::optional<int> GameInputMapper::moveDevice(const std::shared_ptr<InputDevice
 				break;
 			}
 		}
+		if (!found) {
+			pos = -1;
+		}
 	} else if (dx > 0) {
 		// Move to the right
 		for (int i = pos + 1; i < std::min(numAssignments, maxPorts); ++i) {
 			if (!assignments[i].assignedDevice) {
 				pos = i;
-				found = true;
 				break;
 			}
 		}
-	}
-
-	if (!found) {
-		pos = -1;
 	}
 
 	const auto result = pos >= 0 ? std::optional<int>(pos) : std::nullopt;

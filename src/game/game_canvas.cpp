@@ -285,6 +285,7 @@ void GameCanvas::close()
 	pendingCloseState = 1;
 	screen = {};
 	core.reset();
+	coreLoadRequested = false;
 }
 
 void GameCanvas::resetGame()
