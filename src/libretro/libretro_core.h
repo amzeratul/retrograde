@@ -112,6 +112,14 @@ public:
 		bool operator!=(const ControllerType& other) const;
 	};
 
+	struct PortControllerTypes {
+		Vector<ControllerType> types;
+		uint32_t curType = 0;
+		
+		bool operator==(const PortControllerTypes& other) const;
+		bool operator!=(const PortControllerTypes& other) const;
+	};
+
 	static std::unique_ptr<LibretroCore> load(const CoreConfig& coreConfig, std::string_view filename, String systemId, const RetrogradeEnvironment& environment);
 	~LibretroCore() override;
 
@@ -152,7 +160,7 @@ public:
 
 	bool canSwapDisc() const;
 
-	const Vector<Vector<ControllerType>> getControllerTypes() const;
+	const Vector<PortControllerTypes> getControllerTypes() const;
 
 protected:
 	bool onEnvironment(uint32_t cmd, void* data) override;
@@ -197,7 +205,7 @@ private:
 	Vector<ContentInfo> contentInfos;
 
 	HashMap<String, Option> options;
-	Vector<Vector<ControllerType>> controllerTypes;
+	Vector<PortControllerTypes> controllerTypes;
 
 	Sprite videoOut;
 	std::unique_ptr<CPUUpdateTexture> cpuUpdateTexture;

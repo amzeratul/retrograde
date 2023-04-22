@@ -143,6 +143,17 @@ std::optional<int> GameInputMapper::moveDevice(const std::shared_ptr<InputDevice
 	return result;
 }
 
+Colour4f GameInputMapper::getDeviceColour(const InputDevice& device) const
+{
+	const char* colours[] = { "#303F9F", "#9F307A", "#9F8730", "#9F3930", "#539F30", "#508EAB", "#C4516B", "#CB9236", "#682E2E", "#268242" };
+	const auto iter = std_ex::find_if(allDevices, [&](auto& d) { return d.get() == &device; });
+	if (iter == allDevices.end()) {
+		return {};
+	}
+	const auto idx = iter - allDevices.begin();
+	return Colour4f::fromString(colours[idx % 10]);
+}
+
 bool GameInputMapper::Assignment::operator<(const Assignment& other) const
 {
 	return priority > other.priority;
@@ -163,9 +174,14 @@ void GameInputMapper::assignJoysticks()
 		input.present = false;
 	}
 
-	// Build assignments
-	allDevices.clear();
+	// Prepare all devices and unassigned devices list
+	allDevicesPresence.resize(allDevices.size());
+	for (auto& d: allDevicesPresence) {
+		d = false;
+	}
 	unassignedDevices.clear();
+
+	// Build assignments
 	const auto& inputAPI = *retrogradeEnvironment.getHalleyAPI().input;
 	const auto nJoy = inputAPI.getNumberOfJoysticks();
 	const auto nKey = inputAPI.getNumberOfKeyboards();
@@ -186,6 +202,13 @@ void GameInputMapper::assignJoysticks()
 			assignmentsChanged = true;
 			input->clearBindings();
 			assignmentsRemoved = true;
+		}
+	}
+
+	// Remove all devices lost
+	for (size_t i = 0; i < allDevices.size(); ++i) {
+		if (!allDevicesPresence[i]) {
+			allDevices[i] = {};
 		}
 	}
 
@@ -214,7 +237,22 @@ void GameInputMapper::assignDevice(std::shared_ptr<InputDevice> device)
 		} else {
 			unassignedDevices.push_back(device);
 		}
-		allDevices.push_back(device);
+
+		// Insert into all devices list
+		if (const auto iter = std_ex::find(allDevices, device); iter != allDevices.end()) {
+			const auto idx = iter - allDevices.begin();
+			allDevicesPresence[idx] = true;
+		} else {
+			const auto emptyIter = std_ex::find(allDevices, std::shared_ptr<InputDevice>());
+			if (emptyIter != allDevices.end()) {
+				const auto idx = emptyIter - allDevices.begin();
+				allDevices[idx] = device;
+				allDevicesPresence[idx] = true;
+			} else {
+				allDevices.push_back(device);
+				allDevicesPresence.push_back(true);
+			}
+		}
 	}
 }
 
@@ -244,7 +282,7 @@ std::optional<int> GameInputMapper::findAssignment(std::shared_ptr<InputDevice> 
 	}
 
 	// Try first empty assignment
-	if (tryNew) {
+	if (tryNew && !assignmentsFixed) {
 		for (int i = 0; i < numAssignments; ++i) {
 			if (!assignments[i].assignedDevice) {
 				return i;

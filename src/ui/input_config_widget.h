@@ -23,12 +23,15 @@ private:
 	GameCanvas& gameCanvas;
 
     Vector<std::shared_ptr<InputSlotWidget>> slots;
+    Vector<std::shared_ptr<InputDevice>> unassignedDevices;
 
     void initialInputSetup();
     void setSlots(int n);
 
     void moveDevice(const std::shared_ptr<InputDevice>& device, int dx);
     void changeDeviceMapping(const std::shared_ptr<InputDevice>& device, int dy);
+
+	void setUnassignedDevices(const Vector<std::shared_ptr<InputDevice>>& devices);
 };
 
 class InputSlotWidget : public UIWidget {
@@ -38,10 +41,26 @@ public:
     void onMakeUI() override;
     void setSlotActive(bool active);
     void setSlotName(const String& name);
-    void setDeviceTypes(Vector<LibretroCore::ControllerType> deviceTypes);
-    void setDevice(const std::shared_ptr<InputDevice>& device);
+    void setDeviceTypes(Vector<LibretroCore::ControllerType> deviceTypes, int current);
+    void setDevice(const std::shared_ptr<InputDevice>& device, Colour4f colour);
+    std::shared_ptr<InputDevice> getDevice() const;
+    void changeDeviceMapping(int dy);
 
 private:
     Vector<LibretroCore::ControllerType> deviceTypes;
     std::shared_ptr<InputDevice> device;
+    int curDeviceType = -1;
+
+    void updateDeviceType();
+};
+
+class InputParkedDeviceWidget : public UIWidget {
+public:
+    InputParkedDeviceWidget(UIFactory& factory, std::shared_ptr<InputDevice> device, Colour4f colour);
+
+    void onMakeUI() override;
+
+private:
+    std::shared_ptr<InputDevice> device;
+    Colour4f colour;
 };

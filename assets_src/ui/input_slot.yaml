@@ -55,7 +55,7 @@ children:
                   id: deviceName
                   marquee: 100
                   maxHeight: 60
-                  maxWidth: 430
+                  maxWidth: 500
                   style: labelInputDevice
                   text: Xbox Controller
                 fill: [centreHorizontal, centreVertical]

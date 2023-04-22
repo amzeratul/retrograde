@@ -184,6 +184,16 @@ bool LibretroCore::ControllerType::operator!=(const ControllerType& other) const
 	return !(id == other.id && desc == other.desc);
 }
 
+bool LibretroCore::PortControllerTypes::operator==(const PortControllerTypes& other) const
+{
+	return types == other.types && curType == other.curType;
+}
+
+bool LibretroCore::PortControllerTypes::operator!=(const PortControllerTypes& other) const
+{
+	return !(types == other.types && curType == other.curType);
+}
+
 std::unique_ptr<LibretroCore> LibretroCore::load(const CoreConfig& coreConfig, std::string_view filename, String systemId, const RetrogradeEnvironment& environment)
 {
 	DLL dll;
@@ -778,7 +788,7 @@ bool LibretroCore::canSwapDisc() const
 	return false;
 }
 
-const Vector<Vector<LibretroCore::ControllerType>> LibretroCore::getControllerTypes() const
+const Vector<LibretroCore::PortControllerTypes> LibretroCore::getControllerTypes() const
 {
 	return controllerTypes;
 }
@@ -1200,23 +1210,32 @@ void LibretroCore::onEnvSetInputDescriptors(const retro_input_descriptor* data)
 		const char* devNames[] = { "RETRO_DEVICE_NONE", "RETRO_DEVICE_JOYPAD", "RETRO_DEVICE_MOUSE", "RETRO_DEVICE_KEYBOARD", "RETRO_DEVICE_LIGHTGUN", "RETRO_DEVICE_ANALOG", "RETRO_DEVICE_POINTER" };
 		const char* idxNames[] = { "RETRO_DEVICE_INDEX_ANALOG_LEFT", "RETRO_DEVICE_INDEX_ANALOG_RIGHT", "RETRO_DEVICE_INDEX_ANALOG_BUTTON" };
 		const bool hasIdx = descriptor->device == RETRO_DEVICE_ANALOG;
-		Logger::logDev("[" + toString(descriptor->port) + "] " + (hasIdx ? idxNames[descriptor->index] : devNames[descriptor->device]) + " id" + toString(descriptor->id) + " = " + descriptor->description);
+		//Logger::logDev("[" + toString(descriptor->port) + "] " + (hasIdx ? idxNames[descriptor->index] : devNames[descriptor->device]) + " id" + toString(descriptor->id) + " = " + descriptor->description);
 	}
 }
 
 void LibretroCore::onEnvSetControllerInfo(const retro_controller_info* data)
 {
 	controllerTypes.clear();
-	
+
+	int port = 0;
 	for (auto* info = data; info->num_types != 0; ++info) {
-		Vector<ControllerType> portTypes;
+		PortControllerTypes portTypes;
+		bool hasDefault = false;
+
 		for (uint32_t i = 0; i < info->num_types; ++i) {
 			const auto& type = info->types[i];
 			if (type.desc) {
-				portTypes.push_back(ControllerType{ type.id, type.desc });
+				portTypes.types.push_back(ControllerType{ type.id, type.desc });
+				if (!hasDefault && type.id != 0) {
+					portTypes.curType = i;
+					hasDefault = true;
+				}
+				Logger::logDev("Can plug " + String(type.desc) + " (" + toString(static_cast<int>(type.id)) + ") on port " + toString(port + 1));
 			}
 		}
 
+		++port;
 		controllerTypes.push_back(std::move(portTypes));
 	}
 }

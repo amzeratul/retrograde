@@ -133,9 +133,12 @@ uint64_t InputMapper::getInputHash() const
 		}
 	}
 
-	const auto kb = retrogradeEnvironment.getHalleyAPI().input->getKeyboard();
-	if (kb) {
-		hasher.feed(kb.get()); // Feed ptr
+	const auto nKey = inputAPI.getNumberOfKeyboards();
+	for (int i = 0; i < static_cast<int>(nKey); ++i) {
+		const auto kb = inputAPI.getKeyboard(i);
+		if (kb) {
+			hasher.feed(kb.get()); // Feed ptr
+		}
 	}
 
 	return hasher.digest();

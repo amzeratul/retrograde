@@ -40,8 +40,11 @@ void InputConfigWidget::update(Time t, bool moved)
 	}
 
 	for (size_t i = 0; i < slots.size(); ++i) {
-		slots[i]->setDevice(gameInputMapper.getDeviceAt(static_cast<int>(i)));
+		auto device = gameInputMapper.getDeviceAt(static_cast<int>(i));
+		slots[i]->setDevice(device, gameInputMapper.getDeviceColour(*device));
 	}
+
+	setUnassignedDevices(gameInputMapper.getUnassignedDevices());
 }
 
 void InputConfigWidget::initialInputSetup()
@@ -53,6 +56,7 @@ void InputConfigWidget::initialInputSetup()
 	const auto& controllerTypes = gameCanvas.getCore().getControllerTypes();
 	const int nSlotsAvailable = std::min(static_cast<int>(controllerTypes.size()), 5);
 	setSlots(nSlotsAvailable);
+	setUnassignedDevices(inputMapper.getUnassignedDevices());
 }
 
 void InputConfigWidget::setSlots(int n)
@@ -68,8 +72,9 @@ void InputConfigWidget::setSlots(int n)
 		auto slot = std::make_shared<InputSlotWidget>(factory);
 		slots[i] = slot;
 		slot->setSlotName("Port #" + toString(i + 1));
-		slot->setDeviceTypes(controllerTypes[i]);
-		slot->setDevice(inputMapper.getDeviceAt(i));
+		slot->setDeviceTypes(controllerTypes[i].types, controllerTypes[i].curType);
+		auto device = inputMapper.getDeviceAt(i);
+		slot->setDevice(device, inputMapper.getDeviceColour(*device));
 
 		slotsList->add(slot);
 	}
@@ -83,7 +88,27 @@ void InputConfigWidget::moveDevice(const std::shared_ptr<InputDevice>& device, i
 
 void InputConfigWidget::changeDeviceMapping(const std::shared_ptr<InputDevice>& device, int dy)
 {
-	
+	for (size_t i = 0; i < slots.size(); ++i) {
+		if (slots[i]->getDevice() == device) {
+			slots[i]->changeDeviceMapping(dy);
+		}
+	}
+}
+
+void InputConfigWidget::setUnassignedDevices(const Vector<std::shared_ptr<InputDevice>>& devices)
+{
+	auto& inputMapper = gameCanvas.getGameInputMapper();
+
+	if (devices != unassignedDevices) {
+		unassignedDevices = devices;
+
+		const auto parkingSpace = getWidget("parkingSpace");
+		parkingSpace->clear();
+
+		for (auto& device: unassignedDevices) {
+			parkingSpace->add(std::make_shared<InputParkedDeviceWidget>(factory, device, inputMapper.getDeviceColour(*device)));
+		}
+	}
 }
 
 InputSlotWidget::InputSlotWidget(UIFactory& factory)
@@ -109,14 +134,23 @@ void InputSlotWidget::setSlotName(const String& name)
 	getWidgetAs<UILabel>("portName")->setText(LocalisedString::fromUserString(name));
 }
 
-void InputSlotWidget::setDeviceTypes(Vector<LibretroCore::ControllerType> deviceTypes)
+void InputSlotWidget::setDeviceTypes(Vector<LibretroCore::ControllerType> deviceTypes, int current)
 {
+	bool changed = false;
 	if (this->deviceTypes != deviceTypes) {
 		this->deviceTypes = std::move(deviceTypes);
+		changed = true;
+	}
+	if (current != curDeviceType) {
+		curDeviceType = current;
+		changed = true;
+	}
+	if (changed) {
+		updateDeviceType();
 	}
 }
 
-void InputSlotWidget::setDevice(const std::shared_ptr<InputDevice>& device)
+void InputSlotWidget::setDevice(const std::shared_ptr<InputDevice>& device, Colour4f colour)
 {
 	if (this->device != device) {
 		this->device = device;
@@ -128,7 +162,51 @@ void InputSlotWidget::setDevice(const std::shared_ptr<InputDevice>& device)
 			getWidgetAs<UILabel>("deviceName")->setText(LocalisedString::fromUserString(device->getName()));
 			getWidget("iconGamepad")->setActive(type == InputType::Gamepad);
 			getWidget("iconKeyboard")->setActive(type == InputType::Keyboard);
+
+			getWidgetAs<UIImage>("leftArrow")->getSprite().setColour(colour);
+			getWidgetAs<UIImage>("rightArrow")->getSprite().setColour(colour);
+			getWidgetAs<UIImage>("upArrow")->getSprite().setColour(colour);
+			getWidgetAs<UIImage>("downArrow")->getSprite().setColour(colour);
+			getWidgetAs<UIImage>("deviceNameBg")->getSprite().setColour(colour);
+			getWidgetAs<UIImage>("virtualDeviceBg")->getSprite().setColour(colour);
 		}
 	}
+}
+
+std::shared_ptr<InputDevice> InputSlotWidget::getDevice() const
+{
+	return device;
+}
+
+void InputSlotWidget::changeDeviceMapping(int dy)
+{
+	const auto type = clamp(curDeviceType + dy, 0, static_cast<int>(deviceTypes.size()) - 1);
+	if (type != curDeviceType) {
+		curDeviceType = type;
+		updateDeviceType();
+	}
+}
+
+void InputSlotWidget::updateDeviceType()
+{
+	getWidgetAs<UILabel>("virtualDeviceName")->setText(LocalisedString::fromUserString(deviceTypes.at(curDeviceType).desc));
+}
+
+InputParkedDeviceWidget::InputParkedDeviceWidget(UIFactory& factory, std::shared_ptr<InputDevice> device, Colour4f colour)
+	: UIWidget("parkedDevice", {}, UISizer())
+	, device(std::move(device))
+	, colour(colour)
+{
+	factory.loadUI(*this, "input_idle");
+}
+
+void InputParkedDeviceWidget::onMakeUI()
+{
+	const auto type = device->getInputType();
+	//getWidgetAs<UILabel>("deviceName")->setText(LocalisedString::fromUserString(device->getName()));
+	getWidget("iconGamepad")->setActive(type == InputType::Gamepad);
+	getWidget("iconKeyboard")->setActive(type == InputType::Keyboard);
+	getWidgetAs<UIImage>("bg")->getSprite().setColour(colour);
+	getWidgetAs<UIImage>("arrow")->getSprite().setColour(colour);
 }
 

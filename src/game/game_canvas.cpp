@@ -94,6 +94,7 @@ void GameCanvas::loadCore()
 void GameCanvas::update(Time t, bool moved)
 {
 	fitToRoot();
+	gameInputMapper->update();
 	
 	if (pendingCloseState == 2) {
 		doClose();

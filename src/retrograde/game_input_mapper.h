@@ -30,6 +30,8 @@ public:
 	void assignDevice(std::shared_ptr<InputDevice> device, std::optional<int> port);
 	std::optional<int> moveDevice(const std::shared_ptr<InputDevice>& device, int dx, int maxPorts);
 
+	Colour4f getDeviceColour(const InputDevice& device) const;
+
 private:
 	constexpr static int numAssignments = 10;
 
@@ -51,6 +53,7 @@ private:
 	Vector<Assignment> assignments;
 	Vector<std::shared_ptr<InputDevice>> unassignedDevices;
 	Vector<std::shared_ptr<InputDevice>> allDevices;
+	Vector<bool> allDevicesPresence;
 
 	bool assignmentsChanged = false;
 	bool assignmentsFixed = false;

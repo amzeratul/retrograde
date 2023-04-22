@@ -25,6 +25,7 @@ children:
           image: ui/input_gamepad.png
         fill: [centreHorizontal, centreVertical]
       - uuid: 1291dbfe-c9d9-4bee-be97-c279582bbe57
+        proportion: 1
         sizer:
           columnProportions: []
         widget:
