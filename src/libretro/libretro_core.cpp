@@ -1334,9 +1334,30 @@ int16_t LibretroCore::onInputState(uint32_t port, uint32_t device, uint32_t inde
 			return input.buttonMask & (1 << id) ? 1 : 0;
 		}
 	} else if (maskedDevice == RETRO_DEVICE_MOUSE) {
-		// TODO
-		Logger::logError("LibretroCore::onInputState - RETRO_DEVICE_MOUSE not implemented", true);
-		return 0;
+		switch (id) {
+		case RETRO_DEVICE_ID_MOUSE_X:
+			return static_cast<int16_t>((input.sticks[0].x + input.sticks[1].x) * 5);
+		case RETRO_DEVICE_ID_MOUSE_Y:
+			return static_cast<int16_t>((input.sticks[0].y + input.sticks[1].y) * 5);
+		case RETRO_DEVICE_ID_MOUSE_LEFT:
+			return input.buttonMask & (1 << RETRO_DEVICE_ID_JOYPAD_B) ? 1 : 0;
+		case RETRO_DEVICE_ID_MOUSE_RIGHT:
+			return input.buttonMask & (1 << RETRO_DEVICE_ID_JOYPAD_A) ? 1 : 0;
+		case RETRO_DEVICE_ID_MOUSE_WHEELUP:
+			return input.buttonMask & (1 << RETRO_DEVICE_ID_JOYPAD_L) ? 1 : 0;
+		case RETRO_DEVICE_ID_MOUSE_WHEELDOWN:
+			return input.buttonMask & (1 << RETRO_DEVICE_ID_JOYPAD_R) ? 1 : 0;
+		case RETRO_DEVICE_ID_MOUSE_MIDDLE:
+			return input.buttonMask & (1 << RETRO_DEVICE_ID_JOYPAD_Y) ? 1 : 0;
+		case RETRO_DEVICE_ID_MOUSE_HORIZ_WHEELUP:
+			return input.buttonMask & (1 << RETRO_DEVICE_ID_JOYPAD_R2) ? 1 : 0;
+		case RETRO_DEVICE_ID_MOUSE_HORIZ_WHEELDOWN:
+			return input.buttonMask & (1 << RETRO_DEVICE_ID_JOYPAD_L2) ? 1 : 0;
+		case RETRO_DEVICE_ID_MOUSE_BUTTON_4:
+			return input.buttonMask & (1 << RETRO_DEVICE_ID_JOYPAD_X) ? 1 : 0;
+		case RETRO_DEVICE_ID_MOUSE_BUTTON_5:
+			return input.buttonMask & (1 << RETRO_DEVICE_ID_JOYPAD_START) ? 1 : 0;
+		}
 	} else if (maskedDevice == RETRO_DEVICE_KEYBOARD) {
 		// TODO
 		Logger::logError("LibretroCore::onInputState - RETRO_DEVICE_KEYBOARD not implemented", true);
