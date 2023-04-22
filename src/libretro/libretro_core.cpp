@@ -1351,9 +1351,9 @@ int16_t LibretroCore::onInputState(uint32_t port, uint32_t device, uint32_t inde
 	} else if (maskedDevice == RETRO_DEVICE_MOUSE) {
 		switch (id) {
 		case RETRO_DEVICE_ID_MOUSE_X:
-			return static_cast<int16_t>(input.mouseMovement.x * 5);
+			return static_cast<int16_t>(input.mouseMovement.x);
 		case RETRO_DEVICE_ID_MOUSE_Y:
-			return static_cast<int16_t>(input.mouseMovement.y * 5);
+			return static_cast<int16_t>(input.mouseMovement.y);
 		case RETRO_DEVICE_ID_MOUSE_LEFT:
 		case RETRO_DEVICE_ID_MOUSE_RIGHT:
 		case RETRO_DEVICE_ID_MOUSE_WHEELUP:

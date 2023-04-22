@@ -63,6 +63,7 @@ private:
     mutable int pendingCloseState = 0;
     bool coreLoadRequested = false;
     bool gameLoaded = false;
+    bool mouseCaptured = false;
     Future<void> coreLoadingFuture;
 
     std::optional<std::pair<SaveStateType, size_t>> pendingLoadState;
@@ -90,4 +91,6 @@ private:
 
     void openMenu();
     const GameCollection::Entry* getGameMetadata();
+
+    void setMouseCapture(bool enabled);
 };

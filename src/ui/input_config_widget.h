@@ -42,7 +42,7 @@ public:
     void setSlotActive(bool active);
     void setSlotName(const String& name);
     void setDeviceTypes(Vector<LibretroCore::ControllerType> deviceTypes, int current);
-    void setDevice(const std::shared_ptr<InputDevice>& device, Colour4f colour);
+    void setDevice(const std::shared_ptr<InputDevice>& device, String name, Colour4f colour);
     std::shared_ptr<InputDevice> getDevice() const;
     size_t changeDeviceMapping(int dy);
 

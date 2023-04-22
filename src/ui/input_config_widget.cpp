@@ -41,7 +41,7 @@ void InputConfigWidget::update(Time t, bool moved)
 
 	for (size_t i = 0; i < slots.size(); ++i) {
 		auto device = gameInputMapper.getDeviceAt(static_cast<int>(i));
-		slots[i]->setDevice(device, gameInputMapper.getDeviceColour(*device));
+		slots[i]->setDevice(device, gameInputMapper.getDeviceName(device.get()), gameInputMapper.getDeviceColour(device.get()));
 	}
 
 	setUnassignedDevices(gameInputMapper.getUnassignedDevices());
@@ -74,7 +74,7 @@ void InputConfigWidget::setSlots(int n)
 		slot->setSlotName("Port #" + toString(i + 1));
 		slot->setDeviceTypes(controllerTypes[i].types, static_cast<int>(controllerTypes[i].curTypeIdx));
 		auto device = inputMapper.getDeviceAt(i);
-		slot->setDevice(device, inputMapper.getDeviceColour(*device));
+		slot->setDevice(device, inputMapper.getDeviceName(device.get()), inputMapper.getDeviceColour(device.get()));
 
 		slotsList->add(slot);
 	}
@@ -107,7 +107,7 @@ void InputConfigWidget::setUnassignedDevices(const Vector<std::shared_ptr<InputD
 		parkingSpace->clear();
 
 		for (auto& device: unassignedDevices) {
-			parkingSpace->add(std::make_shared<InputParkedDeviceWidget>(factory, device, inputMapper.getDeviceColour(*device)));
+			parkingSpace->add(std::make_shared<InputParkedDeviceWidget>(factory, device, inputMapper.getDeviceColour(device.get())));
 		}
 	}
 }
@@ -151,7 +151,7 @@ void InputSlotWidget::setDeviceTypes(Vector<LibretroCore::ControllerType> device
 	}
 }
 
-void InputSlotWidget::setDevice(const std::shared_ptr<InputDevice>& device, Colour4f colour)
+void InputSlotWidget::setDevice(const std::shared_ptr<InputDevice>& device, String name, Colour4f colour)
 {
 	this->colour = colour;
 	if (this->device != device) {
@@ -161,7 +161,7 @@ void InputSlotWidget::setDevice(const std::shared_ptr<InputDevice>& device, Colo
 
 		if (device) {
 			const auto type = device->getInputType();
-			getWidgetAs<UILabel>("deviceName")->setText(LocalisedString::fromUserString(device->getName()));
+			getWidgetAs<UILabel>("deviceName")->setText(LocalisedString::fromUserString(name));
 			getWidget("iconGamepad")->setActive(type == InputType::Gamepad);
 			getWidget("iconKeyboard")->setActive(type == InputType::Keyboard);
 

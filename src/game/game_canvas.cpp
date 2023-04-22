@@ -43,6 +43,8 @@ GameCanvas::~GameCanvas()
 	saveStateCollection.reset();
 	core.reset();
 	environment.getGame().setTargetFPSOverride(std::nullopt);
+
+	setMouseCapture(false);
 }
 
 void GameCanvas::onAddedToRoot(UIRoot& root)
@@ -57,6 +59,8 @@ void GameCanvas::startGame(std::optional<std::pair<SaveStateType, size_t>> loadS
 	gameInputMapper->chooseBestAssignments();
 	gameInputMapper->bindCore(*core);
 	saveStateCollection->setCore(*core);
+
+	setMouseCapture(true);
 
 	if (!gameLoaded) {
 		core->loadGame(environment.getRomsDir(systemConfig.getId()) / gameId);
@@ -197,6 +201,7 @@ void GameCanvas::stepGame()
 
 	const bool needsPause = getRoot()->hasModalUI();
 	const bool paused = needsPause || pauseFrames > 0;
+	setMouseCapture(!paused);
 	if (pauseFrames > 0) {
 		--pauseFrames;
 	}
@@ -378,6 +383,16 @@ const GameCollection::Entry* GameCanvas::getGameMetadata()
 {
 	const auto& collection = environment.getGameCollection(systemConfig.getId());
 	return collection.findEntry(gameId);
+}
+
+void GameCanvas::setMouseCapture(bool enabled)
+{
+	if (mouseCaptured != enabled) {
+		mouseCaptured = enabled;
+			
+		environment.getHalleyAPI().input->setMouseTrap(enabled);
+		environment.getHalleyAPI().system->showCursor(!enabled);
+	}
 }
 
 SaveStateCollection& GameCanvas::getSaveStateCollection()
