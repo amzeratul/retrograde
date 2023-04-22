@@ -114,7 +114,7 @@ public:
 
 	struct PortControllerTypes {
 		Vector<ControllerType> types;
-		uint32_t curType = 0;
+		uint32_t curTypeIdx = 0;
 		
 		bool operator==(const PortControllerTypes& other) const;
 		bool operator!=(const PortControllerTypes& other) const;
@@ -153,14 +153,14 @@ public:
 
 	LibretroVFS& getVFS() override;
 
-	void setInputDevice(int idx, std::shared_ptr<InputVirtual> input);
+	void setInputDevice(int port, std::shared_ptr<InputVirtual> input);
+	void setControllerType(int port, uint32_t deviceId);
+	const Vector<PortControllerTypes> getControllerTypes() const;
 
 	const HashMap<String, Option>& getOptions() const;
 	void setOption(const String& key, const String& value);
 
 	bool canSwapDisc() const;
-
-	const Vector<PortControllerTypes> getControllerTypes() const;
 
 protected:
 	bool onEnvironment(uint32_t cmd, void* data) override;
@@ -216,7 +216,7 @@ private:
 	std::shared_ptr<SingleThreadExecutor> audioThread;
 	AudioHandle audioStreamHandle;
 
-	constexpr static int maxInputDevices = 8;
+	constexpr static int maxInputDevices = 10;
 	struct Input {
 		int16_t buttonMask = 0;
 		std::array<Vector2f, 2> sticks;

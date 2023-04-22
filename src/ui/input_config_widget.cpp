@@ -72,7 +72,7 @@ void InputConfigWidget::setSlots(int n)
 		auto slot = std::make_shared<InputSlotWidget>(factory);
 		slots[i] = slot;
 		slot->setSlotName("Port #" + toString(i + 1));
-		slot->setDeviceTypes(controllerTypes[i].types, controllerTypes[i].curType);
+		slot->setDeviceTypes(controllerTypes[i].types, controllerTypes[i].curTypeIdx);
 		auto device = inputMapper.getDeviceAt(i);
 		slot->setDevice(device, inputMapper.getDeviceColour(*device));
 
@@ -90,7 +90,8 @@ void InputConfigWidget::changeDeviceMapping(const std::shared_ptr<InputDevice>& 
 {
 	for (size_t i = 0; i < slots.size(); ++i) {
 		if (slots[i]->getDevice() == device) {
-			slots[i]->changeDeviceMapping(dy);
+			const auto id = slots[i]->changeDeviceMapping(dy);
+			gameCanvas.getCore().setControllerType(static_cast<int>(i), id);
 		}
 	}
 }
@@ -152,6 +153,7 @@ void InputSlotWidget::setDeviceTypes(Vector<LibretroCore::ControllerType> device
 
 void InputSlotWidget::setDevice(const std::shared_ptr<InputDevice>& device, Colour4f colour)
 {
+	this->colour = colour;
 	if (this->device != device) {
 		this->device = device;
 
@@ -178,18 +180,23 @@ std::shared_ptr<InputDevice> InputSlotWidget::getDevice() const
 	return device;
 }
 
-void InputSlotWidget::changeDeviceMapping(int dy)
+uint32_t InputSlotWidget::changeDeviceMapping(int dy)
 {
 	const auto type = clamp(curDeviceType + dy, 0, static_cast<int>(deviceTypes.size()) - 1);
 	if (type != curDeviceType) {
 		curDeviceType = type;
 		updateDeviceType();
 	}
+	return deviceTypes[curDeviceType].id;
 }
 
 void InputSlotWidget::updateDeviceType()
 {
 	getWidgetAs<UILabel>("virtualDeviceName")->setText(LocalisedString::fromUserString(deviceTypes.at(curDeviceType).desc));
+
+	const auto disabledCol = Colour4f::fromString("#404040");
+	getWidgetAs<UIImage>("upArrow")->getSprite().setColour(curDeviceType > 0 ? colour : disabledCol);
+	getWidgetAs<UIImage>("downArrow")->getSprite().setColour(curDeviceType < int(deviceTypes.size()) - 1 ? colour : disabledCol);
 }
 
 InputParkedDeviceWidget::InputParkedDeviceWidget(UIFactory& factory, std::shared_ptr<InputDevice> device, Colour4f colour)

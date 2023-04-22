@@ -186,12 +186,12 @@ bool LibretroCore::ControllerType::operator!=(const ControllerType& other) const
 
 bool LibretroCore::PortControllerTypes::operator==(const PortControllerTypes& other) const
 {
-	return types == other.types && curType == other.curType;
+	return types == other.types && curTypeIdx == other.curTypeIdx;
 }
 
 bool LibretroCore::PortControllerTypes::operator!=(const PortControllerTypes& other) const
 {
-	return !(types == other.types && curType == other.curType);
+	return !(types == other.types && curTypeIdx == other.curTypeIdx);
 }
 
 std::unique_ptr<LibretroCore> LibretroCore::load(const CoreConfig& coreConfig, std::string_view filename, String systemId, const RetrogradeEnvironment& environment)
@@ -758,6 +758,19 @@ void LibretroCore::setInputDevice(int idx, std::shared_ptr<InputVirtual> input)
 	inputs[idx].device = std::move(input);
 }
 
+void LibretroCore::setControllerType(int port, uint32_t deviceId)
+{
+	auto& controllerPort = controllerTypes.at(port);
+	const auto iter = std_ex::find_if(controllerPort.types, [&] (const auto& e) { return e.id == deviceId; });
+	if (iter != controllerPort.types.end()) {
+		controllerPort.curTypeIdx = static_cast<int>(iter - controllerPort.types.begin());
+
+		auto guard = ScopedGuard([=]() { popInstance(); });
+		pushInstance();
+		DLL_FUNC(dll, retro_set_controller_port_device)(port, deviceId);
+	}
+}
+
 const HashMap<String, LibretroCore::Option>& LibretroCore::getOptions() const
 {
 	return options;
@@ -1228,7 +1241,7 @@ void LibretroCore::onEnvSetControllerInfo(const retro_controller_info* data)
 			if (type.desc) {
 				portTypes.types.push_back(ControllerType{ type.id, type.desc });
 				if (!hasDefault && type.id != 0) {
-					portTypes.curType = i;
+					portTypes.curTypeIdx = i;
 					hasDefault = true;
 				}
 				Logger::logDev("Can plug " + String(type.desc) + " (" + toString(static_cast<int>(type.id)) + ") on port " + toString(port + 1));
