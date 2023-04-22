@@ -11,8 +11,8 @@ GameInputMapper::GameInputMapper(RetrogradeEnvironment& retrogradeEnvironment, I
 	, inputMapper(inputMapper)
 	, systemConfig(systemConfig)
 {
-	assignments.resize(8);
-	gameInput.resize(8);
+	assignments.resize(numAssignments);
+	gameInput.resize(numAssignments);
 	for (auto& input: gameInput) {
 		input = std::make_shared<InputVirtual>(17, 6);
 	}
@@ -38,7 +38,8 @@ void GameInputMapper::chooseBestAssignments()
 	// Sort based on last device used on UI, and device types
 	const auto* last = inputMapper.getUIInput()->getLastDevice();
 	for (auto& input: assignments) {
-		const auto basePriority = input.type == InputType::Gamepad ? 1 : input.type == InputType::Keyboard ? 0 : -1;
+		const auto type = input.assignedDevice ? input.assignedDevice->getInputType() : InputType::None;
+		const auto basePriority = type == InputType::Gamepad ? 1 : type == InputType::Keyboard ? 0 : -1;
 		input.priority = input.assignedDevice.get() == last ? 2 : basePriority;
 	}
 	std::sort(assignments.begin(), assignments.end());
@@ -57,9 +58,91 @@ void GameInputMapper::setAssignmentsFixed(bool fixed)
 
 void GameInputMapper::bindCore(LibretroCore& core)
 {
-	for (int i = 0; i < 8; ++i) {
+	for (int i = 0; i < numAssignments; ++i) {
 		core.setInputDevice(i, gameInput.at(i));
 	}
+}
+
+InputMapper& GameInputMapper::getInputMapper() const
+{
+	return inputMapper;
+}
+
+std::shared_ptr<InputDevice> GameInputMapper::getDeviceAt(int port) const
+{
+	if (port < 0 || port >= numAssignments) {
+		return {};
+	}
+	return assignments[port].boundDevice;
+}
+
+const Vector<std::shared_ptr<InputDevice>>& GameInputMapper::getUnassignedDevices() const
+{
+	return unassignedDevices;
+}
+
+const Vector<std::shared_ptr<InputDevice>>& GameInputMapper::getAllDevices() const
+{
+	return allDevices;
+}
+
+void GameInputMapper::assignDevice(std::shared_ptr<InputDevice> device, std::optional<int> port)
+{
+	// Unassign device
+	for (auto& a: assignments) {
+		if (a.assignedDevice == device) {
+			a.clear();
+		}
+	}
+
+	if (port && *port >= 0 && *port < numAssignments && !assignments[*port].assignedDevice) {
+		assignments[*port].assignedDevice = device;
+	}
+
+	bindDevices();
+}
+
+std::optional<int> GameInputMapper::moveDevice(const std::shared_ptr<InputDevice>& device, int dx, int maxPorts)
+{
+	int startPos = -1;
+	for (int i = 0; i < numAssignments; ++i) {
+		if (assignments[i].assignedDevice == device) {
+			startPos = i;
+			break;
+		}
+	}
+
+	int pos = startPos;
+	bool found = false;
+	if (dx < 0 && pos >= 0) {
+		// Move to the left
+		for (int i = pos; --i >= 0;) {
+			if (!assignments[i].assignedDevice) {
+				pos = i;
+				found = true;
+				break;
+			}
+		}
+	} else if (dx > 0) {
+		// Move to the right
+		for (int i = pos + 1; i < std::min(numAssignments, maxPorts); ++i) {
+			if (!assignments[i].assignedDevice) {
+				pos = i;
+				found = true;
+				break;
+			}
+		}
+	}
+
+	if (!found) {
+		pos = -1;
+	}
+
+	const auto result = pos >= 0 ? std::optional<int>(pos) : std::nullopt;
+	if (pos != startPos) {
+		assignDevice(device, result);
+	}
+	return result;
 }
 
 bool GameInputMapper::Assignment::operator<(const Assignment& other) const
@@ -71,7 +154,6 @@ void GameInputMapper::Assignment::clear()
 {
 	assignedDevice = {};
 	boundDevice = {};
-	type = InputType::None;
 	present = false;
 	priority = 0;
 }
@@ -84,19 +166,21 @@ void GameInputMapper::assignJoysticks()
 	}
 
 	// Build assignments
+	allDevices.clear();
+	unassignedDevices.clear();
 	const auto& inputAPI = *retrogradeEnvironment.getHalleyAPI().input;
 	const auto nJoy = inputAPI.getNumberOfJoysticks();
 	const auto nKey = inputAPI.getNumberOfKeyboards();
 	for (size_t i = 0; i < nJoy; ++i) {
-		assignDevice(inputAPI.getJoystick(static_cast<int>(i)), InputType::Gamepad);
+		assignDevice(inputAPI.getJoystick(static_cast<int>(i)));
 	}
 	for (size_t i = 0; i < nKey; ++i) {
-		assignDevice(inputAPI.getKeyboard(static_cast<int>(i)), InputType::Keyboard);
+		assignDevice(inputAPI.getKeyboard(static_cast<int>(i)));
 	}
 
 	// Remove items marked not present
 	bool assignmentsRemoved = false;
-	for (int i = 0; i < 8; ++i) {
+	for (int i = 0; i < numAssignments; ++i) {
 		auto& assignment = assignments[i];
 		auto& input = gameInput[i];
 		if (!assignment.present && assignment.assignedDevice) {
@@ -119,31 +203,33 @@ void GameInputMapper::assignJoysticks()
 	bindDevices();
 }
 
-void GameInputMapper::assignDevice(std::shared_ptr<InputDevice> device, InputType type)
+void GameInputMapper::assignDevice(std::shared_ptr<InputDevice> device)
 {
 	if (device->isEnabled()) {
 		if (auto assignmentId = findAssignment(device, device->isEnabled())) {
 			auto& assignment = assignments[*assignmentId];
 			assignment.present = true;
-			assignment.type = type;
 			if (assignment.assignedDevice != device) {
 				assignment.assignedDevice = device;
 				assignmentsChanged = true;
 			}
+		} else {
+			unassignedDevices.push_back(device);
 		}
+		allDevices.push_back(device);
 	}
 }
 
 void GameInputMapper::bindDevices()
 {
-	for (int i = 0; i < 8; ++i) {
+	for (int i = 0; i < numAssignments; ++i) {
 		auto& assignment = assignments[i];
 		auto& input = gameInput[i];
 
 		if (assignment.boundDevice != assignment.assignedDevice) {
-			if (assignment.type == InputType::Gamepad) {
+			if (assignment.assignedDevice->getInputType() == InputType::Gamepad) {
 				bindInputJoystick(input, assignment.assignedDevice);
-			} else if (assignment.type == InputType::Keyboard) {
+			} else if (assignment.assignedDevice->getInputType() == InputType::Keyboard) {
 				bindInputKeyboard(input, assignment.assignedDevice);
 			}
 			assignment.boundDevice = assignment.assignedDevice;
@@ -153,7 +239,7 @@ void GameInputMapper::bindDevices()
 
 std::optional<int> GameInputMapper::findAssignment(std::shared_ptr<InputDevice> device, bool tryNew)
 {
-	for (int i = 0; i < 8; ++i) {
+	for (int i = 0; i < numAssignments; ++i) {
 		if (assignments[i].assignedDevice == device) {
 			return i;
 		}
@@ -161,7 +247,7 @@ std::optional<int> GameInputMapper::findAssignment(std::shared_ptr<InputDevice> 
 
 	// Try first empty assignment
 	if (tryNew) {
-		for (int i = 0; i < 8; ++i) {
+		for (int i = 0; i < numAssignments; ++i) {
 			if (!assignments[i].assignedDevice) {
 				return i;
 			}

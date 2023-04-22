@@ -107,6 +107,9 @@ public:
 	struct ControllerType {
 		uint32_t id;
 		String desc;
+
+		bool operator==(const ControllerType& other) const;
+		bool operator!=(const ControllerType& other) const;
 	};
 
 	static std::unique_ptr<LibretroCore> load(const CoreConfig& coreConfig, std::string_view filename, String systemId, const RetrogradeEnvironment& environment);

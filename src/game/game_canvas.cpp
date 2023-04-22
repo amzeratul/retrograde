@@ -353,7 +353,7 @@ void GameCanvas::updateFilterChain(Vector2i screenSize)
 
 void GameCanvas::updateAutoSave(Time t)
 {
-	if (core) {
+	if (gameLoaded) {
 		autoSaveTime += t;
 		if (autoSaveTime > 30.0) {
 			saveStateCollection->saveGameState(SaveStateType::Suspend);

@@ -40,18 +40,22 @@ public:
 
 	InputMapper(RetrogradeEnvironment& retrogradeEnvironment);
 
-	void update();
+	void update(Time t);
 
-	std::shared_ptr<InputVirtual> getUIInput();
+	std::shared_ptr<InputVirtual> getUIInput() const;
+	std::shared_ptr<InputVirtual> getUIInputForDevice(InputDevice& device) const;
 	std::shared_ptr<GameInputMapper> makeGameInputMapper(const SystemConfig& system);
 
 private:
 	RetrogradeEnvironment& retrogradeEnvironment;
 
 	std::shared_ptr<InputVirtual> uiInput;
+	HashMap<InputDevice*, std::shared_ptr<InputVirtual>> uiInputForDevice;
 	uint64_t lastInputHash;
 
 	void bindInputIfNeeded();
 	void bindInput();
+	void bindGamepad(InputVirtual& dst, std::shared_ptr<InputDevice> src);
+	void bindKeyboard(InputVirtual& dst, std::shared_ptr<InputDevice> src);
 	uint64_t getInputHash() const;
 };

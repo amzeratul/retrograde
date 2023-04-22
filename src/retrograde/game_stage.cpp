@@ -66,7 +66,7 @@ void GameStage::onUpdate(Time t)
 	Executor(Executors::getMainUpdateThread()).runPending();
 
 	env->getConfigDatabase().update();
-	env->getInputMapper().update();
+	env->getInputMapper().update(t);
 
 	auto kb = getInputAPI().getKeyboard();
 	if ((kb->isButtonDown(KeyCode::LCtrl) || kb->isButtonDown(KeyCode::RCtrl)) && kb->isButtonPressed(KeyCode::Enter)) {
@@ -80,7 +80,6 @@ void GameStage::onUpdate(Time t)
 	uiRoot->setRect(Rect4f(Vector2f(), uiSize));
 
 	auto uiInput = env->getInputMapper().getUIInput();
-	uiInput->update(t);
 	uiRoot->update(t, UIInputType::Mouse, getInputAPI().getMouse(), uiInput);
 
 	if (kb->isButtonPressed(KeyCode::F11)) {

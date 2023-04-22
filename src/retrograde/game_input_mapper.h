@@ -22,13 +22,22 @@ public:
 	void setAssignmentsFixed(bool fixed);
 	void bindCore(LibretroCore& core);
 
+	InputMapper& getInputMapper() const;
+
+	std::shared_ptr<InputDevice> getDeviceAt(int port) const;
+	const Vector<std::shared_ptr<InputDevice>>& getUnassignedDevices() const;
+	const Vector<std::shared_ptr<InputDevice>>& getAllDevices() const;
+	void assignDevice(std::shared_ptr<InputDevice> device, std::optional<int> port);
+	std::optional<int> moveDevice(const std::shared_ptr<InputDevice>& device, int dx, int maxPorts);
+
 private:
+	constexpr static int numAssignments = 10;
+
 	struct Assignment {
 		std::shared_ptr<InputDevice> assignedDevice;
 		std::shared_ptr<InputDevice> boundDevice;
 		bool present = false;
 		int priority = 0;
-		InputType type = InputType::None;
 
 		bool operator<(const Assignment& other) const;
 		void clear();
@@ -40,6 +49,8 @@ private:
 
 	Vector<std::shared_ptr<InputVirtual>> gameInput;
 	Vector<Assignment> assignments;
+	Vector<std::shared_ptr<InputDevice>> unassignedDevices;
+	Vector<std::shared_ptr<InputDevice>> allDevices;
 
 	bool assignmentsChanged = false;
 	bool assignmentsFixed = false;
@@ -47,7 +58,7 @@ private:
 	const MappingConfig* mapping = nullptr;
 
 	void assignJoysticks();
-	void assignDevice(std::shared_ptr<InputDevice> device, InputType type);
+	void assignDevice(std::shared_ptr<InputDevice> device);
 	void bindInputJoystick(std::shared_ptr<InputVirtual> dst, std::shared_ptr<InputDevice> joy);
 	void bindInputJoystickWithMapping(std::shared_ptr<InputVirtual> input, std::shared_ptr<InputDevice> joy, const MappingConfig::Mapping& mapping);
 	void bindInputKeyboard(std::shared_ptr<InputVirtual> dst, std::shared_ptr<InputDevice> kb);

@@ -174,6 +174,16 @@ void LibretroCore::SystemAVInfo::loadGeometry(const retro_game_geometry& geometr
 	}
 }
 
+bool LibretroCore::ControllerType::operator==(const ControllerType& other) const
+{
+	return id == other.id && desc == other.desc;
+}
+
+bool LibretroCore::ControllerType::operator!=(const ControllerType& other) const
+{
+	return !(id == other.id && desc == other.desc);
+}
+
 std::unique_ptr<LibretroCore> LibretroCore::load(const CoreConfig& coreConfig, std::string_view filename, String systemId, const RetrogradeEnvironment& environment)
 {
 	DLL dll;
