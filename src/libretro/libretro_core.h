@@ -219,8 +219,10 @@ private:
 	constexpr static int maxInputDevices = 10;
 	struct Input {
 		int16_t buttonMask = 0;
+		int16_t mouseMask = 0;
 		std::array<Vector2f, 2> sticks;
 		std::array<float, 16> analogButtons;
+		Vector2f mouseMovement;
 		std::shared_ptr<InputVirtual> device;
 	};
 	std::array<Input, maxInputDevices> inputs;

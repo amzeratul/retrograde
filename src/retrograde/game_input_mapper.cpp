@@ -14,7 +14,7 @@ GameInputMapper::GameInputMapper(RetrogradeEnvironment& retrogradeEnvironment, I
 	assignments.resize(numAssignments);
 	gameInput.resize(numAssignments);
 	for (auto& input: gameInput) {
-		input = std::make_shared<InputVirtual>(17, 6);
+		input = std::make_shared<InputVirtual>(LibretroButtons::Buttons::LIBRETRO_BUTTON_MAX, LibretroButtons::Axes::LIBRETRO_AXIS_MAX);
 	}
 
 	if (!systemConfig.getMapping().isEmpty()) {
@@ -185,6 +185,7 @@ void GameInputMapper::assignJoysticks()
 	const auto& inputAPI = *retrogradeEnvironment.getHalleyAPI().input;
 	const auto nJoy = inputAPI.getNumberOfJoysticks();
 	const auto nKey = inputAPI.getNumberOfKeyboards();
+	const auto nMouse = inputAPI.getNumberOfMice();
 	for (size_t i = 0; i < nJoy; ++i) {
 		assignDevice(inputAPI.getJoystick(static_cast<int>(i)));
 	}
@@ -329,9 +330,18 @@ void GameInputMapper::bindInputJoystick(std::shared_ptr<InputVirtual> input, std
 		input->bindButton(LIBRETRO_BUTTON_R, joy, joy->getButtonAtPosition(JoystickButtonPosition::BumperRight));
 		input->bindButton(LIBRETRO_BUTTON_L2, joy, joy->getButtonAtPosition(JoystickButtonPosition::TriggerLeft));
 		input->bindButton(LIBRETRO_BUTTON_R2, joy, joy->getButtonAtPosition(JoystickButtonPosition::TriggerRight));
-
 		input->bindButton(LIBRETRO_BUTTON_L3, joy, joy->getButtonAtPosition(JoystickButtonPosition::LeftStick));
 		input->bindButton(LIBRETRO_BUTTON_R3, joy, joy->getButtonAtPosition(JoystickButtonPosition::RightStick));
+
+		input->bindButton(LIBRETRO_BUTTON_MOUSE_LEFT, joy, joy->getButtonAtPosition(JoystickButtonPosition::FaceBottom));
+		input->bindButton(LIBRETRO_BUTTON_MOUSE_RIGHT, joy, joy->getButtonAtPosition(JoystickButtonPosition::FaceRight));
+		input->bindButton(LIBRETRO_BUTTON_MOUSE_MIDDLE, joy, joy->getButtonAtPosition(JoystickButtonPosition::FaceLeft));
+		input->bindButton(LIBRETRO_BUTTON_MOUSE_4, joy, joy->getButtonAtPosition(JoystickButtonPosition::FaceTop));
+		input->bindButton(LIBRETRO_BUTTON_MOUSE_5, joy, joy->getButtonAtPosition(JoystickButtonPosition::Start));
+		input->bindButton(LIBRETRO_BUTTON_MOUSE_WHEEL_DOWN, joy, joy->getButtonAtPosition(JoystickButtonPosition::BumperLeft));
+		input->bindButton(LIBRETRO_BUTTON_MOUSE_WHEEL_UP, joy, joy->getButtonAtPosition(JoystickButtonPosition::BumperRight));
+		input->bindButton(LIBRETRO_BUTTON_MOUSE_WHEEL_LEFT, joy, joy->getButtonAtPosition(JoystickButtonPosition::TriggerLeft));
+		input->bindButton(LIBRETRO_BUTTON_MOUSE_WHEEL_RIGHT, joy, joy->getButtonAtPosition(JoystickButtonPosition::TriggerRight));
 
 		input->bindAxis(LIBRETRO_AXIS_LEFT_X, joy, 0);
 		input->bindAxis(LIBRETRO_AXIS_LEFT_Y, joy, 1);
@@ -339,6 +349,11 @@ void GameInputMapper::bindInputJoystick(std::shared_ptr<InputVirtual> input, std
 		input->bindAxis(LIBRETRO_AXIS_RIGHT_Y, joy, 3);
 		input->bindAxis(LIBRETRO_AXIS_TRIGGER_LEFT, joy, 4);
 		input->bindAxis(LIBRETRO_AXIS_TRIGGER_RIGHT, joy, 5);
+
+		input->bindAxis(LIBRETRO_AXIS_MOUSE_X, joy, 0);
+		input->bindAxis(LIBRETRO_AXIS_MOUSE_X, joy, 2);
+		input->bindAxis(LIBRETRO_AXIS_MOUSE_Y, joy, 1);
+		input->bindAxis(LIBRETRO_AXIS_MOUSE_Y, joy, 3);
 	}
 }
 

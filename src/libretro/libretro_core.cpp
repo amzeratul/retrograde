@@ -1267,6 +1267,7 @@ void LibretroCore::onInputPoll()
 			input->update(0); // TODO: pass correct time?
 			
 			uint16_t value = 0;
+			uint16_t mouseValue = 0;
 
 			value |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_UP) ? (1 << RETRO_DEVICE_ID_JOYPAD_UP) : 0;
 			value |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_DOWN) ? (1 << RETRO_DEVICE_ID_JOYPAD_DOWN) : 0;
@@ -1288,27 +1289,41 @@ void LibretroCore::onInputPoll()
 			value |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_L3) ? (1 << RETRO_DEVICE_ID_JOYPAD_L3) : 0;
 			value |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_R3) ? (1 << RETRO_DEVICE_ID_JOYPAD_R3) : 0;
 
+			mouseValue |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_MOUSE_LEFT) ? (1 << RETRO_DEVICE_ID_MOUSE_LEFT) : 0;
+			mouseValue |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_MOUSE_RIGHT) ? (1 << RETRO_DEVICE_ID_MOUSE_RIGHT) : 0;
+			mouseValue |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_MOUSE_MIDDLE) ? (1 << RETRO_DEVICE_ID_MOUSE_MIDDLE) : 0;
+			mouseValue |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_MOUSE_4) ? (1 << RETRO_DEVICE_ID_MOUSE_BUTTON_4) : 0;
+			mouseValue |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_MOUSE_5) ? (1 << RETRO_DEVICE_ID_MOUSE_BUTTON_5) : 0;
+			mouseValue |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_MOUSE_WHEEL_UP) ? (1 << RETRO_DEVICE_ID_MOUSE_WHEELUP) : 0;
+			mouseValue |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_MOUSE_WHEEL_DOWN) ? (1 << RETRO_DEVICE_ID_MOUSE_WHEELDOWN) : 0;
+			mouseValue |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_MOUSE_WHEEL_LEFT) ? (1 << RETRO_DEVICE_ID_MOUSE_HORIZ_WHEELDOWN) : 0;
+			mouseValue |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_MOUSE_WHEEL_RIGHT) ? (1 << RETRO_DEVICE_ID_MOUSE_HORIZ_WHEELUP) : 0;
+
 			if (!hasAnalogStick) {
 				// Use left stick as d-pad if this core doesn't use analog sticks
 				const float threshold = 0.2f;
-				value |= input->getAxis(1) < -threshold ? (1 << RETRO_DEVICE_ID_JOYPAD_UP) : 0;
-				value |= input->getAxis(1) > threshold ? (1 << RETRO_DEVICE_ID_JOYPAD_DOWN) : 0;
-				value |= input->getAxis(0) < -threshold ? (1 << RETRO_DEVICE_ID_JOYPAD_LEFT) : 0;
-				value |= input->getAxis(0) > threshold ? (1 << RETRO_DEVICE_ID_JOYPAD_RIGHT) : 0;
+				value |= input->getAxis(LibretroButtons::Axes::LIBRETRO_AXIS_LEFT_Y) < -threshold ? (1 << RETRO_DEVICE_ID_JOYPAD_UP) : 0;
+				value |= input->getAxis(LibretroButtons::Axes::LIBRETRO_AXIS_LEFT_Y) > threshold ? (1 << RETRO_DEVICE_ID_JOYPAD_DOWN) : 0;
+				value |= input->getAxis(LibretroButtons::Axes::LIBRETRO_AXIS_LEFT_X) < -threshold ? (1 << RETRO_DEVICE_ID_JOYPAD_LEFT) : 0;
+				value |= input->getAxis(LibretroButtons::Axes::LIBRETRO_AXIS_LEFT_X) > threshold ? (1 << RETRO_DEVICE_ID_JOYPAD_RIGHT) : 0;
 			}
 
 			// Fill analogue
 			for (int j = 0; j < 16; ++j) {
 				inputs[i].analogButtons[j] = (value & (1 << j)) ? 1.0f : 0.0f;
 			}
-			inputs[i].analogButtons[RETRO_DEVICE_ID_JOYPAD_L2] = input->getAxis(4);
-			inputs[i].analogButtons[RETRO_DEVICE_ID_JOYPAD_R2] = input->getAxis(5);
+			inputs[i].analogButtons[RETRO_DEVICE_ID_JOYPAD_L2] = input->getAxis(LibretroButtons::Axes::LIBRETRO_AXIS_TRIGGER_LEFT);
+			inputs[i].analogButtons[RETRO_DEVICE_ID_JOYPAD_R2] = input->getAxis(LibretroButtons::Axes::LIBRETRO_AXIS_TRIGGER_RIGHT);
 
 			// Fill sticks
-			inputs[i].sticks[0] = Vector2f(input->getAxis(0), input->getAxis(1));
-			inputs[i].sticks[1] = Vector2f(input->getAxis(2), input->getAxis(3));
+			inputs[i].sticks[0] = Vector2f(input->getAxis(LibretroButtons::Axes::LIBRETRO_AXIS_LEFT_X), input->getAxis(LibretroButtons::Axes::LIBRETRO_AXIS_LEFT_Y));
+			inputs[i].sticks[1] = Vector2f(input->getAxis(LibretroButtons::Axes::LIBRETRO_AXIS_RIGHT_X), input->getAxis(LibretroButtons::Axes::LIBRETRO_AXIS_RIGHT_Y));
+
+			// Mouse
+			inputs[i].mouseMovement = Vector2f(input->getAxis(LibretroButtons::Axes::LIBRETRO_AXIS_MOUSE_X), input->getAxis(LibretroButtons::Axes::LIBRETRO_AXIS_MOUSE_Y));
 
 			inputs[i].buttonMask = value;
+			inputs[i].mouseMask = mouseValue;
 		}
 	}
 }
@@ -1336,27 +1351,19 @@ int16_t LibretroCore::onInputState(uint32_t port, uint32_t device, uint32_t inde
 	} else if (maskedDevice == RETRO_DEVICE_MOUSE) {
 		switch (id) {
 		case RETRO_DEVICE_ID_MOUSE_X:
-			return static_cast<int16_t>((input.sticks[0].x + input.sticks[1].x) * 5);
+			return static_cast<int16_t>(input.mouseMovement.x * 5);
 		case RETRO_DEVICE_ID_MOUSE_Y:
-			return static_cast<int16_t>((input.sticks[0].y + input.sticks[1].y) * 5);
+			return static_cast<int16_t>(input.mouseMovement.y * 5);
 		case RETRO_DEVICE_ID_MOUSE_LEFT:
-			return input.buttonMask & (1 << RETRO_DEVICE_ID_JOYPAD_B) ? 1 : 0;
 		case RETRO_DEVICE_ID_MOUSE_RIGHT:
-			return input.buttonMask & (1 << RETRO_DEVICE_ID_JOYPAD_A) ? 1 : 0;
 		case RETRO_DEVICE_ID_MOUSE_WHEELUP:
-			return input.buttonMask & (1 << RETRO_DEVICE_ID_JOYPAD_L) ? 1 : 0;
 		case RETRO_DEVICE_ID_MOUSE_WHEELDOWN:
-			return input.buttonMask & (1 << RETRO_DEVICE_ID_JOYPAD_R) ? 1 : 0;
 		case RETRO_DEVICE_ID_MOUSE_MIDDLE:
-			return input.buttonMask & (1 << RETRO_DEVICE_ID_JOYPAD_Y) ? 1 : 0;
 		case RETRO_DEVICE_ID_MOUSE_HORIZ_WHEELUP:
-			return input.buttonMask & (1 << RETRO_DEVICE_ID_JOYPAD_R2) ? 1 : 0;
 		case RETRO_DEVICE_ID_MOUSE_HORIZ_WHEELDOWN:
-			return input.buttonMask & (1 << RETRO_DEVICE_ID_JOYPAD_L2) ? 1 : 0;
 		case RETRO_DEVICE_ID_MOUSE_BUTTON_4:
-			return input.buttonMask & (1 << RETRO_DEVICE_ID_JOYPAD_X) ? 1 : 0;
 		case RETRO_DEVICE_ID_MOUSE_BUTTON_5:
-			return input.buttonMask & (1 << RETRO_DEVICE_ID_JOYPAD_START) ? 1 : 0;
+			return input.mouseMask & (1 << id) ? 1 : 0;
 		}
 	} else if (maskedDevice == RETRO_DEVICE_KEYBOARD) {
 		// TODO
