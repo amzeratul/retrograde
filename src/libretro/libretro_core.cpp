@@ -768,6 +768,11 @@ bool LibretroCore::canSwapDisc() const
 	return false;
 }
 
+const Vector<Vector<LibretroCore::ControllerType>> LibretroCore::getControllerTypes() const
+{
+	return controllerTypes;
+}
+
 bool LibretroCore::onEnvironment(uint32_t cmd, void* data)
 {
 	switch (cmd) {
@@ -1191,16 +1196,18 @@ void LibretroCore::onEnvSetInputDescriptors(const retro_input_descriptor* data)
 
 void LibretroCore::onEnvSetControllerInfo(const retro_controller_info* data)
 {
-	int port = 0;
+	controllerTypes.clear();
+	
 	for (auto* info = data; info->num_types != 0; ++info) {
+		Vector<ControllerType> portTypes;
 		for (uint32_t i = 0; i < info->num_types; ++i) {
 			const auto& type = info->types[i];
 			if (type.desc) {
-				// TODO: apparently this is relevant for SNES light guns?
-				Logger::logDev("Can plug " + toString(type.id) + " (" + type.desc + ") on port " + toString(port));
+				portTypes.push_back(ControllerType{ type.id, type.desc });
 			}
 		}
-		++port;
+
+		controllerTypes.push_back(std::move(portTypes));
 	}
 }
 

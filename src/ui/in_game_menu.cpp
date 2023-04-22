@@ -2,6 +2,7 @@
 
 #include "input_config_widget.h"
 #include "src/game/game_canvas.h"
+#include "src/libretro/libretro_core.h"
 #include "src/retrograde/input_mapper.h"
 #include "src/retrograde/input_mapper.h"
 #include "src/retrograde/retrograde_environment.h"
@@ -86,12 +87,13 @@ void InGameMenu::setupMenu()
 		options->addTextItem("achievements", LocalisedString::fromHardcodedString("Achievements"), -1, true);
 		options->add(std::make_shared<UIWidget>("", Vector2f(0, 50)), 1);
 		options->addTextItem("exit", LocalisedString::fromHardcodedString("Exit Game"), -1, true);
+
+		options->setItemEnabled("swapdisc", gameCanvas.getCore().canSwapDisc());
 	}
 
 	const auto& ssc = gameCanvas.getSaveStateCollection();
 	options->setItemEnabled("continue", ssc.hasSuspendSave());
 	options->setItemEnabled("load", ssc.hasAnySave());
-	options->setItemEnabled("swapdisc", gameCanvas.canSwapDisc());
 	options->setItemEnabled("media", false);
 	options->setItemEnabled("achievements", false);
 

@@ -104,6 +104,11 @@ public:
 		RollbackNetplay
 	};
 
+	struct ControllerType {
+		uint32_t id;
+		String desc;
+	};
+
 	static std::unique_ptr<LibretroCore> load(const CoreConfig& coreConfig, std::string_view filename, String systemId, const RetrogradeEnvironment& environment);
 	~LibretroCore() override;
 
@@ -143,6 +148,8 @@ public:
 	void setOption(const String& key, const String& value);
 
 	bool canSwapDisc() const;
+
+	const Vector<Vector<ControllerType>> getControllerTypes() const;
 
 protected:
 	bool onEnvironment(uint32_t cmd, void* data) override;
@@ -187,6 +194,7 @@ private:
 	Vector<ContentInfo> contentInfos;
 
 	HashMap<String, Option> options;
+	Vector<Vector<ControllerType>> controllerTypes;
 
 	Sprite videoOut;
 	std::unique_ptr<CPUUpdateTexture> cpuUpdateTexture;

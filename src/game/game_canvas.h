@@ -36,8 +36,11 @@ public:
 
     SaveStateCollection& getSaveStateCollection();
     GameInputMapper& getGameInputMapper();
-    bool canSwapDisc() const;
 
+    void waitForCoreLoad();
+    bool isCoreLoaded() const;
+    LibretroCore& getCore();
+    
 private:
     UIFactory& factory;
     RetrogradeEnvironment& environment;
@@ -58,8 +61,9 @@ private:
     int frames = 0;
     int pauseFrames = 0;
     mutable int pendingCloseState = 0;
-    bool coreLoaded = false;
+    bool coreLoadRequested = false;
     bool gameLoaded = false;
+    Future<void> coreLoadingFuture;
 
     std::optional<std::pair<SaveStateType, size_t>> pendingLoadState;
     int pendingLoadStateAttempts = 0;
@@ -77,9 +81,12 @@ private:
     void onGamepadInput(const UIInputResults& input, Time time) override;
 
     void loadCore();
+
 	void updateBezels();
+    Vector2i getWindowSize() const;
     void updateFilterChain(Vector2i screenSize);
-    void updateAutoSave(Time t);
+
+	void updateAutoSave(Time t);
 
     void openMenu();
     const GameCollection::Entry* getGameMetadata();

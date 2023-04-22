@@ -31,8 +31,10 @@ GameCanvas::GameCanvas(UIFactory& factory, RetrogradeEnvironment& environment, c
 	setModal(false);
 
 	UIInputButtons buttons;
-	buttons.cancel = 12;
+	buttons.cancel = InputMapper::UIButtons::UI_BUTTON_SYSTEM;
 	setInputButtons(buttons);
+
+	loadCore();
 }
 
 GameCanvas::~GameCanvas()
@@ -53,10 +55,9 @@ void GameCanvas::onAddedToRoot(UIRoot& root)
 void GameCanvas::startGame(std::optional<std::pair<SaveStateType, size_t>> loadState)
 {
 	gameInputMapper->chooseBestAssignments();
+	gameInputMapper->bindCore(*core);
+	saveStateCollection->setCore(*core);
 
-	if (!coreLoaded) {
-		loadCore();
-	}
 	if (!gameLoaded) {
 		core->loadGame(environment.getRomsDir(systemConfig.getId()) / gameId);
 		gameLoaded = true;
@@ -72,10 +73,22 @@ void GameCanvas::startGame(std::optional<std::pair<SaveStateType, size_t>> loadS
 
 void GameCanvas::loadCore()
 {
-	core = environment.loadCore(coreConfig, systemConfig);
-	gameInputMapper->bindCore(*core);
-	coreLoaded = true;
-	saveStateCollection->setCore(*core);
+	if (!coreLoadRequested) {
+		coreLoadRequested = true;
+		auto windowSize = getWindowSize();
+
+		std::array<Future<void>, 2> futures;
+		futures[0] = Concurrent::execute(Executors::getCPU(), [=] ()
+		{
+			core = environment.loadCore(coreConfig, systemConfig);
+		});
+		futures[1] = Concurrent::execute(Executors::getCPU(), [=]()
+		{
+			updateFilterChain(windowSize);
+		});
+
+		coreLoadingFuture = Concurrent::whenAll(futures.begin(), futures.end());
+	}
 }
 
 void GameCanvas::update(Time t, bool moved)
@@ -91,9 +104,15 @@ void GameCanvas::update(Time t, bool moved)
 	if (t > 0.00001 && pendingCloseState == 0) {
 		stepGame();
 	}
-	
-	const auto windowSize = environment.getHalleyAPI().video->getWindow().getWindowRect().getSize();
-	updateFilterChain(windowSize);
+
+	if (isCoreLoaded()) {
+		auto windowSize = getWindowSize();
+		if (core->isScreenRotated()) {
+			std::swap(windowSize.x, windowSize.y);
+		}
+		updateFilterChain(windowSize);
+	}
+
 	updateAutoSave(t);
 }
 
@@ -108,7 +127,8 @@ void GameCanvas::render(RenderContext& rc) const
 		painter.resetState();
 	});
 
-	if (core) {
+	const bool hasCore = coreLoadRequested && coreLoadingFuture.isReady();
+	if (hasCore) {
 		const auto canvasRect = Rect4i(getRect());
 		const auto windowRect = environment.getHalleyAPI().video->getWindow().getWindowRect();
 		const float zoom = static_cast<float>(windowRect.getHeight()) / static_cast<float>(canvasRect.getHeight());
@@ -169,7 +189,7 @@ void GameCanvas::paint(Painter& painter) const
 
 void GameCanvas::stepGame()
 {
-	const bool running = core && core->hasGameLoaded();
+	const bool running = coreLoadRequested && coreLoadingFuture.isReady() && core->hasGameLoaded();
 	if (!running) {
 		return;
 	}
@@ -306,20 +326,17 @@ void GameCanvas::updateBezels()
 	}
 }
 
+Vector2i GameCanvas::getWindowSize() const
+{
+	return environment.getHalleyAPI().video->getWindow().getWindowRect().getSize();
+}
+
 void GameCanvas::updateFilterChain(Vector2i screenSize)
 {
-	if (!core) {
-		return;
-	}
-
 	const auto& filters = systemConfig.getScreenFilters();
 	if (filters.empty()) {
 		filterChain = {};
 		return;
-	}
-
-	if (core->isScreenRotated()) {
-		std::swap(screenSize.x, screenSize.y);
 	}
 
 	const auto& screenFilterConfig = environment.getConfigDatabase().get<ScreenFilterConfig>(filters.front());
@@ -371,7 +388,19 @@ GameInputMapper& GameCanvas::getGameInputMapper()
 	return *gameInputMapper;
 }
 
-bool GameCanvas::canSwapDisc() const
+void GameCanvas::waitForCoreLoad()
 {
-	return core && core->canSwapDisc();
+	assert(coreLoadRequested);
+	coreLoadingFuture.wait();
+}
+
+bool GameCanvas::isCoreLoaded() const
+{
+	return coreLoadRequested && coreLoadingFuture.isReady();
+}
+
+LibretroCore& GameCanvas::getCore()
+{
+	waitForCoreLoad();
+	return *core;
 }
