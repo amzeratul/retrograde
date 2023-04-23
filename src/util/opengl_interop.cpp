@@ -32,8 +32,8 @@ namespace {
 
 }
 
-#define GL_FUNC(FUNC_NAME) static_cast<decltype(&(FUNC_NAME))>(getGLProcAddress(#FUNC_NAME))
-#define GL_FUNC_PTR(FUNC_NAME) static_cast<decltype(&*(FUNC_NAME))>(getGLProcAddress(#FUNC_NAME))
+#define GL_FUNC(FUNC_NAME) static_cast<decltype(&(FUNC_NAME))>(getGLProcAddressOrDie(#FUNC_NAME))
+#define GL_FUNC_PTR(FUNC_NAME) static_cast<decltype(&*(FUNC_NAME))>(getGLProcAddressOrDie(#FUNC_NAME))
 
 
 
@@ -59,13 +59,18 @@ void OpenGLInterop::bindGLContext()
 	context->bind();
 }
 
-void* OpenGLInterop::getGLProcAddress(const char* name)
+void* OpenGLInterop::getGLProcAddressOrDie(const char* name)
 {
 	auto* result = context->getGLProcAddress(name);
 	if (!result) {
 		throw Exception("OpenGL function not available: " + toString(name), 0);
 	}
 	return result;
+}
+
+void* OpenGLInterop::getGLProcAddress(const char* name)
+{
+	return context->getGLProcAddress(name);
 }
 
 std::shared_ptr<OpenGLInteropRenderTarget> OpenGLInterop::makeNativeRenderTarget(Vector2i size)
@@ -127,6 +132,11 @@ void OpenGLInteropRenderTarget::init()
 void* OpenGLInteropRenderTarget::getGLProcAddress(const char* name)
 {
 	return parent.getGLProcAddress(name);
+}
+
+void* OpenGLInteropRenderTarget::getGLProcAddressOrDie(const char* name)
+{
+	return parent.getGLProcAddressOrDie(name);
 }
 
 

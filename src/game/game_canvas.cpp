@@ -80,10 +80,13 @@ void GameCanvas::loadCore()
 {
 	if (!coreLoadRequested) {
 		coreLoadRequested = true;
-		auto windowSize = getWindowSize();
+		const auto windowSize = getWindowSize();
+
+		const bool threadedCore = coreConfig.hasMultithreadedLoading();
+		auto& loadCoreExecutor = threadedCore ? Executors::getCPU() : Executors::getImmediate();
 
 		std::array<Future<void>, 2> futures;
-		futures[0] = Concurrent::execute(Executors::getCPU(), [=] ()
+		futures[0] = Concurrent::execute(loadCoreExecutor, [=] ()
 		{
 			core = environment.loadCore(coreConfig, systemConfig);
 		});

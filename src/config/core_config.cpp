@@ -7,6 +7,7 @@ CoreConfig::CoreConfig(const ConfigNode& node)
 		options = node["options"].asHashMap<String, String>();
 	}
 	blockedExtensions = node["blockedExtensions"].asVector<String>({});
+	multithreadedLoading = node["multithreadedLoading"].asBool(true);
 }
 
 const String& CoreConfig::getId() const
@@ -30,4 +31,9 @@ Vector<String> CoreConfig::filterExtensions(Vector<String> reportedByCore) const
 const Vector<String>& CoreConfig::getBlockedExtensions() const
 {
 	return blockedExtensions;
+}
+
+bool CoreConfig::hasMultithreadedLoading() const
+{
+	return multithreadedLoading;
 }

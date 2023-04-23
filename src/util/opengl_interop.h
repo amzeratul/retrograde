@@ -18,6 +18,7 @@ public:
 
 	void bindGLContext();
     void* getGLProcAddress(const char* name);
+    void* getGLProcAddressOrDie(const char* name);
 
     std::shared_ptr<OpenGLInteropRenderTarget> makeNativeRenderTarget(Vector2i size);
     std::shared_ptr<OpenGLInteropPixelCopy> makeCopyPixelRenderTarget(Vector2i size);
@@ -55,6 +56,7 @@ private:
 
     void init();
 	void* getGLProcAddress(const char* name);
+	void* getGLProcAddressOrDie(const char* name);
 
     OpenGLInterop& parent;
     std::array<void*, 2> handle;
