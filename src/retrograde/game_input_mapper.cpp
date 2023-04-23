@@ -63,6 +63,18 @@ void GameInputMapper::bindCore(LibretroCore& core)
 	}
 }
 
+void GameInputMapper::setScreenRect(Rect4f screen)
+{
+	if (screenRect != screen) {
+		Logger::logDev("Screen: " + toString(screen));
+		screenRect = screen;
+		retrogradeEnvironment.getHalleyAPI().input->setMouseRemapping([screen] (Vector2i pos) -> Vector2f
+		{
+			return (Vector2f(pos) - screen.getTopLeft()) / screen.getSize();
+		});
+	}
+}
+
 InputMapper& GameInputMapper::getInputMapper() const
 {
 	return inputMapper;
@@ -452,9 +464,17 @@ void GameInputMapper::bindInputMouse(std::shared_ptr<InputVirtual> input, std::s
 		input->bindButton(LIBRETRO_BUTTON_MOUSE_4, mouse, 3);
 		input->bindButton(LIBRETRO_BUTTON_MOUSE_5, mouse, 4);
 
+		input->bindButton(LIBRETRO_BUTTON_LIGHTGUN_TRIGGER, mouse, 0);
+		input->bindButton(LIBRETRO_BUTTON_LIGHTGUN_B, mouse, 1);
+		input->bindButton(LIBRETRO_BUTTON_LIGHTGUN_A, mouse, 2);
+		input->bindButton(LIBRETRO_BUTTON_LIGHTGUN_C, mouse, 3);
+
 		const float mouseSpeed = 1.0f;
 		input->bindAxis(LIBRETRO_AXIS_MOUSE_X, mouse, 0, mouseSpeed);
 		input->bindAxis(LIBRETRO_AXIS_MOUSE_Y, mouse, 1, mouseSpeed);
+
+		input->bindAxis(LIBRETRO_AXIS_LIGHTGUN_X, mouse, 2, mouseSpeed);
+		input->bindAxis(LIBRETRO_AXIS_LIGHTGUN_Y, mouse, 3, mouseSpeed);
 	}
 }
 

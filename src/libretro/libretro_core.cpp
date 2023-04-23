@@ -1270,6 +1270,7 @@ void LibretroCore::onInputPoll()
 			
 			uint16_t value = 0;
 			uint16_t mouseValue = 0;
+			uint16_t lightGunValue = 0;
 
 			value |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_UP) ? (1 << RETRO_DEVICE_ID_JOYPAD_UP) : 0;
 			value |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_DOWN) ? (1 << RETRO_DEVICE_ID_JOYPAD_DOWN) : 0;
@@ -1301,6 +1302,19 @@ void LibretroCore::onInputPoll()
 			mouseValue |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_MOUSE_WHEEL_LEFT) ? (1 << RETRO_DEVICE_ID_MOUSE_HORIZ_WHEELDOWN) : 0;
 			mouseValue |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_MOUSE_WHEEL_RIGHT) ? (1 << RETRO_DEVICE_ID_MOUSE_HORIZ_WHEELUP) : 0;
 
+			lightGunValue |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_LIGHTGUN_TRIGGER) ? (1 << RETRO_DEVICE_ID_LIGHTGUN_TRIGGER) : 0;
+			lightGunValue |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_LIGHTGUN_A) ? (1 << RETRO_DEVICE_ID_LIGHTGUN_AUX_A) : 0;
+			lightGunValue |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_LIGHTGUN_B) ? (1 << RETRO_DEVICE_ID_LIGHTGUN_AUX_B) : 0;
+			lightGunValue |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_LIGHTGUN_C) ? (1 << RETRO_DEVICE_ID_LIGHTGUN_AUX_C) : 0;
+			lightGunValue |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_LIGHTGUN_START) ? (1 << RETRO_DEVICE_ID_LIGHTGUN_START) : 0;
+			lightGunValue |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_LIGHTGUN_SELECT) ? (1 << RETRO_DEVICE_ID_LIGHTGUN_SELECT) : 0;
+			lightGunValue |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_LIGHTGUN_IS_OFFSCREEN) ? (1 << RETRO_DEVICE_ID_LIGHTGUN_IS_OFFSCREEN) : 0;
+			lightGunValue |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_LIGHTGUN_RELOAD) ? (1 << RETRO_DEVICE_ID_LIGHTGUN_RELOAD) : 0;
+			lightGunValue |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_LIGHTGUN_DPAD_UP) ? (1 << RETRO_DEVICE_ID_LIGHTGUN_DPAD_UP) : 0;
+			lightGunValue |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_LIGHTGUN_DPAD_DOWN) ? (1 << RETRO_DEVICE_ID_LIGHTGUN_DPAD_DOWN) : 0;
+			lightGunValue |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_LIGHTGUN_DPAD_LEFT) ? (1 << RETRO_DEVICE_ID_LIGHTGUN_DPAD_LEFT) : 0;
+			lightGunValue |= input->isButtonDown(LibretroButtons::Buttons::LIBRETRO_BUTTON_LIGHTGUN_DPAD_RIGHT) ? (1 << RETRO_DEVICE_ID_LIGHTGUN_DPAD_RIGHT) : 0;
+
 			if (!hasAnalogStick) {
 				// Use left stick as d-pad if this core doesn't use analog sticks
 				const float threshold = 0.2f;
@@ -1324,8 +1338,12 @@ void LibretroCore::onInputPoll()
 			// Mouse
 			inputs[i].mouseMovement = Vector2f(input->getAxis(LibretroButtons::Axes::LIBRETRO_AXIS_MOUSE_X), input->getAxis(LibretroButtons::Axes::LIBRETRO_AXIS_MOUSE_Y));
 
+			// Lightgun
+			inputs[i].lightGunPos = Vector2f(input->getAxis(LibretroButtons::Axes::LIBRETRO_AXIS_LIGHTGUN_X), input->getAxis(LibretroButtons::Axes::LIBRETRO_AXIS_LIGHTGUN_Y));
+
 			inputs[i].buttonMask = value;
 			inputs[i].mouseMask = mouseValue;
+			inputs[i].lightGunMask = lightGunValue;
 		}
 	}
 }
@@ -1356,15 +1374,7 @@ int16_t LibretroCore::onInputState(uint32_t port, uint32_t device, uint32_t inde
 			return static_cast<int16_t>(input.mouseMovement.x);
 		case RETRO_DEVICE_ID_MOUSE_Y:
 			return static_cast<int16_t>(input.mouseMovement.y);
-		case RETRO_DEVICE_ID_MOUSE_LEFT:
-		case RETRO_DEVICE_ID_MOUSE_RIGHT:
-		case RETRO_DEVICE_ID_MOUSE_WHEELUP:
-		case RETRO_DEVICE_ID_MOUSE_WHEELDOWN:
-		case RETRO_DEVICE_ID_MOUSE_MIDDLE:
-		case RETRO_DEVICE_ID_MOUSE_HORIZ_WHEELUP:
-		case RETRO_DEVICE_ID_MOUSE_HORIZ_WHEELDOWN:
-		case RETRO_DEVICE_ID_MOUSE_BUTTON_4:
-		case RETRO_DEVICE_ID_MOUSE_BUTTON_5:
+		default:
 			return input.mouseMask & (1 << id) ? 1 : 0;
 		}
 	} else if (maskedDevice == RETRO_DEVICE_KEYBOARD) {
@@ -1372,9 +1382,17 @@ int16_t LibretroCore::onInputState(uint32_t port, uint32_t device, uint32_t inde
 		Logger::logError("LibretroCore::onInputState - RETRO_DEVICE_KEYBOARD not implemented", true);
 		return 0;
 	} else if (maskedDevice == RETRO_DEVICE_LIGHTGUN) {
-		// TODO
-		Logger::logError("LibretroCore::onInputState - RETRO_DEVICE_LIGHTGUN not implemented", true);
-		return 0;
+		const bool onScreen = input.lightGunPos.x >= 0 && input.lightGunPos.x <= 1 && input.lightGunPos.y >= 0 && input.lightGunPos.y <= 1;
+		switch (id) {
+		case RETRO_DEVICE_ID_LIGHTGUN_SCREEN_X:
+			return onScreen ? floatToInt(lerp(-1.0f, 1.0f, input.lightGunPos.x)) : static_cast<int16_t>(-0xFFFF);
+		case RETRO_DEVICE_ID_LIGHTGUN_SCREEN_Y:
+			return onScreen ? floatToInt(lerp(-1.0f, 1.0f, input.lightGunPos.y)) : static_cast<int16_t>(-0xFFFF);
+		case RETRO_DEVICE_ID_LIGHTGUN_IS_OFFSCREEN:
+			return onScreen ? 0 : 1;
+		default:
+			return input.lightGunMask & (1 << id) ? 1 : 0;
+		}
 	} else if (maskedDevice == RETRO_DEVICE_ANALOG) {
 		if (index == RETRO_DEVICE_INDEX_ANALOG_LEFT || index == RETRO_DEVICE_INDEX_ANALOG_RIGHT) {
 			const int axis = static_cast<int>(id); // 0 = X, 1 = Y

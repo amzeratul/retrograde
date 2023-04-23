@@ -21,6 +21,7 @@ public:
 	void chooseBestAssignments();
 	void setAssignmentsFixed(bool fixed);
 	void bindCore(LibretroCore& core);
+	void setScreenRect(Rect4f screen);
 
 	InputMapper& getInputMapper() const;
 
@@ -69,6 +70,7 @@ private:
 	bool assignmentsFixed = false;
 
 	const MappingConfig* mapping = nullptr;
+	Rect4f screenRect;
 
 	void assignJoysticks();
 	void assignDevice(std::shared_ptr<InputDevice> device);

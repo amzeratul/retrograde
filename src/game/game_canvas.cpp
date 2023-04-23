@@ -50,6 +50,7 @@ GameCanvas::~GameCanvas()
 void GameCanvas::onAddedToRoot(UIRoot& root)
 {
 	fitToRoot();
+	updateMouseArea();
 
 	getRoot()->addChild(std::make_shared<InGameMenu>(factory, environment, *this, InGameMenu::Mode::PreStart, getGameMetadata()));
 }
@@ -119,6 +120,7 @@ void GameCanvas::update(Time t, bool moved)
 	}
 
 	updateAutoSave(t);
+	updateMouseArea();
 }
 
 void GameCanvas::render(RenderContext& rc) const
@@ -393,6 +395,15 @@ void GameCanvas::setMouseCapture(bool enabled)
 		environment.getHalleyAPI().input->setMouseTrap(enabled);
 		environment.getHalleyAPI().system->showCursor(!enabled);
 	}
+}
+
+void GameCanvas::updateMouseArea()
+{
+	const auto windowSize = getWindowSize();
+	const auto rootRect = getRoot()->getRect();
+	const float scale = static_cast<float>(windowSize.y) / rootRect.getHeight();
+	const auto rect = (screen.hasMaterial() ? screen.getAABB() : rootRect) * scale;
+	gameInputMapper->setScreenRect(rect);
 }
 
 SaveStateCollection& GameCanvas::getSaveStateCollection()

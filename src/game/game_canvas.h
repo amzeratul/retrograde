@@ -93,4 +93,5 @@ private:
     const GameCollection::Entry* getGameMetadata();
 
     void setMouseCapture(bool enabled);
+    void updateMouseArea();
 };

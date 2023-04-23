@@ -1,6 +1,5 @@
 Input:
 * Pointer support
-- Light gun support
 
 Profile selector:
 - Basic UI
