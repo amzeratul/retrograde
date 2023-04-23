@@ -5,7 +5,10 @@
 #include "src/retrograde/retrograde_environment.h"
 #include "src/ui/choose_system_window.h"
 
-GameStage::GameStage() = default;
+GameStage::GameStage(RetrogradeEnvironment& env)
+	: env(env)
+{
+}
 
 GameStage::~GameStage() = default;
 
@@ -46,10 +49,7 @@ void GameStage::init()
 	uiFactory->setInputButtons("list", buttons);
 
 	uiRoot = std::make_unique<UIRoot>(getAPI(), Rect4f(getVideoAPI().getWindow().getWindowRect()));
-	env = std::make_unique<RetrogradeEnvironment>(game, getCoreAPI().getEnvironment().getProgramPath() / "..", getResources(), getAPI());
-	env->setProfileId("default");
-
-	uiRoot->addChild(std::make_shared<ChooseSystemWindow>(*uiFactory, *env, systemId, gamePath));
+	uiRoot->addChild(std::make_shared<ChooseSystemWindow>(*uiFactory, env, systemId, gamePath));
 }
 
 void GameStage::onVariableUpdate(Time t)
@@ -65,11 +65,11 @@ void GameStage::onUpdate(Time t)
 {
 	Executor(Executors::getMainUpdateThread()).runPending();
 
-	env->getConfigDatabase().update();
-	env->getInputMapper().update(t);
+	env.getConfigDatabase().update();
+	env.getInputMapper().update(t);
 
 	auto kb = getInputAPI().getKeyboard();
-	if ((kb->isButtonDown(KeyCode::LCtrl) || kb->isButtonDown(KeyCode::RCtrl)) && kb->isButtonPressed(KeyCode::Enter)) {
+	if ((kb->isButtonDown(KeyCode::LAlt) || kb->isButtonDown(KeyCode::RAlt)) && kb->isButtonPressed(KeyCode::Enter)) {
 		dynamic_cast<RetrogradeGame&>(getGame()).toggleFullscreen();
 	}
 
@@ -79,7 +79,7 @@ void GameStage::onUpdate(Time t)
 	const auto uiSize = windowSize / zoomLevel;
 	uiRoot->setRect(Rect4f(Vector2f(), uiSize));
 
-	auto uiInput = env->getInputMapper().getUIInput();
+	auto uiInput = env.getInputMapper().getUIInput();
 	uiRoot->update(t, UIInputType::Mouse, getInputAPI().getMouse(), uiInput);
 
 	if (kb->isButtonPressed(KeyCode::F11)) {

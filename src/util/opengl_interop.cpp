@@ -28,6 +28,8 @@ namespace {
 	constexpr int WGL_ACCESS_READ_ONLY_NV = 0x0000;
 	constexpr int WGL_ACCESS_READ_WRITE_NV = 0x0001;
 	constexpr int WGL_ACCESS_WRITE_DISCARD_NV = 0x0002;
+
+
 }
 
 #define GL_FUNC(FUNC_NAME) static_cast<decltype(&(FUNC_NAME))>(getGLProcAddress(#FUNC_NAME))
@@ -59,7 +61,11 @@ void OpenGLInterop::bindGLContext()
 
 void* OpenGLInterop::getGLProcAddress(const char* name)
 {
-	return context->getGLProcAddress(name);
+	auto* result = context->getGLProcAddress(name);
+	if (!result) {
+		throw Exception("OpenGL function not available: " + toString(name), 0);
+	}
+	return result;
 }
 
 std::shared_ptr<OpenGLInteropRenderTarget> OpenGLInterop::makeNativeRenderTarget(Vector2i size)

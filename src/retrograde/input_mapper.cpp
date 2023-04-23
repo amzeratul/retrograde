@@ -99,6 +99,7 @@ void InputMapper::bindGamepad(InputVirtual& dst, std::shared_ptr<InputDevice> jo
 	dst.bindButton(UI_BUTTON_STICK_LEFT, joy, joy->getButtonAtPosition(JoystickButtonPosition::LeftStick));
 	dst.bindButton(UI_BUTTON_STICK_RIGHT, joy, joy->getButtonAtPosition(JoystickButtonPosition::RightStick));
 	dst.bindButton(UI_BUTTON_SYSTEM, joy, joy->getButtonAtPosition(JoystickButtonPosition::System));
+	dst.bindButtonChord(UI_BUTTON_SYSTEM, joy, joy->getButtonAtPosition(JoystickButtonPosition::TriggerLeft), joy->getButtonAtPosition(JoystickButtonPosition::TriggerRight));
 
 	for (int j = 0; j < 6; ++j) {
 		dst.bindAxis(j, joy, j);

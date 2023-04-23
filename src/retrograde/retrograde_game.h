@@ -34,6 +34,7 @@ private:
 	Vector<String> args;
 	std::optional<double> targetFps;
 	std::unique_ptr<I18N> i18n;
+	std::unique_ptr<RetrogradeEnvironment> env;
 
 	WindowDefinition windowDefinition;
 	WindowDefinition fullscreenDefinition;

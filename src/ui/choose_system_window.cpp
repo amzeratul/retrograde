@@ -43,7 +43,7 @@ void ChooseSystemWindow::onMakeUI()
 
 	setHandle(UIEventType::ListCancel, "systemList", [=](const UIEvent& event)
 	{
-		close();
+		//close();
 	});
 }
 

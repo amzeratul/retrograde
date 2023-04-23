@@ -1,5 +1,6 @@
 #include "retrograde_game.h"
 #include "game_stage.h"
+#include "retrograde_environment.h"
 
 void initOpenGLPlugin(IPluginRegistry &registry);
 void initSDLSystemPlugin(IPluginRegistry &registry, std::optional<String> cryptKey);
@@ -76,11 +77,14 @@ std::unique_ptr<Stage> RetrogradeGame::startGame()
 {
 	const bool vsync = true;
 
+	env = std::make_unique<RetrogradeEnvironment>(*this, getAPI().core->getEnvironment().getProgramPath() / "..", getResources(), getAPI());
+	env->setProfileId("default");
+
 	const auto screenSize = getAPI().system->getScreenSize(0);
 	WindowGLVersion glVersion = { 4, 2 };
 	windowDefinition = WindowDefinition(WindowType::ResizableWindow, Vector2i(1280, 960), getName(), true, 0, glVersion);
-	fullscreenDefinition = WindowDefinition(WindowType::BorderlessWindow, screenSize, getName(), true, 0, glVersion);
-	getAPI().video->setWindow(WindowDefinition(windowDefinition));
+	fullscreenDefinition = WindowDefinition(WindowType::Fullscreen, screenSize, getName(), true, 0, glVersion);
+	getAPI().video->setWindow(WindowDefinition(env->getSettings().isFullscreen() ? fullscreenDefinition : windowDefinition));
 	getAPI().video->getWindow().setTitleColour(Colour4f(), Colour4f(1, 1, 1, 1));
 	getAPI().video->setVsync(vsync);
 	getAPI().audio->startPlayback();
@@ -88,7 +92,7 @@ std::unique_ptr<Stage> RetrogradeGame::startGame()
 
 	i18n = std::make_unique<I18N>(getResources());
 
-	return std::make_unique<GameStage>();
+	return std::make_unique<GameStage>(*env);
 }
 
 const Vector<String>& RetrogradeGame::getArgs() const
@@ -126,7 +130,13 @@ void RetrogradeGame::toggleFullscreen()
 {
 	auto& window = getAPI().video->getWindow();
 	const bool isCurrentlyFullscreen = window.getDefinition().getWindowType() != WindowType::ResizableWindow;
-	window.update(WindowDefinition(isCurrentlyFullscreen ? windowDefinition : fullscreenDefinition));
+
+	const bool goFullscreen = !isCurrentlyFullscreen;
+	window.update(WindowDefinition(goFullscreen ? fullscreenDefinition : windowDefinition));
+	env->getSettings().setFullscreen(goFullscreen);
+	env->getSettings().save();
+
+	Logger::logDev("Setting to " + String(goFullscreen ? "fullscreen" : "windowed"));
 }
 
 String RetrogradeGame::getDevConAddress() const
