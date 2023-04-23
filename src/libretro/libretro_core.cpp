@@ -1382,7 +1382,7 @@ int16_t LibretroCore::onInputState(uint32_t port, uint32_t device, uint32_t inde
 		Logger::logError("LibretroCore::onInputState - RETRO_DEVICE_KEYBOARD not implemented", true);
 		return 0;
 	} else if (maskedDevice == RETRO_DEVICE_LIGHTGUN) {
-		const bool onScreen = input.lightGunPos.x >= 0 && input.lightGunPos.x <= 1 && input.lightGunPos.y >= 0 && input.lightGunPos.y <= 1;
+		const bool onScreen = input.lightGunPos.x > 0 && input.lightGunPos.x < 1 && input.lightGunPos.y > 0 && input.lightGunPos.y < 1;
 		switch (id) {
 		case RETRO_DEVICE_ID_LIGHTGUN_SCREEN_X:
 			return onScreen ? floatToInt(lerp(-1.0f, 1.0f, input.lightGunPos.x)) : static_cast<int16_t>(-0xFFFF);

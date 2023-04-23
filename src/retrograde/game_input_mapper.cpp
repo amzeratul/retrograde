@@ -66,11 +66,10 @@ void GameInputMapper::bindCore(LibretroCore& core)
 void GameInputMapper::setScreenRect(Rect4f screen)
 {
 	if (screenRect != screen) {
-		Logger::logDev("Screen: " + toString(screen));
 		screenRect = screen;
 		retrogradeEnvironment.getHalleyAPI().input->setMouseRemapping([screen] (Vector2i pos) -> Vector2f
 		{
-			return (Vector2f(pos) - screen.getTopLeft()) / screen.getSize();
+			return (Vector2f(pos) - screen.getTopLeft()) / (screen.getSize() - Vector2f(1, 1));
 		});
 	}
 }
