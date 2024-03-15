@@ -1,6 +1,6 @@
 ---
-name: Halley/SmoothPixel
-base: sprite_base.yaml
+name: Retrograde/RadialGradient
+base: sprite_base.material
 textures:
   - image: sampler2D
 passes:
@@ -8,5 +8,5 @@ passes:
     shader:
     - language: hlsl
       vertex: sprite.vertex.hlsl
-      pixel: smooth_pixel.pixel.hlsl
+      pixel: radial_gradient.pixel.hlsl
 ...
